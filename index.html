@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HugBot</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="chat">
+    <textarea id="user-input" placeholder="说出你的感受..."></textarea>
+    <button onclick="analyzeEmotion()">发送</button>
+  </div>
+  <div id="response"></div>
+  <div id="hug-scene"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
