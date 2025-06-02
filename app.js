@@ -9,7 +9,7 @@ sendButton.onclick = async () => {
   addMessage("You", text);
   userInput.value = "Analyzing...";
 
-  const response = await fetch("https://huggingface.co/spaces/low0028/hugbot-backend", {  // ✅ 替换这里
+  const response = await fetch("https://huggingface.co/spaces/low0028/hugbot-backend/emotion", {  // ✅ 替换这里
     method: "POST",
     headers: {
       "Content-Type": "application/json"
