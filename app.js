@@ -1,35 +1,44 @@
-import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/loaders/GLTFLoader.js';
-import { renderEmotionFlower } from '../shared/emotion_flower.js';
+const sendButton = document.getElementById("send-button");
+const userInput = document.getElementById("user-input");
+const chatBox = document.getElementById("chat-box");
 
-let scene, camera, renderer, model;
+sendButton.onclick = async () => {
+  const text = userInput.value.trim();
+  if (!text) return;
 
-function initScene() {
-  scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-  camera.position.z = 3;
-  renderer = new THREE.WebGLRenderer();
-  renderer.setSize(400, 300);
-  document.getElementById('hug-scene').appendChild(renderer.domElement);
-}
+  addMessage("You", text);
+  userInput.value = "Analyzing...";
 
-function loadModel(modelName) {
-  const loader = new GLTFLoader();
-  loader.load(`models/${modelName}.glb`, (gltf) => {
-    model = gltf.scene;
-    scene.add(model);
-    animate();
+  const response = await fetch("https://huggingface.co/spaces/low0028/hugbot-backend", {  // ✅ 替换这里
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ text })
   });
-}
 
-function animate() {
-  requestAnimationFrame(animate);
-  if (model) model.rotation.y += 0.01;
-  renderer.render(scene, camera);
+  const result = await response.json();
+  const emotion = result.emotion;
+  const confidence = result.score.toFixed(2);
+
+  addMessage("HugBot", `I sense you're feeling **${emotion}** (${confidence})`);
+
+  if (["sadness", "anger", "fear"].includes(emotion.toLowerCase())) {
+    triggerHug();
+  }
+
+  userInput.value = "";
+};
+
+function addMessage(sender, message) {
+  const div = document.createElement("div");
+  div.innerHTML = `<strong>${sender}:</strong> ${message}`;
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
 }
 
 function triggerHug() {
-  alert("💖 小狐狸正在抱你 30 秒...");
-  initScene();
-  loadModel("fox"); // 默认小狐狸
-  renderEmotionFlower("joy"); // 示例调用
+  // 模拟触发 3D 拥抱动画
+  alert("🧸 Sending a virtual hug...");
+  // 你可以在这里加载 glTF 模型并播放动画
 }
