@@ -1,133 +1,102 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HugBot</title>
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    body { margin: 0; overflow: hidden; font-family: Arial, sans-serif; background: #f0f0f0; }
-    #chat-container {
-      position: absolute; top: 10%; left: 5%; width: 30%; background: white;
-      border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 16px;
-      z-index: 2;
-    }
-    #chat-box {
-      height: 300px; overflow-y: auto; border-bottom: 1px solid #ccc;
-      margin-bottom: 10px;
-    }
-    #input-area { display: flex; }
-    #user-input { flex: 1; padding: 8px; }
-    #send-button { padding: 8px 16px; }
-    #three-canvas {
-      position: fixed; right: 0; top: 0; width: 65%; height: 100%; display: block;
-      z-index: 1;
-    }
-  </style>
-</head>
-<body>
-  <!-- 聊天界面 -->
-  <div id="chat-container">
-    <div id="chat-box"></div>
-    <div id="input-area">
-      <input type="text" id="user-input" placeholder="How are you feeling?" />
-      <button id="send-button">Send</button>
-    </div>
-  </div>
-<!-- Three.js Canvas -->
-  <canvas id="three-canvas"></canvas>
+// 情绪检测配置
+const EMOTION_API_URL = "http://your-emotion-api-endpoint/analyze";
+const SADNESS_THRESHOLD = 0.7; // 伤心情绪阈值
 
-  <!-- Three.js + MediaPipe 模块化加载 -->
-  <script type="module">
-    import * as THREE from 'https://cdn.skypack.dev/three';
-    import { GLTFLoader } from 'https://cdn.skypack.dev/three/examples/jsm/loaders/GLTFLoader.js';
-    import { OrbitControls } from 'https://cdn.skypack.dev/three/examples/jsm/controls/OrbitControls.js';
-    import { Hands } from 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js';
-    import { Camera } from 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js';
+// DOM元素
+const chatBox = document.getElementById('chat-box');
+const userInput = document.getElementById('user-input');
+const sendButton = document.getElementById('send-button');
 
-    let scene, camera, renderer, fox, mixer;
-    const canvas = document.getElementById('three-canvas');
+// 初始化
+document.addEventListener('DOMContentLoaded', () => {
+  sendButton.addEventListener('click', sendMessage);
+  userInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+  });
+});
 
-    initThree();
-    loadFoxModel();
-    initHandTracking();
+// 发送消息
+async function sendMessage() {
+  const message = userInput.value.trim();
+  if (!message) return;
+  
+  // 显示用户消息
+  displayMessage(message, 'user');
+  userInput.value = '';
+  
+  // 分析情绪
+  const emotionResult = await analyzeEmotion(message);
+  
+  // 检测伤心情绪
+  if (emotionResult.stress_level > SADNESS_THRESHOLD) {
+    triggerVirtualHug();
+  } else {
+    // 生成普通回复
+    const reply = generateReply(emotionResult);
+    displayMessage(reply, 'bot');
+  }
+}
 
-    function initThree() {
-      scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(70, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
-      camera.position.set(0, 0, 2);
+// 显示消息
+function displayMessage(message, sender) {
+  const messageDiv = document.createElement('div');
+  messageDiv.className = `message ${sender}-message`;
+  messageDiv.textContent = message;
+  
+  chatBox.appendChild(messageDiv);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
 
-      renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-      renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+// 分析情绪
+async function analyzeEmotion(text) {
+  try {
+    // 在实际应用中，这里会调用API
+    // 模拟实现
+    return new Promise(resolve => {
+      setTimeout(() => {
+        // 随机生成压力值用于测试
+        const stressLevel = Math.random();
+        console.log(`[情绪分析] "${text}" - 压力值: ${stressLevel.toFixed(2)}`);
+        
+        resolve({
+          stress_level: stressLevel,
+          primary_emotion: stressLevel > 0.7 ? 'sadness' : 'neutral'
+        });
+      }, 800);
+    });
+  } catch (error) {
+    console.error('情绪分析失败:', error);
+    return { stress_level: 0.5, primary_emotion: 'neutral' };
+  }
+}
 
-      const light = new THREE.DirectionalLight(0xffffff, 1);
-      light.position.set(1, 1, 1).normalize();
-      scene.add(light);
-    }
+// 触发虚拟拥抱
+function triggerVirtualHug() {
+  // 显示通知
+  if (window.ARSystem && window.ARSystem.startARHugSession) {
+    // 在聊天框中显示消息
+    displayMessage("I sense you're feeling down. Sending a virtual hug your way... 🧸", 'bot');
+    
+    // 启动AR拥抱会话
+    setTimeout(() => {
+      window.ARSystem.startARHugSession();
+    }, 1500);
+  } else {
+    console.error('AR系统未初始化');
+    displayMessage("I'd give you a hug if I could! 🫂", 'bot');
+  }
+}
 
-    function loadFoxModel() {
-      const loader = new GLTFLoader();
-      loader.load('fox_rig_finished_walk_cycle_progressive_stop.glb', (gltf) => {
-        fox = gltf.scene;
-        fox.scale.set(0.5, 0.5, 0.5);
-        fox.position.set(0, 0, 0);
-        scene.add(fox);
-
-        if (gltf.animations.length > 0) {
-          mixer = new THREE.AnimationMixer(fox);
-          mixer.clipAction(gltf.animations[0]).play();
-        }
-
-        animate();
-      }, undefined, (error) => {
-        console.error('GLB 加载失败：', error);
-      });
-    }
-
-    function animate() {
-      requestAnimationFrame(animate);
-      if (mixer) mixer.update(0.01);
-      renderer.render(scene, camera);
-    }
-
-    async function initHandTracking() {
-      const hands = new Hands({ locateFile: (file) => https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file} });
-      hands.setOptions({
-        maxNumHands: 1,
-        modelComplexity: 1,
-        minDetectionConfidence: 0.8,
-        minTrackingConfidence: 0.8
-      });
-
-      hands.onResults(results => {
-        if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0 && fox) {
-          const hand = results.multiHandLandmarks[0];
-          const x = (hand[8].x - 0.5) * 2; // 食指尖
-          const y = -(hand[8].y - 0.5) * 2;
-
-          // 让小狐狸逐渐靠近而非瞬移
-          fox.position.lerp(new THREE.Vector3(x, y, 0), 0.2);
-        }
-      });
-
-      const video = document.createElement('video');
-      video.style.display = 'none';
-      document.body.appendChild(video);
-
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      video.srcObject = stream;
-      await video.play();
-
-      const cameraUtils = new Camera(video, {
-        onFrame: async () => await hands.send({ image: video }),
-        width: 640,
-        height: 480
-      });
-      cameraUtils.start();
-    }
-  </script>
-
-  <!-- app.js 情绪识别逻辑 -->
-  <script src="app.js"></script>
-</body>
-</html>
+// 生成回复
+function generateReply(emotionResult) {
+  const replies = [
+    "Thanks for sharing!",
+    "I'm here for you.",
+    "Tell me more about that.",
+    "That sounds interesting!",
+    "How did that make you feel?",
+    "I appreciate you opening up."
+  ];
+  
+  return replies[Math.floor(Math.random() * replies.length)];
+}
