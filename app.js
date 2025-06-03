@@ -1,45 +1,41 @@
-const chatBox = document.getElementById('chat-box');
-const userInput = document.getElementById('user-input');
-const sendButton = document.getElementById('send-button');
+const chatBox = document.getElementById("chat-box");
+const userInput = document.getElementById("user-input");
+const sendButton = document.getElementById("send-button");
 
-const EMOTION_API_URL = 'https://low0028-hugbot-backend.hf.space/emotion'; // ← 修改为你的真实后端 API 地址
+sendButton.addEventListener("click", async () => {
+  const message = userInput.value.trim();
+  if (!message) return;
 
-sendButton.addEventListener('click', async () => {
-  const text = userInput.value.trim();
-  if (!text) return;
-
-  appendMessage(`You: ${text}`);
-  appendMessage(`You: Analyzing...`);
-  userInput.value = '';
+  appendMessage("You", message);
+  userInput.value = "";
 
   try {
-    const response = await fetch(EMOTION_API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: text })
+    const response = await fetch("https://your-backend-url/emotion", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: message })
     });
 
-    const result = await response.json();
-    const emotion = result.label;
-    const score = result.score;
+    const data = await response.json();
+    const emotion = data.emotion;
+    const score = data.score;
+    const triggerHug = data.trigger_hug;
 
-    appendMessage(`HugBot: I sense you're feeling **${emotion}** (${score.toFixed(2)})`);
+    appendMessage("HugBot", `I sense you're feeling **${emotion}** (${(score * 100).toFixed(1)}%)`);
 
-    if (['sadness', 'anger', 'fear', 'disgust'].includes(emotion.toLowerCase()) && score > 0.6) {
-      setTimeout(() => {
-        alert('🧸 Sending a virtual hug...');
-        // 此处已由 index.html 中的 MediaPipe + 3D 动画处理触发视觉部分
-      }, 300);
+    if (triggerHug) {
+      appendMessage("HugBot", "🤗 Sending a virtual hug...");
     }
-  } catch (error) {
-    appendMessage(`HugBot: Sorry, something went wrong.`);
-    console.error(error);
+
+  } catch (err) {
+    console.error(err);
+    appendMessage("HugBot", "Sorry, something went wrong.");
   }
 });
 
-function appendMessage(text) {
-  const message = document.createElement('div');
-  message.textContent = text;
-  chatBox.appendChild(message);
+function appendMessage(sender, message) {
+  const div = document.createElement("div");
+  div.innerHTML = `<strong>${sender}:</strong> ${message}`;
+  chatBox.appendChild(div);
   chatBox.scrollTop = chatBox.scrollHeight;
 }
