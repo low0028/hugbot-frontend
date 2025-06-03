@@ -37,12 +37,13 @@ body {
 }
 
 #three-canvas {
-  position: fixed;
-  right: 0;
+  position: absolute;
   top: 0;
-  width: 65%;
-  height: 100%;
-  z-index: 1;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none; /* 不影响用户操作界面 */
+  z-index: 10;
 }
 
 #camera-feed {
