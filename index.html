@@ -22,7 +22,7 @@
     
     /* 聊天容器 */
     #chat-container {
-      width: 100%;
+      width: 35%;
       height: 100%;
       background: rgba(255, 255, 255, 0.85);
       backdrop-filter: blur(10px);
@@ -215,6 +215,39 @@
     .camera-status.active {
       display: block;
     }
+    
+    /* 调试面板 */
+    .debug-panel {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 10px;
+      z-index: 1000;
+      border-radius: 8px;
+      max-height: 200px;
+      overflow-y: auto;
+      width: 300px;
+    }
+    
+    .debug-btn {
+      background: #4ECDC4;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      margin: 5px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    #debug-output {
+      margin-top: 10px;
+      font-family: monospace;
+      font-size: 12px;
+      max-height: 120px;
+      overflow-y: auto;
+    }
   </style>
 </head>
 <body>
@@ -246,6 +279,15 @@
     <span class="notification-icon">🧸</span>
     <span>Sending a virtual hug...</span>
   </div>
+  
+  <!-- 调试面板 -->
+  <div class="debug-panel">
+    <h3>AR System Debugger</h3>
+    <button class="debug-btn" id="test-camera">Test Camera</button>
+    <button class="debug-btn" id="test-ar">Test AR Session</button>
+    <button class="debug-btn" id="test-notification">Test Notification</button>
+    <div id="debug-output"></div>
+  </div>
 
   <!-- Three.js + MediaPipe 模块化加载 -->
   <script type="module">
@@ -264,9 +306,22 @@
     const hugTimer = document.getElementById('hug-timer');
     const endHugBtn = document.getElementById('end-hug');
     const cameraStatus = document.getElementById('camera-status');
+    const debugOutput = document.getElementById('debug-output');
+
+    // 调试日志函数
+    function logDebug(message) {
+      if (!debugOutput) return;
+      const entry = document.createElement('div');
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      debugOutput.appendChild(entry);
+      debugOutput.scrollTop = debugOutput.scrollHeight;
+      console.log(message);
+    }
 
     // 初始化Three.js场景
     function initThreeScene() {
+      logDebug("Initializing Three.js scene");
+      
       scene = new THREE.Scene();
       scene.background = new THREE.Color(0x222222);
       
@@ -293,11 +348,14 @@
       // 添加网格地板作为参考
       const gridHelper = new THREE.GridHelper(10, 10, 0x888888, 0x444444);
       scene.add(gridHelper);
+      
+      logDebug("Three.js scene initialized");
     }
 
     // 加载狐狸模型
     function loadFoxModel() {
       return new Promise((resolve) => {
+        logDebug("Loading fox model...");
         const loader = new GLTFLoader();
         loader.load('fox_rig_finished_walk_cycle_progressive_stop.glb', (gltf) => {
           fox = gltf.scene;
@@ -308,16 +366,22 @@
           if (gltf.animations.length > 0) {
             mixer = new THREE.AnimationMixer(fox);
             mixer.clipAction(gltf.animations[0]).play();
+            logDebug("Fox model loaded with animations");
+          } else {
+            logDebug("Fox model loaded without animations");
           }
           
           resolve();
         }, undefined, (error) => {
           console.error('GLB 加载失败：', error);
+          logDebug(`Fox model load failed: ${error.message}`);
+          
           // 创建替代模型
           const geometry = new THREE.BoxGeometry(1, 1, 1);
           const material = new THREE.MeshBasicMaterial({ color: 0xff6b6b });
           fox = new THREE.Mesh(geometry, material);
           scene.add(fox);
+          logDebug("Created placeholder cube");
           resolve();
         });
       });
@@ -327,6 +391,7 @@
     async function initHandTracking() {
       if (handTrackingActive) return;
       
+      logDebug("Initializing hand tracking...");
       updateCameraStatus("Requesting camera...");
       
       const hands = new Hands({ 
@@ -374,6 +439,7 @@
           throw new Error('Browser does not support camera access');
         }
         
+        logDebug("Requesting camera access...");
         const stream = await navigator.mediaDevices.getUserMedia({ 
           video: { 
             facingMode: 'user',
@@ -385,6 +451,7 @@
         video.srcObject = stream;
         await video.play();
         
+        logDebug("Camera access granted, starting hand tracking");
         updateCameraStatus("Camera active");
         
         const cameraUtils = new Camera(video, {
@@ -392,7 +459,7 @@
             try {
               await hands.send({ image: video });
             } catch (e) {
-              console.error('Hands processing error:', e);
+              logDebug(`Hands processing error: ${e.message}`);
             }
           },
           width: 640,
@@ -401,16 +468,18 @@
         
         cameraUtils.start();
         handTrackingActive = true;
+        logDebug("Hand tracking started successfully");
       } catch (error) {
         console.error('摄像头访问失败:', error);
+        logDebug(`Camera access failed: ${error.message}`);
         updateCameraStatus(`Camera error: ${error.message}`);
-        appendMessage("HugBot", "Failed to access camera. Please check permissions.");
         
         // 创建调试立方体
         const geometry = new THREE.BoxGeometry(1, 1, 1);
         const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
         const cube = new THREE.Mesh(geometry, material);
         scene.add(cube);
+        logDebug("Added debug cube to scene");
       }
     }
     
@@ -441,9 +510,12 @@
 
     // 启动AR拥抱会话
     function startARHugSession() {
-      if (hugSessionActive) return;
+      if (hugSessionActive) {
+        logDebug("AR session already active");
+        return;
+      }
       
-      console.log("Starting AR hug session");
+      logDebug("Starting AR hug session");
       
       // 显示AR容器
       arContainer.style.display = 'block';
@@ -471,6 +543,7 @@
     
     // 结束AR拥抱会话
     function endARHugSession() {
+      logDebug("Ending AR hug session");
       hugSessionActive = false;
       arContainer.style.display = 'none';
       
@@ -487,8 +560,12 @@
     
     // 显示通知
     function showNotification() {
-      if (!notification) return;
+      if (!notification) {
+        logDebug("Notification element not found");
+        return;
+      }
       
+      logDebug("Showing notification");
       notification.classList.add('show');
       
       // 3秒后自动隐藏
@@ -501,6 +578,7 @@
     function startHugTimer(seconds) {
       if (!hugTimer) return;
       
+      logDebug(`Starting hug timer: ${seconds} seconds`);
       let remaining = seconds;
       hugTimer.textContent = `Hug Time: ${remaining}s`;
       
@@ -518,7 +596,8 @@
     // 将AR功能暴露给全局
     window.ARSystem = {
       startARHugSession,
-      endARHugSession
+      endARHugSession,
+      initHandTracking
     };
 
     // 初始化Three.js场景但不激活
@@ -530,26 +609,22 @@
       endHugBtn.addEventListener('click', endARHugSession);
     }
     
-    // 摄像头测试按钮
-    const testCameraBtn = document.createElement('button');
-    testCameraBtn.textContent = 'Test Camera';
-    testCameraBtn.style.position = 'fixed';
-    testCameraBtn.style.bottom = '20px';
-    testCameraBtn.style.right = '20px';
-    testCameraBtn.style.zIndex = '1000';
-    testCameraBtn.style.padding = '10px 15px';
-    testCameraBtn.style.background = '#4ECDC4';
-    testCameraBtn.style.color = 'white';
-    testCameraBtn.style.border = 'none';
-    testCameraBtn.style.borderRadius = '5px';
-    testCameraBtn.style.cursor = 'pointer';
-    
-    testCameraBtn.addEventListener('click', () => {
+    // 添加调试按钮事件监听器
+    document.getElementById('test-camera').addEventListener('click', () => {
+      logDebug("Test Camera button clicked");
       arContainer.style.display = 'block';
       initHandTracking();
     });
     
-    document.body.appendChild(testCameraBtn);
+    document.getElementById('test-ar').addEventListener('click', () => {
+      logDebug("Test AR Session button clicked");
+      startARHugSession();
+    });
+    
+    document.getElementById('test-notification').addEventListener('click', () => {
+      logDebug("Test Notification button clicked");
+      showNotification("Test notification works!");
+    });
     
     // 调试函数
     window.debugAR = () => {
@@ -557,7 +632,7 @@
     };
   </script>
 
-  <!-- app.js 情绪识别逻辑 -->
+  <!-- 情绪识别逻辑 -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const sendBtn = document.getElementById("send-button");
@@ -567,7 +642,10 @@
 
       // 显示通知的函数
       function showNotification(message) {
-        if (!notification) return;
+        if (!notification) {
+          console.error("Notification element not found");
+          return;
+        }
         
         notification.innerHTML = `<span class="notification-icon">🧸</span> ${message}`;
         notification.classList.add("show");
@@ -579,6 +657,7 @@
 
       // 触发虚拟拥抱
       function triggerVirtualHug() {
+        console.log("Triggering virtual hug");
         showNotification("Sending a virtual hug...");
         
         // 在聊天框中显示消息
@@ -586,16 +665,17 @@
         
         // 延迟启动AR场景，让用户看到通知
         setTimeout(() => {
-          if (window.ARSystem && window.ARSystem.startARHugSession) {
-            console.log("Calling startARHugSession");
+          if (window.ARSystem && typeof window.ARSystem.startARHugSession === 'function') {
+            console.log("Calling ARSystem.startARHugSession");
             window.ARSystem.startARHugSession();
           } else {
-            console.error("ARSystem not found");
+            console.error("ARSystem not found or startARHugSession is not a function");
             appendMessage("HugBot", "I'd give you a hug if I could! 🫂");
           }
         }, 1500);
       }
 
+      // 发送消息
       sendBtn.addEventListener("click", async () => {
         const text = userInput.value.trim();
         if (!text) return;
@@ -604,6 +684,7 @@
         userInput.value = "";
 
         try {
+          console.log("Sending emotion analysis request for text:", text);
           // --- Step 1: 情绪识别 ---
           const emotionRes = await fetch("https://low0028-hugbot-backend.hf.space/emotion", {
             method: "POST",
@@ -611,7 +692,12 @@
             body: JSON.stringify({ text })
           });
           
+          if (!emotionRes.ok) {
+            throw new Error(`Emotion API responded with status ${emotionRes.status}`);
+          }
+          
           const emotionData = await emotionRes.json();
+          console.log("Emotion API response:", emotionData);
 
           if (emotionData.emotion) {
             appendMessage("HugBot", `I sense you're feeling **${emotionData.emotion}** (${emotionData.score})`);
@@ -621,27 +707,42 @@
           }
 
           // --- Step 2: 聊天回复 ---
+          console.log("Sending chat request for text:", text);
           const chatRes = await fetch("https://low0028-hugbot-backend.hf.space/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ text })
           });
           
+          if (!chatRes.ok) {
+            throw new Error(`Chat API responded with status ${chatRes.status}`);
+          }
+          
           const chatData = await chatRes.json();
+          console.log("Chat API response:", chatData);
           appendMessage("HugBot", chatData.response || "I'm here for you ❤️");
 
           // --- Step 3: 判断是否触发拥抱动画 ---
           if (emotionData.trigger_hug) {
+            console.log("Emotion data indicates a hug should be triggered");
             triggerVirtualHug();
+          } else {
+            console.log("No hug triggered based on emotion data");
           }
         } catch (error) {
           console.error("Error:", error);
-          appendMessage("HugBot", "Oops! Something went wrong.");
+          appendMessage("HugBot", "Oops! Something went wrong. Please try again later.");
+          // 记录更详细的错误信息
+          appendMessage("HugBot", `Error details: ${error.message}`);
         }
       });
 
+      // 添加消息到聊天框
       function appendMessage(sender, message) {
-        if (!chatBox) return;
+        if (!chatBox) {
+          console.error("Chat box element not found");
+          return;
+        }
         
         const div = document.createElement('div');
         div.className = `message ${sender === "You" ? 'user-message' : 'bot-message'}`;
