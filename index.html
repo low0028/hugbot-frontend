@@ -1,65 +1,101 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>手掌拥抱手势识别</title>
+    <title>星光许愿池 - 情感安慰空间</title>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            color: #fff;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: #e6e6ff;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             padding: 20px;
+            font-family: 'ZCOOL XiaoWei', serif;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* 星空背景 */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: #fff;
+            border-radius: 50%;
+            animation: twinkle var(--duration, 3s) infinite ease-in-out;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
         }
         
         .header {
-            background: rgba(0, 0, 0, 0.4);
-            padding: 20px;
+            background: rgba(25, 25, 50, 0.6);
+            padding: 25px 40px;
             text-align: center;
             backdrop-filter: blur(10px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
-            margin-bottom: 20px;
+            border-radius: 20px;
+            margin-bottom: 30px;
             max-width: 900px;
             width: 100%;
+            border: 1px solid rgba(101, 178, 230, 0.3);
+            box-shadow: 0 0 30px rgba(101, 178, 230, 0.2);
+            position: relative;
+            z-index: 10;
         }
         
         h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            color: #4ECDC4;
-            text-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+            font-size: 3.2rem;
+            margin-bottom: 15px;
+            color: #a8d8ff;
+            text-shadow: 0 0 15px rgba(168, 216, 255, 0.7);
+            font-family: 'Ma Shan Zheng', cursive;
+            letter-spacing: 3px;
         }
         
         .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.8;
-            line-height: 1.6;
+            font-size: 1.4rem;
+            line-height: 1.7;
+            max-width: 700px;
+            margin: 0 auto;
+            color: #c5d5ff;
         }
         
         .container {
             position: relative;
             max-width: 900px;
             width: 100%;
-            height: 70vh;
+            height: 65vh;
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            background: rgba(0, 0, 0, 0.2);
-            margin-bottom: 20px;
+            box-shadow: 0 0 40px rgba(101, 178, 230, 0.3);
+            background: rgba(15, 25, 45, 0.3);
+            margin-bottom: 30px;
+            border: 1px solid rgba(101, 178, 230, 0.2);
+            z-index: 10;
         }
         
         .camera-header {
@@ -67,12 +103,15 @@
             top: 0;
             left: 0;
             right: 0;
-            background: rgba(78, 205, 196, 0.8);
-            padding: 15px;
+            background: linear-gradient(to right, rgba(25, 55, 109, 0.9), rgba(56, 103, 214, 0.7));
+            padding: 18px;
             text-align: center;
             font-weight: 600;
-            font-size: 1.2rem;
-            z-index: 10;
+            font-size: 1.3rem;
+            z-index: 15;
+            color: #e6f7ff;
+            letter-spacing: 1px;
+            font-family: 'Ma Shan Zheng', cursive;
         }
         
         #camera-feed {
@@ -82,8 +121,9 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transform: scaleX(-1); /* 镜像翻转 */
-            z-index: 1;
+            transform: scaleX(-1);
+            z-index: 5;
+            opacity: 0.4;
         }
         
         #overlay-canvas {
@@ -92,7 +132,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 2;
+            z-index: 10;
         }
         
         .instructions {
@@ -100,95 +140,110 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(30, 30, 50, 0.8);
-            padding: 15px;
+            background: rgba(15, 30, 60, 0.85);
+            padding: 18px;
             text-align: center;
-            font-size: 1.1rem;
-            border-top: 2px solid rgba(78, 205, 196, 0.5);
-            z-index: 10;
-        }
-        
-        .status-panel {
-            position: absolute;
-            top: 60px;
-            right: 20px;
-            background: rgba(30, 30, 50, 0.8);
-            padding: 15px;
-            border-radius: 10px;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            min-width: 200px;
-        }
-        
-        .status-card {
-            background: rgba(20, 20, 40, 0.9);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-        }
-        
-        .status-card h3 {
-            color: #FFE66D;
-            margin-bottom: 10px;
-            font-size: 1rem;
-        }
-        
-        .status-value {
             font-size: 1.2rem;
-            font-weight: 700;
-            color: #FFE66D;
+            z-index: 15;
+            color: #b8d4ff;
+            font-weight: 500;
+            border-top: 1px solid rgba(101, 178, 230, 0.3);
+        }
+        
+        .wish-panel {
+            position: absolute;
+            top: 70px;
+            left: 25px;
+            background: rgba(20, 35, 70, 0.85);
+            padding: 20px;
+            border-radius: 15px;
+            z-index: 15;
+            min-width: 280px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(101, 178, 230, 0.3);
+            max-width: 300px;
+        }
+        
+        .wish-card {
+            background: rgba(30, 50, 90, 0.6);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 3px solid #65b2e6;
+            transition: all 0.5s ease;
+        }
+        
+        .wish-card:last-child {
+            margin-bottom: 0;
+        }
+        
+        .wish-card h3 {
+            color: #a8d8ff;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3rem;
+        }
+        
+        .wish-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #d5e6ff;
+            font-style: italic;
         }
         
         .controls {
             display: flex;
-            gap: 15px;
-            margin-top: 20px;
+            gap: 20px;
+            margin-top: 25px;
             flex-wrap: wrap;
             justify-content: center;
+            z-index: 10;
         }
         
         .control-btn {
-            background: linear-gradient(135deg, #4ECDC4, #45b7af);
+            background: linear-gradient(135deg, #4a7bc8, #65b2e6);
             color: white;
             border: none;
-            padding: 12px 25px;
-            border-radius: 30px;
-            font-size: 1rem;
+            padding: 16px 35px;
+            border-radius: 50px;
+            font-size: 1.2rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(78, 205, 196, 0.4);
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(101, 178, 230, 0.4);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
+            min-width: 220px;
+            justify-content: center;
+            font-family: 'Ma Shan Zheng', cursive;
+            letter-spacing: 1px;
         }
         
         .control-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(78, 205, 196, 0.6);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(101, 178, 230, 0.6);
         }
         
         .control-btn:active {
-            transform: translateY(1px);
+            transform: translateY(2px);
         }
         
-        .hug-animation {
+        .star-animation {
             position: absolute;
-            font-size: 60px;
             z-index: 500;
             opacity: 0;
-            transform: scale(0.5);
-            animation: hugFloat 4s ease-out forwards;
             pointer-events: none;
+            animation: starFloat 3s ease-out forwards;
         }
         
-        @keyframes hugFloat {
-            0% { opacity: 0; transform: translateY(0) scale(0.5); }
-            20% { opacity: 1; transform: translateY(-20px) scale(1); }
-            80% { opacity: 1; transform: translateY(-100px) scale(1); }
-            100% { opacity: 0; transform: translateY(-150px) scale(0.8); }
+        @keyframes starFloat {
+            0% { opacity: 0; transform: translate(0, 0) scale(0.3); }
+            20% { opacity: 1; transform: translate(0, -20px) scale(1); }
+            80% { opacity: 0.8; }
+            100% { opacity: 0; transform: translate(var(--tx, 0), var(--ty, -150px)) scale(0.5); }
         }
         
         .loading-overlay {
@@ -197,7 +252,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(10, 15, 30, 0.8);
+            background: rgba(10, 20, 40, 0.9);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -207,13 +262,13 @@
         }
         
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(78, 205, 196, 0.3);
+            width: 60px;
+            height: 60px;
+            border: 6px solid rgba(101, 178, 230, 0.3);
             border-radius: 50%;
-            border-top-color: #4ECDC4;
-            animation: spin 1s ease-in-out infinite;
-            margin-bottom: 20px;
+            border-top-color: #65b2e6;
+            animation: spin 1.5s ease-in-out infinite;
+            margin-bottom: 25px;
         }
         
         @keyframes spin {
@@ -221,182 +276,236 @@
         }
         
         .loading-text {
-            font-size: 1.2rem;
-            color: #FFE66D;
+            font-size: 1.4rem;
+            color: #a8d8ff;
+            text-align: center;
+            max-width: 80%;
         }
         
-        .hand-guide {
+        .encouragement {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 200px;
-            height: 200px;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50,15 C60,5 80,10 85,25 C90,40 85,55 70,65 L50,85 L30,65 C15,55 10,40 15,25 C20,10 40,5 50,15 Z" fill="none" stroke="rgba(78,205,196,0.6)" stroke-width="2"/></svg>') no-repeat center;
-            background-size: contain;
-            opacity: 0.7;
-            z-index: 15;
-            pointer-events: none;
-            display: none;
-        }
-        
-        .fps-counter {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 14px;
+            font-size: 2.5rem;
+            color: #ffd700;
+            text-align: center;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+            opacity: 0;
+            transition: opacity 1s ease;
             z-index: 20;
-        }
-        
-        .info-panel {
-            background: rgba(30, 30, 50, 0.8);
+            max-width: 80%;
+            font-family: 'Ma Shan Zheng', cursive;
             padding: 20px;
+            background: rgba(0, 0, 0, 0.4);
             border-radius: 15px;
-            max-width: 900px;
-            width: 100%;
-            margin-top: 20px;
         }
         
-        .info-panel h2 {
-            color: #FFE66D;
-            margin-bottom: 15px;
-        }
-        
-        .info-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-        
-        .info-card {
-            background: rgba(20, 20, 40, 0.6);
-            padding: 15px;
-            border-radius: 10px;
-        }
-        
-        .info-card h3 {
-            color: #4ECDC4;
-            margin-bottom: 10px;
-        }
-        
-        .stickman {
+        .moon {
             position: absolute;
-            z-index: 3;
-            transform-origin: bottom center;
-            transition: transform 0.3s ease;
+            top: 40px;
+            right: 40px;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #f9f3d5 0%, #e6d8aa 70%);
+            border-radius: 50%;
+            box-shadow: 0 0 40px #f9f3d5, 0 0 80px rgba(249, 243, 213, 0.6);
+            z-index: 8;
+        }
+        
+        .moon-crater {
+            position: absolute;
+            background: #d4c69e;
+            border-radius: 50%;
+        }
+        
+        .comet {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 20px #65b2e6;
+            z-index: 7;
+            opacity: 0;
+        }
+        
+        .heart {
+            position: absolute;
+            color: #ff6b6b;
+            z-index: 6;
+            opacity: 0;
+        }
+        
+        .capture-effect {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border: 4px solid #65b2e6;
+            border-radius: 50%;
+            box-shadow: 0 0 30px #65b2e6;
+            z-index: 25;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #8aa2d8;
+            font-size: 1rem;
+            z-index: 10;
+            max-width: 900px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                height: 60vh;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .control-btn {
+                padding: 14px 25px;
+                font-size: 1.1rem;
+                min-width: 180px;
+            }
+            
+            .wish-panel {
+                position: relative;
+                top: auto;
+                left: auto;
+                margin: 20px auto;
+                max-width: 90%;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- 星空背景 -->
+    <div class="stars" id="stars"></div>
+    
+    <!-- 月亮 -->
+    <div class="moon" id="moon"></div>
+    
     <div class="header">
-        <h1>手掌拥抱手势识别</h1>
-        <p class="subtitle">伸出双手，火柴人熊会移动到您手臂之间的位置并做出拥抱动作</p>
+        <h1>星光许愿池</h1>
+        <p class="subtitle">伸出双手，捕捉属于你的希望星辰。每颗星星都承载着温暖的话语，愿它们为你带来安慰与力量</p>
     </div>
     
     <div class="container">
-        <div class="camera-header">摄像头实时画面与火柴人熊效果</div>
+        <div class="camera-header">星空许愿池 - 捕捉希望的星辰</div>
         <div class="loading-overlay" id="loading-overlay">
             <div class="spinner"></div>
-            <div class="loading-text">正在加载手部识别模型，请稍候...</div>
+            <div class="loading-text">正在准备星空许愿池，请稍候...</div>
         </div>
-        <div class="hand-guide" id="hand-guide"></div>
         <video id="camera-feed" autoplay playsinline></video>
         <canvas id="overlay-canvas"></canvas>
         <div class="instructions">
-            请确保摄像头已启用，并将双手完全展示在摄像头视野中
+            请张开双手，在夜空中捕捉闪烁的星辰...
         </div>
         
-        <div class="status-panel">
-            <div class="status-card">
-                <h3>熊状态</h3>
-                <div id="bear-status" class="status-value">等待手势</div>
+        <!-- 鼓励语面板 -->
+        <div class="wish-panel">
+            <div class="wish-card">
+                <h3>🌟 温暖寄语</h3>
+                <p class="wish-text">每颗星星都见证着你的坚强，黑夜终将过去</p>
             </div>
-            <div class="status-card">
-                <h3>检测置信度</h3>
-                <div id="confidence" class="status-value">0%</div>
-            </div>
-            <div class="status-card">
-                <h3>追踪状态</h3>
-                <div id="tracking-status" class="status-value">未开始</div>
+            <div class="wish-card">
+                <h3>💫 心灵小语</h3>
+                <p class="wish-text">你并不孤单，整个星空都在为你闪耀</p>
             </div>
         </div>
         
-        <div class="fps-counter" id="fps-counter">FPS: 0</div>
+        <!-- 鼓励语显示 -->
+        <div class="encouragement" id="encouragement"></div>
     </div>
     
     <div class="controls">
         <button class="control-btn" id="start-btn">
-            <span>▶️</span> 启动摄像头
+            <span>✨</span> 开启星空之旅
+        </button>
+        <button class="control-btn" id="wish-btn">
+            <span>🌠</span> 许下心愿
         </button>
         <button class="control-btn" id="reset-btn">
-            <span>🔄</span> 重置位置
-        </button>
-        <button class="control-btn" id="guide-btn">
-            <span>🖐️</span> 显示手势引导
+            <span>🔄</span> 重置星空
         </button>
     </div>
-
-    <div class="info-panel">
-        <h2>使用说明</h2>
-        <div class="info-content">
-            <div class="info-card">
-                <h3>操作指南</h3>
-                <p>1. 点击"启动摄像头"按钮开始</p>
-                <p>2. 将双手完全展示在摄像头前</p>
-                <p>3. 火柴人熊会移动到您手臂之间</p>
-                <p>4. 熊的手臂会做出拥抱动作</p>
-            </div>
-            <div class="info-card">
-                <h3>手势要求</h3>
-                <p>- 双手张开效果最佳</p>
-                <p>- 确保双手在画面中央</p>
-                <p>- 保持双手在画面中可见</p>
-                <p>- 良好光照条件效果更好</p>
-            </div>
-            <div class="info-card">
-                <h3>技术说明</h3>
-                <p>使用Mediapipe手部识别技术</p>
-                <p>基于浏览器的实时处理</p>
-                <p>所有处理在本地完成</p>
-                <p>无需上传任何数据</p>
-            </div>
-        </div>
-    </div>
+    
+    <footer>
+        <p>星光许愿池 © 2023 | 愿每一颗星星都为你带来温暖与希望</p>
+    </footer>
 
     <script>
         // 全局变量
         let handTrackingActive = false;
-        let guideVisible = true;
         let lastFrameTime = 0;
         let frameCount = 0;
         let fps = 0;
-        let stickmanBear = {
-            x: 0,
-            y: 0,
-            armAngle: 0
-        };
-        let defaultPosition = { x: 0, y: 0 };
+        let stars = [];
+        let capturedStars = 0;
+        const encouragements = [
+            "你比想象中更坚强",
+            "黑暗不会永远停留",
+            "你的存在本身就是一道光",
+            "每一步都是成长",
+            "让过去过去，让未来到来",
+            "你值得所有的美好",
+            "给自己一点时间，慢慢来",
+            "伤口终将变成智慧",
+            "风雨过后，必有彩虹",
+            "今天的不易是明天的力量"
+        ];
         
-        const bearStatus = document.getElementById('bear-status');
-        const confidence = document.getElementById('confidence');
-        const trackingStatus = document.getElementById('tracking-status');
+        // DOM元素
+        const encouragement = document.getElementById('encouragement');
         const loadingOverlay = document.getElementById('loading-overlay');
-        const handGuide = document.getElementById('hand-guide');
         const fpsCounter = document.getElementById('fps-counter');
         const videoElement = document.getElementById('camera-feed');
         const canvasElement = document.getElementById('overlay-canvas');
         const canvasCtx = canvasElement.getContext('2d');
+        const starsContainer = document.getElementById('stars');
+        const moon = document.getElementById('moon');
+        
+        // 创建星空背景
+        function createStars() {
+            starsContainer.innerHTML = '';
+            for (let i = 0; i < 150; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.width = `${Math.random() * 3 + 1}px`;
+                star.style.height = star.style.width;
+                star.style.animationDuration = `${Math.random() * 5 + 2}s`;
+                starsContainer.appendChild(star);
+            }
+        }
+        
+        // 创建月亮陨石坑
+        function createMoonCraters() {
+            for (let i = 0; i < 8; i++) {
+                const crater = document.createElement('div');
+                crater.className = 'moon-crater';
+                crater.style.width = `${Math.random() * 20 + 5}px`;
+                crater.style.height = crater.style.width;
+                crater.style.top = `${Math.random() * 80 + 10}%`;
+                crater.style.left = `${Math.random() * 80 + 10}%`;
+                moon.appendChild(crater);
+            }
+        }
         
         // 初始化手部追踪
         async function initHandTracking() {
             if (handTrackingActive) return;
             
-            bearStatus.textContent = "正在启动摄像头";
-            trackingStatus.textContent = "初始化中";
             loadingOverlay.style.display = 'flex';
             
             // 创建Hands对象
@@ -418,6 +527,8 @@
             hands.onResults((results) => {
                 if (loadingOverlay.style.display !== 'none') {
                     loadingOverlay.style.display = 'none';
+                    createStars();
+                    createMoonCraters();
                 }
                 
                 // 更新FPS计数
@@ -426,78 +537,29 @@
                 // 清除画布
                 canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
                 
-                if (results.multiHandLandmarks && results.multiHandLandmarks.length >= 2) {
-                    const hand1 = results.multiHandLandmarks[0];
-                    const hand2 = results.multiHandLandmarks[1];
-                    const palm1 = hand1[0]; // 手掌根部
-                    const palm2 = hand2[0]; // 手掌根部
-                    
-                    // 显示手势引导
-                    handGuide.style.display = 'none';
-                    
-                    // 更新状态
-                    trackingStatus.textContent = "追踪中";
-                    
-                    // 计算双手中心位置
-                    const midX = (palm1.x + palm2.x) / 2 * canvasElement.width;
-                    const midY = (palm1.y + palm2.y) / 2 * canvasElement.height;
-                    
-                    // 更新火柴人熊位置
-                    stickmanBear.x = midX;
-                    stickmanBear.y = midY;
-                    
-                    // 计算手臂角度（模拟拥抱动作）
-                    const distance = Math.sqrt(Math.pow(palm2.x - palm1.x, 2) + Math.pow(palm2.y - palm1.y, 2));
-                    stickmanBear.armAngle = Math.min(Math.PI/3, distance * 2);
-                    
-                    // 更新置信度
-                    const conf1 = Math.round(results.multiHandedness[0].score * 100);
-                    const conf2 = Math.round(results.multiHandedness[1].score * 100);
-                    const avgConf = Math.round((conf1 + conf2) / 2);
-                    confidence.textContent = `${avgConf}%`;
-                    
-                    // 绘制火柴人熊
-                    drawStickmanBear(stickmanBear);
-                    
-                    // 更新状态
-                    bearStatus.textContent = "拥抱中";
-                } else if (results.multiHandLandmarks && results.multiHandLandmarks.length === 1) {
-                    const hand = results.multiHandLandmarks[0];
-                    const palm = hand[0];
-                    
-                    // 更新火柴人熊位置
-                    stickmanBear.x = palm.x * canvasElement.width;
-                    stickmanBear.y = palm.y * canvasElement.height;
-                    
-                    // 绘制火柴人熊
-                    drawStickmanBear(stickmanBear);
-                    
-                    // 更新状态
-                    bearStatus.textContent = "检测到单手";
-                    confidence.textContent = `${Math.round(results.multiHandedness[0].score * 100)}%`;
-                    trackingStatus.textContent = "追踪中";
-                } else {
-                    // 没有检测到手部
-                    bearStatus.textContent = "等待手势";
-                    confidence.textContent = "0%";
-                    trackingStatus.textContent = "未检测到手部";
-                    
-                    // 显示手势引导
-                    if (guideVisible) {
-                        handGuide.style.display = 'block';
+                // 绘制星空
+                drawStars();
+                
+                if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                    // 检测到手部
+                    for (const landmarks of results.multiHandLandmarks) {
+                        const indexTip = landmarks[8]; // 食指指尖
+                        const x = indexTip.x * canvasElement.width;
+                        const y = indexTip.y * canvasElement.height;
+                        
+                        // 绘制手部位置光晕
+                        drawHandHalo(x, y);
+                        
+                        // 检测是否捕捉到星星
+                        checkStarCapture(x, y);
                     }
-                    
-                    // 绘制默认位置的火柴人熊
-                    drawStickmanBear(stickmanBear);
                 }
+                
+                // 更新星星
+                updateStars();
             });
             
             try {
-                // 检查摄像头权限
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    throw new Error('浏览器不支持摄像头访问');
-                }
-                
                 // 获取摄像头访问权限
                 const stream = await navigator.mediaDevices.getUserMedia({ 
                     video: { 
@@ -514,14 +576,6 @@
                 canvasElement.width = videoElement.videoWidth;
                 canvasElement.height = videoElement.videoHeight;
                 
-                // 设置默认位置为画面中心
-                stickmanBear.x = canvasElement.width / 2;
-                stickmanBear.y = canvasElement.height / 2;
-                defaultPosition = { ...stickmanBear };
-                
-                bearStatus.textContent = "检测手势中";
-                trackingStatus.textContent = "已就绪";
-                
                 // 启动摄像头处理
                 const camera = new window.Camera(videoElement, {
                     onFrame: async () => {
@@ -529,7 +583,6 @@
                             await hands.send({ image: videoElement });
                         } catch (e) {
                             console.error('手部处理错误:', e);
-                            trackingStatus.textContent = "处理错误";
                         }
                     },
                     width: videoElement.videoWidth,
@@ -541,8 +594,6 @@
                 
             } catch (error) {
                 console.error("摄像头访问失败:", error);
-                bearStatus.textContent = "摄像头错误";
-                trackingStatus.textContent = "错误";
                 loadingOverlay.style.display = 'none';
                 
                 // 创建错误信息
@@ -553,71 +604,203 @@
             }
         }
         
-        // 绘制火柴人熊
-        function drawStickmanBear(bear) {
+        // 绘制手部位置光晕
+        function drawHandHalo(x, y) {
             canvasCtx.save();
-            canvasCtx.translate(bear.x, bear.y);
-            
-            // 设置样式
-            canvasCtx.strokeStyle = '#FFE66D';
-            canvasCtx.lineWidth = 4;
-            canvasCtx.lineCap = 'round';
-            
-            // 绘制头部
             canvasCtx.beginPath();
-            canvasCtx.arc(0, -40, 20, 0, Math.PI * 2);
-            canvasCtx.stroke();
+            canvasCtx.arc(x, y, 40, 0, Math.PI * 2);
             
-            // 绘制身体
-            canvasCtx.beginPath();
-            canvasCtx.moveTo(0, -20);
-            canvasCtx.lineTo(0, 40);
-            canvasCtx.stroke();
+            const gradient = canvasCtx.createRadialGradient(x, y, 0, x, y, 40);
+            gradient.addColorStop(0, 'rgba(101, 178, 230, 0.8)');
+            gradient.addColorStop(1, 'rgba(101, 178, 230, 0)');
             
-            // 绘制双腿
-            canvasCtx.beginPath();
-            canvasCtx.moveTo(0, 40);
-            canvasCtx.lineTo(-20, 80);
-            canvasCtx.moveTo(0, 40);
-            canvasCtx.lineTo(20, 80);
-            canvasCtx.stroke();
-            
-            // 绘制手臂（拥抱动作）
-            canvasCtx.beginPath();
-            canvasCtx.moveTo(0, 0);
-            
-            // 左臂
-            const leftArmX = -Math.cos(bear.armAngle) * 40;
-            const leftArmY = Math.sin(bear.armAngle) * 40;
-            canvasCtx.lineTo(leftArmX, leftArmY);
-            
-            // 右臂
-            canvasCtx.moveTo(0, 0);
-            const rightArmX = Math.cos(bear.armAngle) * 40;
-            const rightArmY = Math.sin(bear.armAngle) * 40;
-            canvasCtx.lineTo(rightArmX, rightArmY);
-            
-            canvasCtx.stroke();
-            
-            // 绘制耳朵
-            canvasCtx.beginPath();
-            canvasCtx.arc(-15, -50, 8, 0, Math.PI * 2);
-            canvasCtx.arc(15, -50, 8, 0, Math.PI * 2);
-            canvasCtx.stroke();
-            
-            // 绘制眼睛
-            canvasCtx.beginPath();
-            canvasCtx.arc(-8, -45, 3, 0, Math.PI * 2);
-            canvasCtx.arc(8, -45, 3, 0, Math.PI * 2);
-            canvasCtx.fillStyle = '#FFE66D';
+            canvasCtx.fillStyle = gradient;
             canvasCtx.fill();
-            
-            // 绘制鼻子
-            canvasCtx.beginPath();
-            canvasCtx.arc(0, -35, 5, 0, Math.PI * 2);
-            canvasCtx.fill();
-            
             canvasCtx.restore();
+        }
+        
+        // 绘制星星
+        function drawStars() {
+            // 随机添加新星星
+            if (Math.random() < 0.05 && stars.length < 30) {
+                stars.push({
+                    x: Math.random() * canvasElement.width,
+                    y: Math.random() * canvasElement.height * 0.8,
+                    size: Math.random() * 8 + 4,
+                    brightness: Math.random() * 0.5 + 0.5,
+                    speed: Math.random() * 1 + 0.5,
+                    captured: false
+                });
+            }
+            
+            // 绘制所有星星
+            stars.forEach(star => {
+                if (star.captured) return;
+                
+                canvasCtx.save();
+                canvasCtx.beginPath();
+                canvasCtx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                
+                const gradient = canvasCtx.createRadialGradient(
+                    star.x, star.y, 0, 
+                    star.x, star.y, star.size
+                );
+                gradient.addColorStop(0, `rgba(255, 255, 255, ${star.brightness})`);
+                gradient.addColorStop(1, `rgba(168, 216, 255, ${star.brightness * 0.3})`);
+                
+                canvasCtx.fillStyle = gradient;
+                canvasCtx.fill();
+                
+                // 添加星芒效果
+                for (let i = 0; i < 4; i++) {
+                    canvasCtx.save();
+                    canvasCtx.translate(star.x, star.y);
+                    canvasCtx.rotate(i * Math.PI / 4);
+                    
+                    canvasCtx.beginPath();
+                    canvasCtx.moveTo(star.size * 1.5, 0);
+                    canvasCtx.lineTo(star.size * 2.5, 0);
+                    canvasCtx.strokeStyle = `rgba(255, 255, 255, ${star.brightness * 0.7})`;
+                    canvasCtx.lineWidth = 2;
+                    canvasCtx.stroke();
+                    
+                    canvasCtx.restore();
+                }
+                
+                canvasCtx.restore();
+            });
+        }
+        
+        // 更新星星位置
+        function updateStars() {
+            stars = stars.filter(star => {
+                // 被捕抓的星星向上飞走
+                if (star.captured) {
+                    star.y -= star.speed * 3;
+                    return star.y > -50;
+                }
+                
+                // 未被捕抓的星星缓慢移动
+                star.x += (Math.random() - 0.5) * star.speed;
+                star.y += (Math.random() - 0.5) * star.speed;
+                
+                // 确保星星在屏幕内
+                star.x = Math.max(10, Math.min(canvasElement.width - 10, star.x));
+                star.y = Math.max(10, Math.min(canvasElement.height - 10, star.y));
+                
+                return true;
+            });
+        }
+        
+        // 检测是否捕捉到星星
+        function checkStarCapture(x, y) {
+            stars.forEach((star, index) => {
+                if (star.captured) return;
+                
+                const distance = Math.sqrt(Math.pow(star.x - x, 2) + Math.pow(star.y - y, 2));
+                
+                if (distance < 50) {
+                    star.captured = true;
+                    capturedStars++;
+                    
+                    // 显示鼓励语
+                    showEncouragement();
+                    
+                    // 创建捕捉效果
+                    createCaptureEffect(star.x, star.y);
+                }
+            });
+        }
+        
+        // 显示鼓励语
+        function showEncouragement() {
+            const text = encouragements[Math.floor(Math.random() * encouragements.length)];
+            encouragement.textContent = text;
+            encouragement.style.opacity = 1;
+            
+            setTimeout(() => {
+                encouragement.style.opacity = 0;
+            }, 3000);
+        }
+        
+        // 创建捕捉效果
+        function createCaptureEffect(x, y) {
+            // 捕捉光圈效果
+            const effect = document.createElement('div');
+            effect.className = 'capture-effect';
+            effect.style.left = `${x - 50}px`;
+            effect.style.top = `${y - 50}px`;
+            document.querySelector('.container').appendChild(effect);
+            
+            // 动画
+            let size = 100;
+            const grow = setInterval(() => {
+                size += 10;
+                effect.style.width = `${size}px`;
+                effect.style.height = `${size}px`;
+                effect.style.left = `${x - size/2}px`;
+                effect.style.top = `${y - size/2}px`;
+                effect.style.opacity = `${1 - size/200}`;
+                
+                if (size > 200) {
+                    clearInterval(grow);
+                    effect.remove();
+                }
+            }, 20);
+            
+            // 创建星星飞向月亮的动画
+            createStarToMoonAnimation(x, y);
+        }
+        
+        // 创建星星飞向月亮的动画
+        function createStarToMoonAnimation(startX, startY) {
+            const moonRect = moon.getBoundingClientRect();
+            const moonX = moonRect.left + moonRect.width / 2;
+            const moonY = moonRect.top + moonRect.height / 2;
+            
+            const star = document.createElement('div');
+            star.className = 'star-animation';
+            star.innerHTML = '⭐';
+            star.style.left = `${startX}px`;
+            star.style.top = `${startY}px`;
+            star.style.fontSize = `${Math.random() * 30 + 20}px`;
+            
+            // 设置动画结束位置
+            const tx = moonX - startX;
+            const ty = moonY - startY - 150;
+            star.style.setProperty('--tx', `${tx}px`);
+            star.style.setProperty('--ty', `${ty}px`);
+            
+            document.body.appendChild(star);
+            
+            setTimeout(() => {
+                star.remove();
+            }, 3000);
+        }
+        
+        // 重置星空
+        function resetStars() {
+            stars = [];
+            capturedStars = 0;
+            
+            // 添加重置动画
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const star = document.createElement('div');
+                    star.className = 'star-animation';
+                    star.innerHTML = '✨';
+                    star.style.left = `${Math.random() * 100}%`;
+                    star.style.top = `${Math.random() * 100 + 100}%`;
+                    star.style.fontSize = `${Math.random() * 30 + 20}px`;
+                    star.style.setProperty('--tx', `${(Math.random() - 0.5) * 300}px`);
+                    star.style.setProperty('--ty', `${-Math.random() * 300 - 150}px`);
+                    document.body.appendChild(star);
+                    
+                    setTimeout(() => {
+                        star.remove();
+                    }, 3000);
+                }, i * 100);
+            }
         }
         
         // 更新FPS计数
@@ -630,66 +813,54 @@
                 fps = Math.round((frameCount * 1000) / elapsed);
                 frameCount = 0;
                 lastFrameTime = now;
-                
-                fpsCounter.textContent = `FPS: ${fps}`;
             }
         }
         
-        // 重置火柴人熊位置
-        function resetBearPosition() {
-            stickmanBear.x = defaultPosition.x;
-            stickmanBear.y = defaultPosition.y;
-            stickmanBear.armAngle = 0;
-            bearStatus.textContent = "位置已重置";
-            
-            // 添加动画效果
-            const resetAnim = document.createElement('div');
-            resetAnim.className = 'hug-animation';
-            resetAnim.innerHTML = '🔄';
-            resetAnim.style.left = `${Math.random() * 80 + 10}%`;
-            document.body.appendChild(resetAnim);
+        // 许愿功能
+        function makeAWish() {
+            const wish = document.createElement('div');
+            wish.className = 'star-animation';
+            wish.innerHTML = '💫';
+            wish.style.left = `${Math.random() * 100}%`;
+            wish.style.top = `${Math.random() * 100 + 100}%`;
+            wish.style.fontSize = '40px';
+            wish.style.setProperty('--tx', `${(Math.random() - 0.5) * 200}px`);
+            wish.style.setProperty('--ty', `${-Math.random() * 200 - 200}px`);
+            document.body.appendChild(wish);
             
             setTimeout(() => {
-                document.body.removeChild(resetAnim);
+                wish.remove();
+            }, 3000);
+            
+            // 显示许愿语
+            const wishes = [
+                "愿你找到内心的平静",
+                "愿希望之光永远指引你",
+                "愿你的每一天都比昨天更好",
+                "愿爱和温暖常伴你左右",
+                "愿你勇敢面对所有挑战"
+            ];
+            
+            encouragement.textContent = wishes[Math.floor(Math.random() * wishes.length)];
+            encouragement.style.opacity = 1;
+            
+            setTimeout(() => {
+                encouragement.style.opacity = 0;
             }, 4000);
         }
         
         // 初始化
         window.addEventListener('DOMContentLoaded', () => {
             // 添加事件监听器
-            document.getElementById('start-btn').addEventListener('click', () => {
-                initHandTracking();
-                
-                // 添加动画效果
-                const startAnim = document.createElement('div');
-                startAnim.className = 'hug-animation';
-                startAnim.innerHTML = '🖐️';
-                startAnim.style.left = `${Math.random() * 80 + 10}%`;
-                document.body.appendChild(startAnim);
-                
-                setTimeout(() => {
-                    document.body.removeChild(startAnim);
-                }, 4000);
-            });
+            document.getElementById('start-btn').addEventListener('click', initHandTracking);
             
-            document.getElementById('reset-btn').addEventListener('click', () => {
-                resetBearPosition();
-            });
+            document.getElementById('reset-btn').addEventListener('click', resetStars);
             
-            document.getElementById('guide-btn').addEventListener('click', () => {
-                guideVisible = !guideVisible;
-                const btn = document.getElementById('guide-btn');
-                if (guideVisible) {
-                    btn.innerHTML = '<span>🖐️</span> 隐藏引导';
-                    handGuide.style.display = 'block';
-                } else {
-                    btn.innerHTML = '<span>🖐️</span> 显示引导';
-                    handGuide.style.display = 'none';
-                }
-            });
+            document.getElementById('wish-btn').addEventListener('click', makeAWish);
             
-            // 初始显示引导
-            handGuide.style.display = 'block';
+            // 创建初始星星
+            createStars();
+            createMoonCraters();
         });
     </script>
 </body>
