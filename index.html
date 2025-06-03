@@ -1,117 +1,102 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>虚拟宠物陪伴 - 交互式安慰体验</title>
+    <title>Starlight Sanctuary - Emotional Healing Space</title>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
         }
         
         body {
-            background: linear-gradient(135deg, #fff9f4, #fff0e8, #ffece2);
-            color: #5a3e36;
+            background: linear-gradient(135deg, #0c1027, #1a1a3e, #0d1930);
+            color: #e6f0ff;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             padding: 20px;
-            overflow-x: hidden;
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
             position: relative;
         }
         
-        /* 浮动爱心背景 */
-        .floating-hearts {
+        /* 星空背景 */
+        .stars {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 0;
+            z-index: -1;
         }
         
-        .floating-heart {
+        .star {
             position: absolute;
-            color: rgba(255, 182, 193, 0.3);
-            font-size: 24px;
-            animation: float 15s infinite linear;
+            background-color: #fff;
+            border-radius: 50%;
+            animation: twinkle var(--duration, 3s) infinite ease-in-out;
         }
         
-        @keyframes float {
-            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 0.7; }
-            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
         }
         
         .header {
-            background: rgba(255, 255, 255, 0.85);
+            background: rgba(25, 25, 50, 0.6);
             padding: 25px 40px;
             text-align: center;
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
             max-width: 900px;
             width: 100%;
+            border: 1px solid rgba(101, 178, 230, 0.3);
+            box-shadow: 0 0 30px rgba(101, 178, 230, 0.2);
             position: relative;
             z-index: 10;
-            border: 2px solid rgba(255, 223, 223, 0.5);
-            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.05);
         }
         
         h1 {
-            font-size: 2.8rem;
+            font-size: 3.2rem;
             margin-bottom: 15px;
-            color: #e67a7a;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            position: relative;
-            display: inline-block;
-        }
-        
-        h1::after {
-            content: "";
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 4px;
-            background: linear-gradient(90deg, #ffb6c1, #e67a7a);
-            border-radius: 2px;
+            color: #a8d8ff;
+            text-shadow: 0 0 15px rgba(168, 216, 255, 0.7);
+            font-family: 'Playfair Display', serif;
+            letter-spacing: 1px;
         }
         
         .subtitle {
-            font-size: 1.3rem;
-            line-height: 1.6;
+            font-size: 1.4rem;
+            line-height: 1.7;
             max-width: 700px;
             margin: 0 auto;
-            color: #7d5d5b;
+            color: #c5d5ff;
+            font-weight: 300;
         }
         
         .container {
             position: relative;
             max-width: 900px;
             width: 100%;
-            height: 70vh;
+            height: 65vh;
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
-            background: rgba(255, 255, 255, 0.5);
-            margin-bottom: 25px;
-            border: 2px solid rgba(255, 223, 223, 0.6);
+            box-shadow: 0 0 40px rgba(101, 178, 230, 0.3);
+            background: rgba(15, 25, 45, 0.3);
+            margin-bottom: 30px;
+            border: 1px solid rgba(101, 178, 230, 0.2);
             z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
         
         .camera-header {
@@ -119,14 +104,15 @@
             top: 0;
             left: 0;
             right: 0;
-            background: rgba(230, 122, 122, 0.9);
+            background: linear-gradient(to right, rgba(25, 55, 109, 0.9), rgba(56, 103, 214, 0.7));
             padding: 18px;
             text-align: center;
             font-weight: 600;
             font-size: 1.3rem;
-            z-index: 10;
-            color: white;
+            z-index: 15;
+            color: #e6f7ff;
             letter-spacing: 1px;
+            font-family: 'Playfair Display', serif;
         }
         
         #camera-feed {
@@ -136,9 +122,9 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transform: scaleX(-1);
-            z-index: 1;
-            opacity: 0.3;
+            transform: scaleX(-1); /* Mirror flip */
+            z-index: 5;
+            opacity: 0.4;
         }
         
         #overlay-canvas {
@@ -147,7 +133,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 2;
+            z-index: 10;
         }
         
         .instructions {
@@ -155,201 +141,58 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(15, 30, 60, 0.85);
             padding: 18px;
             text-align: center;
             font-size: 1.2rem;
-            z-index: 10;
-            color: #7d5d5b;
+            z-index: 15;
+            color: #b8d4ff;
             font-weight: 500;
-            border-top: 2px solid rgba(230, 122, 122, 0.3);
+            border-top: 1px solid rgba(101, 178, 230, 0.3);
         }
         
-        .pet-container {
-            position: relative;
-            width: 300px;
-            height: 350px;
-            z-index: 5;
-        }
-        
-        .pet {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-        }
-        
-        .pet-body {
-            position: absolute;
-            bottom: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-            height: 180px;
-            background: #ffd5c2;
-            border-radius: 50% 50% 40% 40%;
-            z-index: 11;
-        }
-        
-        .pet-head {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 160px;
-            height: 160px;
-            background: #ffd5c2;
-            border-radius: 50%;
-            z-index: 12;
-        }
-        
-        .pet-ear {
-            position: absolute;
-            width: 50px;
-            height: 80px;
-            background: #ffd5c2;
-            border-radius: 50%;
-            top: -20px;
-            z-index: 10;
-        }
-        
-        .pet-ear.left {
-            left: 20px;
-            transform: rotate(-30deg);
-        }
-        
-        .pet-ear.right {
-            right: 20px;
-            transform: rotate(30deg);
-        }
-        
-        .pet-eye {
-            position: absolute;
-            width: 25px;
-            height: 35px;
-            background: #5a3e36;
-            border-radius: 50%;
-            top: 65px;
-            z-index: 13;
-        }
-        
-        .pet-eye.left {
-            left: 55px;
-        }
-        
-        .pet-eye.right {
-            right: 55px;
-        }
-        
-        .pet-eye-inner {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: white;
-            border-radius: 50%;
-            top: 8px;
-            left: 5px;
-        }
-        
-        .pet-nose {
-            position: absolute;
-            width: 30px;
-            height: 20px;
-            background: #ff9e9e;
-            border-radius: 50%;
-            top: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 13;
-        }
-        
-        .pet-mouth {
-            position: absolute;
-            width: 30px;
-            height: 15px;
-            border-bottom: 3px solid #ff9e9e;
-            border-radius: 0 0 50% 50%;
-            top: 115px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 13;
-        }
-        
-        .pet-paw {
-            position: absolute;
-            width: 50px;
-            height: 40px;
-            background: #ffd5c2;
-            border-radius: 50%;
-            bottom: 40px;
-            z-index: 10;
-        }
-        
-        .pet-paw.left {
-            left: 45px;
-        }
-        
-        .pet-paw.right {
-            right: 45px;
-        }
-        
-        .pet-tail {
-            position: absolute;
-            width: 100px;
-            height: 20px;
-            background: #ffd5c2;
-            border-radius: 10px;
-            bottom: 110px;
-            right: 20px;
-            transform-origin: left center;
-            z-index: 9;
-            transform: rotate(-30deg);
-        }
-        
-        .heart {
-            position: absolute;
-            color: #ff6b6b;
-            font-size: 24px;
-            z-index: 20;
-            opacity: 0;
-            pointer-events: none;
-        }
-        
-        .status-panel {
+        .wish-panel {
             position: absolute;
             top: 70px;
-            right: 25px;
-            background: rgba(255, 255, 255, 0.9);
+            left: 25px;
+            background: rgba(20, 35, 70, 0.85);
             padding: 20px;
             border-radius: 15px;
             z-index: 15;
-            min-width: 220px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(230, 122, 122, 0.2);
+            min-width: 280px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(101, 178, 230, 0.3);
+            max-width: 300px;
         }
         
-        .status-card {
-            background: linear-gradient(to right, #fff0e8, #fff5f1);
-            padding: 18px;
+        .wish-card {
+            background: rgba(30, 50, 90, 0.6);
+            padding: 20px;
             border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            border-left: 3px solid #65b2e6;
+            transition: all 0.5s ease;
         }
         
-        .status-card h3 {
-            color: #e67a7a;
+        .wish-card:last-child {
+            margin-bottom: 0;
+        }
+        
+        .wish-card h3 {
+            color: #a8d8ff;
             margin-bottom: 12px;
-            font-size: 1.1rem;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
+            gap: 10px;
+            font-size: 1.3rem;
+            font-family: 'Playfair Display', serif;
         }
         
-        .status-value {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #e67a7a;
+        .wish-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #d5e6ff;
+            font-style: italic;
         }
         
         .controls {
@@ -362,49 +205,46 @@
         }
         
         .control-btn {
-            background: linear-gradient(135deg, #e67a7a, #d46a6a);
+            background: linear-gradient(135deg, #4a7bc8, #65b2e6);
             color: white;
             border: none;
-            padding: 15px 30px;
+            padding: 16px 35px;
             border-radius: 50px;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 6px 15px rgba(230, 122, 122, 0.4);
+            box-shadow: 0 6px 20px rgba(101, 178, 230, 0.4);
             display: flex;
             align-items: center;
-            gap: 10px;
-            min-width: 200px;
+            gap: 12px;
+            min-width: 220px;
             justify-content: center;
+            letter-spacing: 1px;
         }
         
         .control-btn:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(230, 122, 122, 0.5);
+            box-shadow: 0 10px 30px rgba(101, 178, 230, 0.6);
         }
         
         .control-btn:active {
             transform: translateY(2px);
         }
         
-        .pet-message {
+        .star-animation {
             position: absolute;
-            bottom: 120px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 1.2rem;
-            color: #e67a7a;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            z-index: 500;
             opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: 15;
-            font-weight: 500;
-            max-width: 80%;
-            text-align: center;
+            pointer-events: none;
+            animation: starFloat 3s ease-out forwards;
+        }
+        
+        @keyframes starFloat {
+            0% { opacity: 0; transform: translate(0, 0) scale(0.3); }
+            20% { opacity: 1; transform: translate(0, -20px) scale(1); }
+            80% { opacity: 0.8; }
+            100% { opacity: 0; transform: translate(var(--tx, 0), var(--ty, -150px)) scale(0.5); }
         }
         
         .loading-overlay {
@@ -413,7 +253,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(10, 20, 40, 0.9);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -425,9 +265,9 @@
         .spinner {
             width: 60px;
             height: 60px;
-            border: 6px solid rgba(230, 122, 122, 0.3);
+            border: 6px solid rgba(101, 178, 230, 0.3);
             border-radius: 50%;
-            border-top-color: #e67a7a;
+            border-top-color: #65b2e6;
             animation: spin 1.5s ease-in-out infinite;
             margin-bottom: 25px;
         }
@@ -438,99 +278,103 @@
         
         .loading-text {
             font-size: 1.4rem;
-            color: #e67a7a;
+            color: #a8d8ff;
             text-align: center;
             max-width: 80%;
         }
         
-        .pet-mood {
+        .encouragement {
             position: absolute;
-            top: 50px;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
-            font-size: 1.5rem;
-            color: #e67a7a;
-            z-index: 15;
+            transform: translate(-50%, -50%);
+            font-size: 2.5rem;
+            color: #ffd700;
+            text-align: center;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
             opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .tail-animation {
-            animation: tailWag 0.5s ease-in-out infinite alternate;
-        }
-        
-        @keyframes tailWag {
-            0% { transform: rotate(-30deg); }
-            100% { transform: rotate(-10deg); }
-        }
-        
-        .pet-happy {
-            animation: petHappy 0.5s ease-in-out;
-        }
-        
-        @keyframes petHappy {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        .heart-animation {
-            animation: heartFloat 3s ease-out forwards;
-        }
-        
-        @keyframes heartFloat {
-            0% { opacity: 0; transform: translateY(0) scale(0.5); }
-            20% { opacity: 1; transform: translateY(-20px) scale(1); }
-            80% { opacity: 0.8; transform: translateY(-80px); }
-            100% { opacity: 0; transform: translateY(-100px) scale(0.5); }
-        }
-        
-        .info-panel {
-            background: rgba(255, 255, 255, 0.85);
-            padding: 25px;
-            border-radius: 20px;
-            max-width: 900px;
-            width: 100%;
-            margin-top: 20px;
-            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.05);
-            border: 2px solid rgba(255, 223, 223, 0.5);
-        }
-        
-        .info-panel h2 {
-            color: #e67a7a;
-            margin-bottom: 20px;
-            text-align: center;
-            font-size: 2rem;
-        }
-        
-        .info-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
-        }
-        
-        .info-card {
-            background: linear-gradient(to bottom, #fff5f1, #fff9f7);
+            transition: opacity 1s ease;
+            z-index: 20;
+            max-width: 80%;
             padding: 20px;
+            background: rgba(0, 0, 0, 0.4);
             border-radius: 15px;
-            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
-            text-align: center;
-            border: 1px solid rgba(230, 122, 122, 0.1);
+            font-family: 'Playfair Display', serif;
         }
         
-        .info-card h3 {
-            color: #e67a7a;
-            margin-bottom: 15px;
-            font-size: 1.5rem;
+        .moon {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #f9f3d5 0%, #e6d8aa 70%);
+            border-radius: 50%;
+            box-shadow: 0 0 40px #f9f3d5, 0 0 80px rgba(249, 243, 213, 0.6);
+            z-index: 8;
+        }
+        
+        .moon-crater {
+            position: absolute;
+            background: #d4c69e;
+            border-radius: 50%;
+        }
+        
+        .capture-effect {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border: 4px solid #65b2e6;
+            border-radius: 50%;
+            box-shadow: 0 0 30px #65b2e6;
+            z-index: 25;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .emotion-buttons {
+            position: absolute;
+            bottom: 70px;
+            right: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 15;
+        }
+        
+        .emotion-btn {
+            background: rgba(120, 40, 80, 0.7);
+            color: #ffcce6;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
+            gap: 8px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 150, 200, 0.3);
         }
         
-        .info-card p {
-            color: #7d5d5b;
-            line-height: 1.6;
-            font-size: 1.1rem;
+        .emotion-btn.anger {
+            background: rgba(180, 40, 60, 0.7);
+            color: #ffd9d9;
+        }
+        
+        .emotion-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #8aa2d8;
+            font-size: 1rem;
+            z-index: 10;
+            max-width: 900px;
         }
         
         @media (max-width: 768px) {
@@ -552,164 +396,173 @@
                 min-width: 180px;
             }
             
-            .status-panel {
+            .wish-panel, .emotion-buttons {
                 position: relative;
                 top: auto;
+                left: auto;
                 right: auto;
                 margin: 20px auto;
                 max-width: 90%;
+            }
+            
+            .moon {
+                width: 70px;
+                height: 70px;
+                top: 20px;
+                right: 20px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- 浮动爱心背景 -->
-    <div class="floating-hearts" id="floating-hearts"></div>
+    <!-- 星空背景 -->
+    <div class="stars" id="stars"></div>
+    
+    <!-- 月亮 -->
+    <div class="moon" id="moon"></div>
     
     <div class="header">
-        <h1>虚拟宠物陪伴</h1>
-        <p class="subtitle">伸出手掌抚摸屏幕上的小可爱，它会用温暖的反应安慰你的心灵</p>
+        <h1>Starlight Sanctuary</h1>
+        <p class="subtitle">Reach out to capture stars of hope. Each carries comforting words to soothe your heart and calm your emotions.</p>
     </div>
     
     <div class="container">
-        <div class="camera-header">宠物互动区</div>
+        <div class="camera-header">Starlight Sanctuary - Capture Stars of Comfort</div>
         <div class="loading-overlay" id="loading-overlay">
             <div class="spinner"></div>
-            <div class="loading-text">正在准备虚拟宠物，请稍候...</div>
+            <div class="loading-text">Preparing your sanctuary of peace...</div>
         </div>
         <video id="camera-feed" autoplay playsinline></video>
         <canvas id="overlay-canvas"></canvas>
         <div class="instructions">
-            伸出手掌，在宠物上方轻轻移动来抚摸它
+            Open your hands to capture comforting stars in the night sky...
         </div>
         
-        <!-- 宠物容器 -->
-        <div class="pet-container">
-            <div class="pet">
-                <div class="pet-tail" id="pet-tail"></div>
-                <div class="pet-ear left"></div>
-                <div class="pet-ear right"></div>
-                <div class="pet-body"></div>
-                <div class="pet-paw left"></div>
-                <div class="pet-paw right"></div>
-                <div class="pet-head">
-                    <div class="pet-eye left">
-                        <div class="pet-eye-inner"></div>
-                    </div>
-                    <div class="pet-eye right">
-                        <div class="pet-eye-inner"></div>
-                    </div>
-                    <div class="pet-nose"></div>
-                    <div class="pet-mouth"></div>
-                </div>
+        <!-- 鼓励语面板 -->
+        <div class="wish-panel">
+            <div class="wish-card">
+                <h3>🌟 Comforting Words</h3>
+                <p class="wish-text">Your feelings are valid. Allow yourself to feel, then let them pass like clouds.</p>
+            </div>
+            <div class="wish-card">
+                <h3>💫 Healing Thoughts</h3>
+                <p class="wish-text">This pain is temporary. You've survived 100% of your bad days so far.</p>
             </div>
         </div>
         
-        <!-- 宠物消息 -->
-        <div class="pet-message" id="pet-message"></div>
-        
-        <!-- 宠物心情 -->
-        <div class="pet-mood" id="pet-mood">❤️</div>
-        
-        <!-- 状态面板 -->
-        <div class="status-panel">
-            <div class="status-card">
-                <h3>宠物心情</h3>
-                <div id="mood-status" class="status-value">平静</div>
-            </div>
-            <div class="status-card">
-                <h3>抚摸强度</h3>
-                <div id="interaction-level" class="status-value">0%</div>
-            </div>
-            <div class="status-card">
-                <h3>互动次数</h3>
-                <div id="interaction-count" class="status-value">0</div>
-            </div>
+        <!-- 情绪按钮 -->
+        <div class="emotion-buttons">
+            <button class="emotion-btn anger" id="anger-btn">
+                <span>🔥</span> Feeling Angry
+            </button>
+            <button class="emotion-btn" id="sadness-btn">
+                <span>💧</span> Feeling Sad
+            </button>
         </div>
+        
+        <!-- 鼓励语显示 -->
+        <div class="encouragement" id="encouragement"></div>
     </div>
     
     <div class="controls">
         <button class="control-btn" id="start-btn">
-            <span>🐾</span> 开始互动
+            <span>✨</span> Begin Healing Journey
+        </button>
+        <button class="control-btn" id="wish-btn">
+            <span>🌠</span> Make a Wish
         </button>
         <button class="control-btn" id="reset-btn">
-            <span>🔄</span> 重置宠物
-        </button>
-        <button class="control-btn" id="treat-btn">
-            <span>🍪</span> 给予零食
+            <span>🔄</span> Renew Sanctuary
         </button>
     </div>
-
-    <div class="info-panel">
-        <h2>互动指南</h2>
-        <div class="info-content">
-            <div class="info-card">
-                <h3>🐱 如何互动</h3>
-                <p>1. 点击"开始互动"按钮启用摄像头</p>
-                <p>2. 将手掌放在宠物上方轻轻移动</p>
-                <p>3. 宠物会根据抚摸强度做出不同反应</p>
-                <p>4. 尝试给予零食看看特殊反应</p>
-            </div>
-            <div class="info-card">
-                <h3>💖 宠物反应</h3>
-                <p>- 轻轻抚摸：摇尾巴，发出爱心</p>
-                <p>- 持续抚摸：跳跃，显示开心表情</p>
-                <p>- 给予零食：特别动画和感谢消息</p>
-                <p>- 停止互动：恢复平静状态</p>
-            </div>
-            <div class="info-card">
-                <h3>🌟 设计理念</h3>
-                <p>虚拟宠物陪伴旨在通过温暖互动提供情感安慰，帮助缓解压力和负面情绪，让您感受到被关心和陪伴的温暖。</p>
-            </div>
-        </div>
-    </div>
+    
+    <footer>
+        <p>Starlight Sanctuary © 2023 | May every star bring you peace and emotional healing</p>
+    </footer>
 
     <script>
         // 全局变量
         let handTrackingActive = false;
-        let interactionCount = 0;
-        let lastInteractionTime = 0;
-        let petMood = "平静";
-        let tailAnimationActive = false;
-        let hearts = [];
+        let lastFrameTime = 0;
+        let frameCount = 0;
+        let fps = 0;
+        let stars = [];
+        let capturedStars = 0;
+        
+        // 情感特定的鼓励语
+        const encouragements = {
+            general: [
+                "Breathe deeply. This moment will pass.",
+                "You are stronger than you feel right now.",
+                "Your feelings are temporary visitors. Let them in, then let them go.",
+                "You've survived every difficult day so far. You will survive this too.",
+                "It's okay not to be okay. Be gentle with yourself.",
+                "This pain is part of your story, not the whole book.",
+                "Your resilience is greater than your struggles.",
+                "Healing is not linear. Each step matters.",
+                "You are worthy of peace and inner calm.",
+                "The night is darkest just before dawn. Hold on."
+            ],
+            anger: [
+                "Anger is a valid emotion. Breathe through it.",
+                "Pause. Count to ten. Give yourself space to respond, not react.",
+                "Your anger is a signal that something needs attention.",
+                "Transform anger into positive action when you're ready.",
+                "This feeling will pass like a storm cloud.",
+                "You have the power to respond with calm strength.",
+                "Anger is energy - channel it constructively.",
+                "Breathe in calm, breathe out tension.",
+                "You control your response, not the trigger.",
+                "This frustration does not define you."
+            ],
+            sadness: [
+                "Tears cleanse the soul. Let them flow.",
+                "Your sadness honors what matters to you.",
+                "This heaviness will lift. Be patient with yourself.",
+                "You are not alone in your pain.",
+                "Sadness carves depth for greater joy later.",
+                "Be gentle with your tender heart today.",
+                "This pain is creating space for new growth.",
+                "You've survived sadness before. You will again.",
+                "Your feelings are valid messengers.",
+                "The depth of your sadness reflects your capacity for joy."
+            ]
+        };
         
         // DOM元素
-        const moodStatus = document.getElementById('mood-status');
-        const interactionLevel = document.getElementById('interaction-level');
-        const interactionCountElem = document.getElementById('interaction-count');
+        const encouragement = document.getElementById('encouragement');
         const loadingOverlay = document.getElementById('loading-overlay');
-        const petTail = document.getElementById('pet-tail');
-        const petMessage = document.getElementById('pet-message');
-        const petMood = document.getElementById('pet-mood');
         const videoElement = document.getElementById('camera-feed');
         const canvasElement = document.getElementById('overlay-canvas');
         const canvasCtx = canvasElement.getContext('2d');
-        const floatingHearts = document.getElementById('floating-hearts');
+        const starsContainer = document.getElementById('stars');
+        const moon = document.getElementById('moon');
         
-        // 宠物消息数组
-        const petMessages = [
-            "喵~ 好舒服",
-            "喜欢你这样摸我",
-            "再多摸一会儿嘛",
-            "呼噜呼噜~",
-            "你让我好开心",
-            "好幸福的感觉",
-            "不要停~",
-            "你是我最好的朋友"
-        ];
+        // 创建星空背景
+        function createStars() {
+            starsContainer.innerHTML = '';
+            for (let i = 0; i < 150; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.width = `${Math.random() * 3 + 1}px`;
+                star.style.height = star.style.width;
+                star.style.animationDuration = `${Math.random() * 5 + 2}s`;
+                starsContainer.appendChild(star);
+            }
+        }
         
-        // 创建浮动爱心
-        function createFloatingHearts() {
-            floatingHearts.innerHTML = '';
-            for (let i = 0; i < 30; i++) {
-                const heart = document.createElement('div');
-                heart.className = 'floating-heart';
-                heart.innerHTML = '❤️';
-                heart.style.left = `${Math.random() * 100}%`;
-                heart.style.fontSize = `${Math.random() * 20 + 15}px`;
-                heart.style.animationDuration = `${Math.random() * 10 + 10}s`;
-                heart.style.animationDelay = `${Math.random() * 5}s`;
-                floatingHearts.appendChild(heart);
+        // 创建月亮陨石坑
+        function createMoonCraters() {
+            for (let i = 0; i < 8; i++) {
+                const crater = document.createElement('div');
+                crater.className = 'moon-crater';
+                crater.style.width = `${Math.random() * 20 + 5}px`;
+                crater.style.height = crater.style.width;
+                crater.style.top = `${Math.random() * 80 + 10}%`;
+                crater.style.left = `${Math.random() * 80 + 10}%`;
+                moon.appendChild(crater);
             }
         }
         
@@ -718,7 +571,6 @@
             if (handTrackingActive) return;
             
             loadingOverlay.style.display = 'flex';
-            moodStatus.textContent = "等待中";
             
             // 创建Hands对象
             const hands = new window.Hands({
@@ -729,7 +581,7 @@
             
             // 设置选项
             hands.setOptions({
-                maxNumHands: 1,
+                maxNumHands: 2,
                 modelComplexity: 1,
                 minDetectionConfidence: 0.5,
                 minTrackingConfidence: 0.5
@@ -739,33 +591,39 @@
             hands.onResults((results) => {
                 if (loadingOverlay.style.display !== 'none') {
                     loadingOverlay.style.display = 'none';
-                    createFloatingHearts();
+                    createStars();
+                    createMoonCraters();
                 }
+                
+                // 更新FPS计数
+                updateFPS();
                 
                 // 清除画布
                 canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
                 
-                // 绘制手部位置光晕
+                // 绘制星空
+                drawStars();
+                
                 if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-                    const landmarks = results.multiHandLandmarks[0];
-                    const indexTip = landmarks[8]; // 食指指尖
-                    const x = indexTip.x * canvasElement.width;
-                    const y = indexTip.y * canvasElement.height;
-                    
-                    // 绘制手部光晕
-                    drawHandHalo(x, y);
-                    
-                    // 检测是否在抚摸宠物
-                    checkPetInteraction(x, y);
-                } else {
-                    // 没有检测到手部
-                    if (petMood !== "平静") {
-                        setPetMood("平静");
+                    // 检测到手部
+                    for (const landmarks of results.multiHandLandmarks) {
+                        const indexTip = landmarks[8]; // 食指指尖
+                        let x = indexTip.x * canvasElement.width;
+                        let y = indexTip.y * canvasElement.height;
+                        
+                        // 解决镜像问题：翻转x坐标
+                        x = canvasElement.width - x;
+                        
+                        // 绘制手部位置光晕
+                        drawHandHalo(x, y);
+                        
+                        // 检测是否捕捉到星星
+                        checkStarCapture(x, y);
                     }
                 }
                 
-                // 更新并绘制爱心
-                updateHearts();
+                // 更新星星
+                updateStars();
             });
             
             try {
@@ -791,7 +649,7 @@
                         try {
                             await hands.send({ image: videoElement });
                         } catch (e) {
-                            console.error('手部处理错误:', e);
+                            console.error('Hand processing error:', e);
                         }
                     },
                     width: videoElement.videoWidth,
@@ -802,13 +660,13 @@
                 handTrackingActive = true;
                 
             } catch (error) {
-                console.error("摄像头访问失败:", error);
+                console.error("Camera access failed:", error);
                 loadingOverlay.style.display = 'none';
                 
                 // 创建错误信息
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'instructions';
-                errorDiv.innerHTML = `<div style="color: #e67a7a; font-weight: bold;">错误: ${error.message}</div>`;
+                errorDiv.innerHTML = `<div style="color: #ff6b6b; font-weight: bold;">Error: ${error.message}</div>`;
                 document.querySelector('.container').appendChild(errorDiv);
             }
         }
@@ -817,240 +675,240 @@
         function drawHandHalo(x, y) {
             canvasCtx.save();
             canvasCtx.beginPath();
-            canvasCtx.arc(x, y, 60, 0, Math.PI * 2);
+            canvasCtx.arc(x, y, 40, 0, Math.PI * 2);
             
-            const gradient = canvasCtx.createRadialGradient(x, y, 0, x, y, 60);
-            gradient.addColorStop(0, 'rgba(230, 122, 122, 0.4)');
-            gradient.addColorStop(1, 'rgba(230, 122, 122, 0)');
+            const gradient = canvasCtx.createRadialGradient(x, y, 0, x, y, 40);
+            gradient.addColorStop(0, 'rgba(101, 178, 230, 0.8)');
+            gradient.addColorStop(1, 'rgba(101, 178, 230, 0)');
             
             canvasCtx.fillStyle = gradient;
             canvasCtx.fill();
             canvasCtx.restore();
         }
         
-        // 检测宠物互动
-        function checkPetInteraction(x, y) {
-            // 宠物位置（屏幕中央）
-            const petX = canvasElement.width / 2;
-            const petY = canvasElement.height / 2 - 50;
-            
-            // 计算距离
-            const distance = Math.sqrt(Math.pow(petX - x, 2) + Math.pow(petY - y, 2));
-            
-            // 互动强度（距离越小，强度越大）
-            const level = Math.max(0, 100 - Math.min(100, distance / 3));
-            interactionLevel.textContent = `${Math.round(level)}%`;
-            
-            if (distance < 150) {
-                // 在互动范围内
-                const now = Date.now();
-                
-                // 至少间隔500ms才计为一次新互动
-                if (now - lastInteractionTime > 500) {
-                    interactionCount++;
-                    interactionCountElem.textContent = interactionCount;
-                    lastInteractionTime = now;
-                }
-                
-                // 根据互动强度设置宠物心情
-                if (level > 70) {
-                    setPetMood("非常开心");
-                    createHeart(petX, petY - 100);
-                    
-                    // 添加尾巴动画
-                    if (!tailAnimationActive) {
-                        petTail.classList.add('tail-animation');
-                        tailAnimationActive = true;
-                    }
-                    
-                    // 随机显示宠物消息
-                    if (Math.random() < 0.1) {
-                        showPetMessage();
-                    }
-                    
-                    // 随机跳跃
-                    if (Math.random() < 0.05) {
-                        document.querySelector('.pet').classList.add('pet-happy');
-                        setTimeout(() => {
-                            document.querySelector('.pet').classList.remove('pet-happy');
-                        }, 500);
-                    }
-                } else if (level > 30) {
-                    setPetMood("开心");
-                    
-                    // 添加尾巴动画
-                    if (!tailAnimationActive) {
-                        petTail.classList.add('tail-animation');
-                        tailAnimationActive = true;
-                    }
-                    
-                    // 随机显示宠物消息
-                    if (Math.random() < 0.05) {
-                        showPetMessage();
-                    }
-                } else {
-                    setPetMood("舒适");
-                }
-            } else {
-                // 不在互动范围内
-                setPetMood("平静");
-                
-                // 移除尾巴动画
-                if (tailAnimationActive) {
-                    petTail.classList.remove('tail-animation');
-                    tailAnimationActive = false;
-                }
+        // 绘制星星
+        function drawStars() {
+            // 随机添加新星星
+            if (Math.random() < 0.05 && stars.length < 30) {
+                stars.push({
+                    x: Math.random() * canvasElement.width,
+                    y: Math.random() * canvasElement.height * 0.8,
+                    size: Math.random() * 8 + 4,
+                    brightness: Math.random() * 0.5 + 0.5,
+                    speed: Math.random() * 1 + 0.5,
+                    captured: false
+                });
             }
-        }
-        
-        // 设置宠物心情
-        function setPetMood(mood) {
-            if (petMood !== mood) {
-                petMood = mood;
-                moodStatus.textContent = mood;
-                
-                // 显示心情表情
-                petMood.style.opacity = 1;
-                petMood.textContent = mood === "非常开心" ? "😻" : 
-                                      mood === "开心" ? "😸" : 
-                                      mood === "舒适" ? "😺" : "😼";
-                
-                setTimeout(() => {
-                    petMood.style.opacity = 0;
-                }, 2000);
-            }
-        }
-        
-        // 显示宠物消息
-        function showPetMessage() {
-            const message = petMessages[Math.floor(Math.random() * petMessages.length)];
-            petMessage.textContent = message;
-            petMessage.style.opacity = 1;
             
-            setTimeout(() => {
-                petMessage.style.opacity = 0;
-            }, 3000);
-        }
-        
-        // 创建爱心
-        function createHeart(x, y) {
-            hearts.push({
-                x: x,
-                y: y,
-                size: Math.random() * 20 + 15,
-                speed: Math.random() * 2 + 1,
-                opacity: 1,
-                element: null
+            // 绘制所有星星
+            stars.forEach(star => {
+                if (star.captured) return;
+                
+                canvasCtx.save();
+                canvasCtx.beginPath();
+                canvasCtx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                
+                const gradient = canvasCtx.createRadialGradient(
+                    star.x, star.y, 0, 
+                    star.x, star.y, star.size
+                );
+                gradient.addColorStop(0, `rgba(255, 255, 255, ${star.brightness})`);
+                gradient.addColorStop(1, `rgba(168, 216, 255, ${star.brightness * 0.3})`);
+                
+                canvasCtx.fillStyle = gradient;
+                canvasCtx.fill();
+                
+                // 添加星芒效果
+                for (let i = 0; i < 4; i++) {
+                    canvasCtx.save();
+                    canvasCtx.translate(star.x, star.y);
+                    canvasCtx.rotate(i * Math.PI / 4);
+                    
+                    canvasCtx.beginPath();
+                    canvasCtx.moveTo(star.size * 1.5, 0);
+                    canvasCtx.lineTo(star.size * 2.5, 0);
+                    canvasCtx.strokeStyle = `rgba(255, 255, 255, ${star.brightness * 0.7})`;
+                    canvasCtx.lineWidth = 2;
+                    canvasCtx.stroke();
+                    
+                    canvasCtx.restore();
+                }
+                
+                canvasCtx.restore();
             });
         }
         
-        // 更新爱心
-        function updateHearts() {
-            for (let i = hearts.length - 1; i >= 0; i--) {
-                const heart = hearts[i];
-                heart.y -= heart.speed;
-                heart.opacity -= 0.01;
-                
-                if (heart.opacity <= 0) {
-                    hearts.splice(i, 1);
-                    if (heart.element) {
-                        heart.element.remove();
-                    }
-                } else {
-                    // 绘制爱心
-                    canvasCtx.save();
-                    canvasCtx.globalAlpha = heart.opacity;
-                    canvasCtx.fillStyle = '#ff6b6b';
-                    canvasCtx.beginPath();
-                    for (let angle = 0; angle < Math.PI * 2; angle += 0.01) {
-                        const px = 16 * Math.pow(Math.sin(angle), 3);
-                        const py = -(13 * Math.cos(angle) - 5 * Math.cos(2 * angle) - 2 * Math.cos(3 * angle) - Math.cos(4 * angle));
-                        canvasCtx.lineTo(heart.x + px * heart.size / 16, heart.y + py * heart.size / 16);
-                    }
-                    canvasCtx.closePath();
-                    canvasCtx.fill();
-                    canvasCtx.restore();
+        // 更新星星位置
+        function updateStars() {
+            stars = stars.filter(star => {
+                // 被捕抓的星星向上飞走
+                if (star.captured) {
+                    star.y -= star.speed * 3;
+                    return star.y > -50;
                 }
-            }
+                
+                // 未被捕抓的星星缓慢移动
+                star.x += (Math.random() - 0.5) * star.speed;
+                star.y += (Math.random() - 0.5) * star.speed;
+                
+                // 确保星星在屏幕内
+                star.x = Math.max(10, Math.min(canvasElement.width - 10, star.x));
+                star.y = Math.max(10, Math.min(canvasElement.height - 10, star.y));
+                
+                return true;
+            });
         }
         
-        // 给予零食
-        function giveTreat() {
-            interactionCount += 3;
-            interactionCountElem.textContent = interactionCount;
+        // 检测是否捕捉到星星
+        function checkStarCapture(x, y) {
+            stars.forEach((star, index) => {
+                if (star.captured) return;
+                
+                const distance = Math.sqrt(Math.pow(star.x - x, 2) + Math.pow(star.y - y, 2));
+                
+                if (distance < 50) {
+                    star.captured = true;
+                    capturedStars++;
+                    
+                    // 显示鼓励语
+                    showEncouragement('general');
+                    
+                    // 创建捕捉效果
+                    createCaptureEffect(star.x, star.y);
+                }
+            });
+        }
+        
+        // 显示鼓励语
+        function showEncouragement(type) {
+            const texts = encouragements[type];
+            const text = texts[Math.floor(Math.random() * texts.length)];
+            encouragement.textContent = text;
+            encouragement.style.opacity = 1;
             
-            // 显示特别感谢消息
-            petMessage.textContent = "哇！零食！谢谢你！";
-            petMessage.style.opacity = 1;
+            setTimeout(() => {
+                encouragement.style.opacity = 0;
+            }, 3000);
+        }
+        
+        // 创建捕捉效果
+        function createCaptureEffect(x, y) {
+            // 捕捉光圈效果
+            const effect = document.createElement('div');
+            effect.className = 'capture-effect';
+            effect.style.left = `${x - 50}px`;
+            effect.style.top = `${y - 50}px`;
+            document.querySelector('.container').appendChild(effect);
             
-            // 显示特别心情
-            petMood.textContent = "🍪";
-            petMood.style.opacity = 1;
+            // 动画
+            let size = 100;
+            const grow = setInterval(() => {
+                size += 10;
+                effect.style.width = `${size}px`;
+                effect.style.height = `${size}px`;
+                effect.style.left = `${x - size/2}px`;
+                effect.style.top = `${y - size/2}px`;
+                effect.style.opacity = `${1 - size/200}`;
+                
+                if (size > 200) {
+                    clearInterval(grow);
+                    effect.remove();
+                }
+            }, 20);
+        }
+        
+        // 重置星空
+        function resetStars() {
+            stars = [];
+            capturedStars = 0;
             
-            // 创建多个爱心
-            for (let i = 0; i < 10; i++) {
+            // 添加重置动画
+            for (let i = 0; i < 15; i++) {
                 setTimeout(() => {
-                    const petX = canvasElement.width / 2;
-                    const petY = canvasElement.height / 2 - 150;
-                    createHeart(petX + (Math.random() - 0.5) * 100, petY);
+                    const star = document.createElement('div');
+                    star.className = 'star-animation';
+                    star.innerHTML = '✨';
+                    star.style.left = `${Math.random() * 100}%`;
+                    star.style.top = `${Math.random() * 100 + 100}%`;
+                    star.style.fontSize = `${Math.random() * 30 + 20}px`;
+                    star.style.setProperty('--tx', `${(Math.random() - 0.5) * 300}px`);
+                    star.style.setProperty('--ty', `${-Math.random() * 300 - 150}px`);
+                    document.body.appendChild(star);
+                    
+                    setTimeout(() => {
+                        star.remove();
+                    }, 3000);
                 }, i * 100);
             }
             
-            // 跳跃动画
-            document.querySelector('.pet').classList.add('pet-happy');
-            setTimeout(() => {
-                document.querySelector('.pet').classList.remove('pet-happy');
-            }, 1000);
-            
-            // 重置消息和心情
-            setTimeout(() => {
-                petMessage.style.opacity = 0;
-                petMood.style.opacity = 0;
-            }, 3000);
+            showEncouragement('general');
         }
         
-        // 重置宠物
-        function resetPet() {
-            interactionCount = 0;
-            interactionCountElem.textContent = "0";
-            moodStatus.textContent = "平静";
-            interactionLevel.textContent = "0%";
+        // 更新FPS计数
+        function updateFPS() {
+            frameCount++;
+            const now = performance.now();
+            const elapsed = now - lastFrameTime;
             
-            // 显示重置消息
-            petMessage.textContent = "我们重新开始吧！";
-            petMessage.style.opacity = 1;
-            
-            // 移除尾巴动画
-            if (tailAnimationActive) {
-                petTail.classList.remove('tail-animation');
-                tailAnimationActive = false;
+            if (elapsed >= 1000) {
+                fps = Math.round((frameCount * 1000) / elapsed);
+                frameCount = 0;
+                lastFrameTime = now;
             }
-            
-            // 创建重置动画
-            for (let i = 0; i < 5; i++) {
-                setTimeout(() => {
-                    const petX = canvasElement.width / 2;
-                    const petY = canvasElement.height / 2 - 150;
-                    createHeart(petX, petY);
-                }, i * 200);
-            }
+        }
+        
+        // 许愿功能
+        function makeAWish() {
+            const wish = document.createElement('div');
+            wish.className = 'star-animation';
+            wish.innerHTML = '💫';
+            wish.style.left = `${Math.random() * 100}%`;
+            wish.style.top = `${Math.random() * 100 + 100}%`;
+            wish.style.fontSize = '40px';
+            wish.style.setProperty('--tx', `${(Math.random() - 0.5) * 200}px`);
+            wish.style.setProperty('--ty', `${-Math.random() * 200 - 200}px`);
+            document.body.appendChild(wish);
             
             setTimeout(() => {
-                petMessage.style.opacity = 0;
+                wish.remove();
             }, 3000);
+            
+            // 显示许愿语
+            const wishes = [
+                "May you find peace in this moment",
+                "May your heart heal with each passing day",
+                "May you find strength in your vulnerability",
+                "May calm replace turmoil in your soul",
+                "May you release what no longer serves you"
+            ];
+            
+            encouragement.textContent = wishes[Math.floor(Math.random() * wishes.length)];
+            encouragement.style.opacity = 1;
+            
+            setTimeout(() => {
+                encouragement.style.opacity = 0;
+            }, 4000);
         }
         
         // 初始化
         window.addEventListener('DOMContentLoaded', () => {
             // 添加事件监听器
             document.getElementById('start-btn').addEventListener('click', initHandTracking);
+            document.getElementById('reset-btn').addEventListener('click', resetStars);
+            document.getElementById('wish-btn').addEventListener('click', makeAWish);
             
-            document.getElementById('reset-btn').addEventListener('click', resetPet);
+            // 情感按钮
+            document.getElementById('anger-btn').addEventListener('click', () => {
+                showEncouragement('anger');
+            });
             
-            document.getElementById('treat-btn').addEventListener('click', giveTreat);
+            document.getElementById('sadness-btn').addEventListener('click', () => {
+                showEncouragement('sadness');
+            });
             
-            // 创建初始浮动爱心
-            createFloatingHearts();
+            // 创建初始星星
+            createStars();
+            createMoonCraters();
         });
     </script>
 </body>
