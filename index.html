@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>线框3D拥抱动画手势识别</title>
+    <title>线框熊拥抱互动</title>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
@@ -27,46 +27,45 @@
         
         .header {
             background: rgba(0, 0, 0, 0.5);
-            padding: 20px;
+            padding: 15px 20px;
             text-align: center;
             backdrop-filter: blur(10px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             z-index: 100;
             border-bottom: 2px solid rgba(100, 255, 218, 0.3);
         }
         
         h1 {
-            font-size: 2.8rem;
-            margin-bottom: 10px;
+            font-size: 2.3rem;
+            margin-bottom: 8px;
             color: #64ffda;
-            text-shadow: 0 0 15px rgba(100, 255, 218, 0.7);
+            text-shadow: 0 0 10px rgba(100, 255, 218, 0.7);
             letter-spacing: 1px;
         }
         
         .subtitle {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             opacity: 0.9;
             max-width: 800px;
             margin: 0 auto;
-            line-height: 1.6;
+            line-height: 1.5;
             color: #a8b2d1;
         }
         
         .container {
             flex: 1;
             position: relative;
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
             width: 100%;
-            height: calc(100vh - 160px);
-            display: flex;
-            padding: 20px;
-            gap: 20px;
+            height: calc(100vh - 140px);
+            padding: 15px;
         }
         
-        .camera-section {
-            flex: 1;
+        .camera-container {
             position: relative;
+            width: 100%;
+            height: 100%;
             border-radius: 15px;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
@@ -74,19 +73,7 @@
             border: 1px solid rgba(100, 255, 218, 0.2);
         }
         
-        .animation-section {
-            flex: 1;
-            position: relative;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-            background: rgba(10, 15, 30, 0.2);
-            border: 1px solid rgba(100, 255, 218, 0.2);
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .section-header {
+        .camera-header {
             position: absolute;
             top: 0;
             left: 0;
@@ -99,6 +86,7 @@
             z-index: 10;
             backdrop-filter: blur(5px);
             letter-spacing: 1px;
+            color: #64ffda;
         }
         
         #camera-feed {
@@ -121,11 +109,14 @@
             z-index: 2;
         }
         
-        #three-container {
-            position: relative;
+        #three-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(5, 10, 20, 0.8);
+            z-index: 3;
+            pointer-events: none;
         }
         
         .instructions {
@@ -134,32 +125,32 @@
             left: 0;
             right: 0;
             background: rgba(30, 30, 50, 0.8);
-            padding: 15px;
+            padding: 12px;
             text-align: center;
-            font-size: 1.1rem;
+            font-size: 1rem;
             z-index: 10;
             border-top: 1px solid rgba(100, 255, 218, 0.3);
         }
         
         .status-panel {
             position: absolute;
-            top: 40px;
+            top: 50px;
             right: 15px;
             background: rgba(20, 25, 45, 0.85);
-            padding: 15px;
+            padding: 12px;
             border-radius: 10px;
             z-index: 10;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            min-width: 200px;
+            gap: 8px;
+            min-width: 180px;
             border: 1px solid rgba(100, 255, 218, 0.2);
             backdrop-filter: blur(5px);
         }
         
         .status-card {
             background: rgba(10, 15, 30, 0.7);
-            padding: 12px;
+            padding: 10px;
             border-radius: 8px;
             text-align: center;
             border: 1px solid rgba(100, 255, 218, 0.1);
@@ -167,23 +158,23 @@
         
         .status-card h3 {
             color: #64ffda;
-            margin-bottom: 8px;
-            font-size: 0.95rem;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
         }
         
         .status-value {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 700;
             color: #ff6b6b;
         }
         
         .controls {
             position: absolute;
-            bottom: 20px;
+            bottom: 70px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 15px;
+            gap: 12px;
             z-index: 100;
         }
         
@@ -191,16 +182,16 @@
             background: linear-gradient(135deg, #0a192f, #172a45);
             color: #64ffda;
             border: 1px solid rgba(100, 255, 218, 0.3);
-            padding: 12px 25px;
-            border-radius: 30px;
-            font-size: 1rem;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             z-index: 100;
         }
         
@@ -230,13 +221,13 @@
         }
         
         .spinner {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             border: 5px solid rgba(100, 255, 218, 0.3);
             border-radius: 50%;
             border-top-color: #64ffda;
             animation: spin 1.5s ease-in-out infinite;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
         
         @keyframes spin {
@@ -244,31 +235,11 @@
         }
         
         .loading-text {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             color: #64ffda;
             text-align: center;
             max-width: 80%;
             line-height: 1.6;
-        }
-        
-        .animation-info {
-            padding: 20px;
-            background: rgba(10, 15, 30, 0.5);
-            border-top: 1px solid rgba(100, 255, 218, 0.2);
-        }
-        
-        .animation-title {
-            color: #64ffda;
-            font-size: 1.4rem;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        
-        .animation-description {
-            color: #a8b2d1;
-            font-size: 1.1rem;
-            line-height: 1.6;
-            text-align: center;
         }
         
         .hint {
@@ -277,23 +248,17 @@
             left: 50%;
             transform: translate(-50%, -50%);
             color: rgba(100, 255, 218, 0.7);
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             text-align: center;
             max-width: 80%;
             z-index: 50;
             pointer-events: none;
             text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
-        }
-        
-        .particle {
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #64ffda;
-            pointer-events: none;
-            z-index: 5;
-            box-shadow: 0 0 10px #64ffda;
+            background: rgba(10, 15, 30, 0.6);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(100, 255, 218, 0.3);
+            backdrop-filter: blur(5px);
         }
         
         .fps-counter {
@@ -304,39 +269,64 @@
             color: #64ffda;
             padding: 5px 10px;
             border-radius: 5px;
-            font-size: 14px;
+            font-size: 13px;
             z-index: 20;
         }
         
         .tech-badge {
             position: absolute;
-            bottom: 10px;
+            bottom: 50px;
             right: 10px;
             background: rgba(100, 255, 218, 0.1);
             color: #64ffda;
-            padding: 5px 10px;
+            padding: 4px 8px;
             border-radius: 5px;
-            font-size: 12px;
+            font-size: 11px;
             z-index: 20;
             border: 1px solid rgba(100, 255, 218, 0.2);
+        }
+        
+        .animation-info {
+            position: absolute;
+            bottom: 85px;
+            left: 10px;
+            background: rgba(10, 15, 30, 0.6);
+            padding: 10px 15px;
+            border-radius: 8px;
+            max-width: 300px;
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            backdrop-filter: blur(5px);
+        }
+        
+        .animation-title {
+            color: #64ffda;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+        
+        .animation-description {
+            color: #a8b2d1;
+            font-size: 0.9rem;
+            line-height: 1.5;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>线框3D拥抱动画</h1>
+        <h1>线框熊拥抱互动</h1>
         <p class="subtitle">伸出手臂，线框熊会检测您的位置并给您一个虚拟拥抱</p>
     </div>
     
     <div class="container">
-        <div class="camera-section">
-            <div class="section-header">摄像头画面与手部检测</div>
-            <div class="loading-overlay" id="camera-loading">
+        <div class="camera-container">
+            <div class="camera-header">摄像头画面与3D熊动画叠加</div>
+            <div class="loading-overlay" id="loading-overlay">
                 <div class="spinner"></div>
-                <div class="loading-text">正在加载手部识别模型，请稍候...</div>
+                <div class="loading-text">正在加载手部识别模型与3D场景，请稍候...</div>
             </div>
             <video id="camera-feed" autoplay playsinline></video>
             <canvas id="camera-overlay"></canvas>
+            <canvas id="three-canvas"></canvas>
             <div class="instructions">
                 请将手臂放在摄像头视野范围内，线框熊会尝试定位您的手臂位置
             </div>
@@ -356,27 +346,17 @@
                 </div>
             </div>
             
-            <div class="fps-counter" id="camera-fps">FPS: 0</div>
-            <div class="tech-badge">MediaPipe Hands</div>
-        </div>
-        
-        <div class="animation-section">
-            <div class="section-header">线框3D拥抱动画</div>
-            <div class="loading-overlay" id="animation-loading">
-                <div class="spinner"></div>
-                <div class="loading-text">正在初始化3D动画场景，请稍候...</div>
-            </div>
-            <div id="three-container"></div>
-            <div class="hint" id="animation-hint">等待手部检测数据...</div>
+            <div class="fps-counter" id="fps-counter">FPS: 0</div>
+            <div class="tech-badge">MediaPipe + Three.js</div>
+            
             <div class="animation-info">
-                <h3 class="animation-title">霓虹线框拥抱熊</h3>
+                <h3 class="animation-title">线框拥抱熊</h3>
                 <p class="animation-description">
                     当系统检测到您的手臂位置时，线框熊会靠近并张开双臂给您一个虚拟拥抱。
-                    熊模型由发光线条构成，在检测到双手张开姿势时会触发拥抱动画。
                 </p>
             </div>
-            <div class="fps-counter" id="three-fps">FPS: 0</div>
-            <div class="tech-badge">Three.js</div>
+            
+            <div class="hint" id="animation-hint">请启动摄像头并伸出手臂</div>
         </div>
     </div>
     
@@ -385,10 +365,7 @@
             <span>▶️</span> 启动摄像头
         </button>
         <button class="control-btn" id="reset-btn">
-            <span>🔄</span> 重置动画
-        </button>
-        <button class="control-btn" id="effect-btn">
-            <span>✨</span> 粒子效果
+            <span>🔄</span> 重置位置
         </button>
     </div>
 
@@ -396,43 +373,33 @@
         // 全局变量
         let scene, camera, renderer, bear, leftArm, rightArm;
         let handTrackingActive = false;
-        let particleEffectActive = true;
         let leftHandPosition = { x: 0, y: 0, z: 0 };
         let rightHandPosition = { x: 0, y: 0, z: 0 };
-        let lastCameraFrameTime = 0;
-        let cameraFrameCount = 0;
-        let cameraFps = 0;
-        let lastThreeFrameTime = 0;
-        let threeFrameCount = 0;
-        let threeFps = 0;
+        let lastFrameTime = 0;
+        let frameCount = 0;
+        let fps = 0;
         
         // 获取DOM元素
-        const cameraLoading = document.getElementById('camera-loading');
-        const animationLoading = document.getElementById('animation-loading');
+        const loadingOverlay = document.getElementById('loading-overlay');
         const animationStatus = document.getElementById('animation-status');
         const confidence = document.getElementById('confidence');
         const trackingStatus = document.getElementById('tracking-status');
-        const cameraFpsElement = document.getElementById('camera-fps');
-        const threeFpsElement = document.getElementById('three-fps');
+        const fpsCounter = document.getElementById('fps-counter');
         const animationHint = document.getElementById('animation-hint');
         const videoElement = document.getElementById('camera-feed');
         const overlayCanvas = document.getElementById('camera-overlay');
         const overlayCtx = overlayCanvas.getContext('2d');
-        
-        // 粒子数组
-        const particles = [];
         
         // 初始化Three.js场景
         function initThreeScene() {
             // 创建场景
             scene = new THREE.Scene();
             scene.background = null;
-            scene.fog = new THREE.Fog(0x0a192f, 10, 20);
             
             // 创建相机
-            const container = document.getElementById('three-container');
+            const container = document.querySelector('.camera-container');
             camera = new THREE.PerspectiveCamera(
-                60, 
+                65, 
                 container.clientWidth / container.clientHeight,
                 0.1,
                 1000
@@ -441,174 +408,126 @@
             
             // 创建渲染器
             renderer = new THREE.WebGLRenderer({ 
+                canvas: document.getElementById('three-canvas'),
                 alpha: true,
                 antialias: true
             });
             renderer.setSize(container.clientWidth, container.clientHeight);
             renderer.setPixelRatio(window.devicePixelRatio);
-            container.appendChild(renderer.domElement);
             
             // 添加灯光
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
             scene.add(ambientLight);
             
-            const directionalLight = new THREE.DirectionalLight(0x64ffda, 1);
+            const directionalLight = new THREE.DirectionalLight(0x64ffda, 0.8);
             directionalLight.position.set(2, 3, 4);
             scene.add(directionalLight);
-            
-            const pointLight = new THREE.PointLight(0xff6b6b, 1.5, 20);
-            pointLight.position.set(-2, -1, 3);
-            scene.add(pointLight);
             
             // 创建线框熊模型
             createWireframeBear();
             
             // 开始动画循环
-            animateThreeScene();
-            
-            // 隐藏加载动画
-            setTimeout(() => {
-                animationLoading.style.display = 'none';
-            }, 1500);
+            animateScene();
         }
         
-        // 创建线框熊模型
+        // 创建简化版线框熊模型
         function createWireframeBear() {
             const bearGroup = new THREE.Group();
             
-            // 熊身体
-            const bodyGeometry = new THREE.SphereGeometry(0.8, 12, 12);
+            // 熊身体（圆柱体）
+            const bodyGeometry = new THREE.CylinderGeometry(0.5, 0.5, 1.2, 12);
             const bodyMaterial = new THREE.MeshBasicMaterial({ 
                 color: 0x64ffda, 
                 wireframe: true,
                 emissive: 0x00ffaa,
-                emissiveIntensity: 0.5
+                emissiveIntensity: 0.3
             });
             const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.rotation.x = Math.PI / 2;
             bearGroup.add(body);
             
-            // 熊头
-            const headGeometry = new THREE.SphereGeometry(0.6, 12, 12);
+            // 熊头（球体）
+            const headGeometry = new THREE.SphereGeometry(0.5, 12, 12);
             const head = new THREE.Mesh(headGeometry, bodyMaterial);
-            head.position.y = 1.1;
+            head.position.y = 0.2;
+            head.position.z = -0.8;
             bearGroup.add(head);
             
-            // 熊耳朵
-            const earGeometry = new THREE.SphereGeometry(0.2, 8, 8);
-            const leftEar = new THREE.Mesh(earGeometry, bodyMaterial);
-            leftEar.position.set(-0.4, 1.5, 0);
-            bearGroup.add(leftEar);
-            
-            const rightEar = new THREE.Mesh(earGeometry, bodyMaterial);
-            rightEar.position.set(0.4, 1.5, 0);
-            bearGroup.add(rightEar);
-            
-            // 熊腿
-            const legGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.8, 8);
-            const legMaterial = new THREE.MeshBasicMaterial({ 
+            // 熊耳朵（小圆柱体）
+            const earGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.1, 8);
+            const earMaterial = new THREE.MeshBasicMaterial({ 
                 color: 0x64ffda, 
-                wireframe: true,
-                emissive: 0x00ffaa,
-                emissiveIntensity: 0.5
+                wireframe: true
             });
             
-            // 前腿
-            const frontLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
-            frontLeftLeg.position.set(-0.5, -0.9, 0.5);
-            frontLeftLeg.rotation.x = Math.PI / 6;
-            bearGroup.add(frontLeftLeg);
+            const leftEar = new THREE.Mesh(earGeometry, earMaterial);
+            leftEar.position.set(-0.35, 0.5, -0.8);
+            leftEar.rotation.x = Math.PI / 2;
+            bearGroup.add(leftEar);
             
-            const frontRightLeg = new THREE.Mesh(legGeometry, legMaterial);
-            frontRightLeg.position.set(0.5, -0.9, 0.5);
-            frontRightLeg.rotation.x = Math.PI / 6;
-            bearGroup.add(frontRightLeg);
+            const rightEar = new THREE.Mesh(earGeometry, earMaterial);
+            rightEar.position.set(0.35, 0.5, -0.8);
+            rightEar.rotation.x = Math.PI / 2;
+            bearGroup.add(rightEar);
             
-            // 后腿
+            // 熊腿（后腿，圆柱体）
+            const legGeometry = new THREE.CylinderGeometry(0.12, 0.12, 0.6, 8);
+            const legMaterial = new THREE.MeshBasicMaterial({ 
+                color: 0x64ffda, 
+                wireframe: true
+            });
+            
             const backLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
-            backLeftLeg.position.set(-0.5, -0.9, -0.5);
-            backLeftLeg.rotation.x = -Math.PI / 6;
+            backLeftLeg.position.set(-0.3, -0.7, 0.3);
+            backLeftLeg.rotation.x = Math.PI / 6;
             bearGroup.add(backLeftLeg);
             
             const backRightLeg = new THREE.Mesh(legGeometry, legMaterial);
-            backRightLeg.position.set(0.5, -0.9, -0.5);
-            backRightLeg.rotation.x = -Math.PI / 6;
+            backRightLeg.position.set(0.3, -0.7, 0.3);
+            backRightLeg.rotation.x = Math.PI / 6;
             bearGroup.add(backRightLeg);
             
-            // 熊手臂
-            const armGeometry = new THREE.CylinderGeometry(0.12, 0.12, 0.9, 8);
+            // 熊手臂（前肢）
+            const armGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.7, 8);
             const armMaterial = new THREE.MeshBasicMaterial({ 
                 color: 0xff6b6b, 
                 wireframe: true,
                 emissive: 0xff5555,
-                emissiveIntensity: 0.5
+                emissiveIntensity: 0.3
             });
             
             leftArm = new THREE.Mesh(armGeometry, armMaterial);
-            leftArm.position.set(-0.8, 0.1, 0);
+            leftArm.position.set(-0.5, -0.1, -0.1);
             leftArm.rotation.z = Math.PI / 3;
             bearGroup.add(leftArm);
             
             rightArm = new THREE.Mesh(armGeometry, armMaterial);
-            rightArm.position.set(0.8, 0.1, 0);
+            rightArm.position.set(0.5, -0.1, -0.1);
             rightArm.rotation.z = -Math.PI / 3;
             bearGroup.add(rightArm);
-            
-            // 熊鼻子
-            const noseGeometry = new THREE.SphereGeometry(0.15, 8, 8);
-            const noseMaterial = new THREE.MeshBasicMaterial({ 
-                color: 0xff6b6b, 
-                wireframe: true,
-                emissive: 0xff5555,
-                emissiveIntensity: 0.5
-            });
-            const nose = new THREE.Mesh(noseGeometry, noseMaterial);
-            nose.position.set(0, 1.1, 0.6);
-            bearGroup.add(nose);
-            
-            // 熊眼睛
-            const eyeGeometry = new THREE.SphereGeometry(0.08, 8, 8);
-            const eyeMaterial = new THREE.MeshBasicMaterial({ 
-                color: 0xffffff, 
-                wireframe: true,
-                emissive: 0xffffff,
-                emissiveIntensity: 0.8
-            });
-            
-            const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-            leftEye.position.set(-0.2, 1.2, 0.5);
-            bearGroup.add(leftEye);
-            
-            const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-            rightEye.position.set(0.2, 1.2, 0.5);
-            bearGroup.add(rightEye);
             
             // 完成熊模型
             bear = bearGroup;
             bear.position.y = -0.5;
+            bear.scale.set(0.7, 0.7, 0.7);
             scene.add(bear);
         }
         
-        // Three.js动画循环
-        function animateThreeScene() {
-            requestAnimationFrame(animateThreeScene);
+        // 动画循环
+        function animateScene() {
+            requestAnimationFrame(animateScene);
             
             // 更新FPS计数
-            updateThreeFPS();
+            updateFPS();
             
-            // 旋转熊模型
-            if (bear) {
-                bear.rotation.y += 0.005;
-                
-                // 手臂拥抱动画
+            // 手臂拥抱动画
+            if (bear && (leftHandPosition.x !== 0 || rightHandPosition.x !== 0)) {
                 const time = Date.now() * 0.001;
                 const hugIntensity = 0.5 + Math.sin(time) * 0.5;
                 
                 leftArm.rotation.z = Math.PI / 3 - hugIntensity * 0.5;
                 rightArm.rotation.z = -Math.PI / 3 + hugIntensity * 0.5;
             }
-            
-            // 更新粒子
-            updateParticles();
             
             // 渲染场景
             renderer.render(scene, camera);
@@ -620,7 +539,6 @@
             
             animationStatus.textContent = "正在启动摄像头";
             trackingStatus.textContent = "初始化中";
-            cameraLoading.style.display = 'flex';
             
             const hands = new window.Hands({
                 locateFile: (file) => {
@@ -636,12 +554,12 @@
             });
             
             hands.onResults((results) => {
-                if (cameraLoading.style.display !== 'none') {
-                    cameraLoading.style.display = 'none';
+                if (loadingOverlay.style.display !== 'none') {
+                    loadingOverlay.style.display = 'none';
                 }
                 
                 // 更新FPS计数
-                updateCameraFPS();
+                updateFPS();
                 
                 // 清除覆盖层
                 overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
@@ -720,13 +638,13 @@
                 console.error("摄像头访问失败:", error);
                 animationStatus.textContent = "摄像头错误";
                 trackingStatus.textContent = "错误";
-                cameraLoading.style.display = 'none';
+                loadingOverlay.style.display = 'none';
                 
                 // 创建错误信息
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'instructions';
                 errorDiv.innerHTML = `<div style="color: #ff6b6b; font-weight: bold;">错误: ${error.message}</div>`;
-                document.querySelector('.camera-section').appendChild(errorDiv);
+                document.querySelector('.camera-container').appendChild(errorDiv);
             }
         }
         
@@ -761,105 +679,35 @@
                         const avgY = (leftHandPosition.y + rightHandPosition.y) / 2;
                         bear.position.x = avgX * 3;
                         bear.position.y = avgY * 2 - 0.5;
-                        
-                        // 添加粒子效果
-                        if (particleEffectActive) {
-                            createParticles(avgX, avgY);
-                        }
                     }
                 }
             }
         }
         
-        // 创建粒子
-        function createParticles(x, y) {
-            for (let i = 0; i < 3; i++) {
-                const particle = {
-                    x: x * window.innerWidth/2 + window.innerWidth/4,
-                    y: y * window.innerHeight/2 + window.innerHeight/4,
-                    size: Math.random() * 4 + 2,
-                    speedX: (Math.random() - 0.5) * 4,
-                    speedY: (Math.random() - 0.5) * 4,
-                    life: 100,
-                    color: `hsl(${Math.random() * 60 + 160}, 100%, 70%)`
-                };
-                particles.push(particle);
-            }
-        }
-        
-        // 更新粒子
-        function updateParticles() {
-            for (let i = particles.length - 1; i >= 0; i--) {
-                const p = particles[i];
-                
-                // 更新位置
-                p.x += p.speedX;
-                p.y += p.speedY;
-                p.life -= 2;
-                
-                // 移除死亡粒子
-                if (p.life <= 0) {
-                    particles.splice(i, 1);
-                    continue;
-                }
-                
-                // 创建DOM粒子（仅用于演示，实际应用中建议使用Canvas或WebGL）
-                const particleElement = document.createElement('div');
-                particleElement.className = 'particle';
-                particleElement.style.left = `${p.x}px`;
-                particleElement.style.top = `${p.y}px`;
-                particleElement.style.width = `${p.size}px`;
-                particleElement.style.height = `${p.size}px`;
-                particleElement.style.background = p.color;
-                particleElement.style.opacity = p.life / 100;
-                document.body.appendChild(particleElement);
-                
-                // 1秒后移除粒子
-                setTimeout(() => {
-                    if (particleElement.parentNode) {
-                        particleElement.parentNode.removeChild(particleElement);
-                    }
-                }, 100);
-            }
-        }
-        
-        // 更新摄像头FPS计数
-        function updateCameraFPS() {
-            cameraFrameCount++;
+        // 更新FPS计数
+        function updateFPS() {
+            frameCount++;
             const now = performance.now();
-            const elapsed = now - lastCameraFrameTime;
+            const elapsed = now - lastFrameTime;
             
             if (elapsed >= 1000) {
-                cameraFps = Math.round((cameraFrameCount * 1000) / elapsed);
-                cameraFrameCount = 0;
-                lastCameraFrameTime = now;
+                fps = Math.round((frameCount * 1000) / elapsed);
+                frameCount = 0;
+                lastFrameTime = now;
                 
-                cameraFpsElement.textContent = `FPS: ${cameraFps}`;
+                fpsCounter.textContent = `FPS: ${fps}`;
             }
         }
         
-        // 更新Three.js FPS计数
-        function updateThreeFPS() {
-            threeFrameCount++;
-            const now = performance.now();
-            const elapsed = now - lastThreeFrameTime;
-            
-            if (elapsed >= 1000) {
-                threeFps = Math.round((threeFrameCount * 1000) / elapsed);
-                threeFrameCount = 0;
-                lastThreeFrameTime = now;
-                
-                threeFpsElement.textContent = `FPS: ${threeFps}`;
-            }
-        }
-        
-        // 重置动画
-        function resetAnimation() {
+        // 重置熊位置
+        function resetBearPosition() {
             if (bear) {
                 bear.position.set(0, -0.5, 0);
                 leftArm.rotation.z = Math.PI / 3;
                 rightArm.rotation.z = -Math.PI / 3;
             }
+            leftHandPosition = { x: 0, y: 0, z: 0 };
+            rightHandPosition = { x: 0, y: 0, z: 0 };
             animationStatus.textContent = "已重置";
             setTimeout(() => {
                 animationStatus.textContent = "等待中";
@@ -874,31 +722,27 @@
             // 添加事件监听器
             document.getElementById('start-btn').addEventListener('click', () => {
                 initHandTracking();
+                animationHint.textContent = "请伸出手臂...";
             });
             
             document.getElementById('reset-btn').addEventListener('click', () => {
-                resetAnimation();
-            });
-            
-            document.getElementById('effect-btn').addEventListener('click', () => {
-                particleEffectActive = !particleEffectActive;
-                const btn = document.getElementById('effect-btn');
-                if (particleEffectActive) {
-                    btn.innerHTML = '<span>✨</span> 粒子效果';
-                } else {
-                    btn.innerHTML = '<span>❌</span> 粒子效果';
-                }
+                resetBearPosition();
             });
             
             // 响应窗口大小变化
             window.addEventListener('resize', () => {
                 if (camera && renderer) {
-                    const container = document.getElementById('three-container');
+                    const container = document.querySelector('.camera-container');
                     camera.aspect = container.clientWidth / container.clientHeight;
                     camera.updateProjectionMatrix();
                     renderer.setSize(container.clientWidth, container.clientHeight);
                 }
             });
+            
+            // 设置初始加载状态
+            setTimeout(() => {
+                loadingOverlay.style.display = 'none';
+            }, 2000);
         });
     </script>
 </body>
