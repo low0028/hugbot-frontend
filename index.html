@@ -1,39 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HugBot - Emotional Companion</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HugBot - Simplified AR Test</title>
   <style>
-    /* 全局样式 */
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
     
-    body { 
+    body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
       height: 100vh;
       overflow: hidden;
       display: flex;
+      flex-direction: column;
     }
     
-    /* 聊天容器 */
     #chat-container {
       width: 100%;
-      height: 100%;
+      height: 40%;
       background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(10px);
       padding: 20px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
       display: flex;
       flex-direction: column;
       z-index: 10;
     }
     
-    /* 聊天框 */
     #chat-box {
       flex: 1;
       overflow-y: auto;
@@ -41,42 +37,30 @@
       margin-bottom: 15px;
       background: rgba(255, 255, 255, 0.7);
       border-radius: 12px;
-      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
     }
     
-    /* 消息样式 */
     .message {
       margin: 10px 0;
       padding: 12px 15px;
       border-radius: 18px;
       max-width: 80%;
-      animation: fadeIn 0.3s ease;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
     }
     
     .user-message {
       background: #4ECDC4;
       color: white;
       margin-left: auto;
-      border-bottom-right-radius: 5px;
     }
     
     .bot-message {
       background: white;
       border: 1px solid #e0e0e0;
       margin-right: auto;
-      border-bottom-left-radius: 5px;
     }
     
-    /* 输入区域 */
     #input-area {
       display: flex;
       gap: 10px;
-      margin-top: auto;
     }
     
     #user-input {
@@ -84,14 +68,6 @@
       padding: 12px 15px;
       border: 1px solid #ddd;
       border-radius: 25px;
-      font-size: 16px;
-      outline: none;
-      transition: border-color 0.3s;
-      background: white;
-    }
-    
-    #user-input:focus {
-      border-color: #FF6B6B;
     }
     
     #send-button {
@@ -101,16 +77,8 @@
       border-radius: 25px;
       padding: 0 25px;
       cursor: pointer;
-      font-weight: 500;
-      transition: background 0.3s;
-      min-width: 80px;
     }
     
-    #send-button:hover {
-      background: #ff5252;
-    }
-    
-    /* AR场景容器 */
     #ar-container {
       flex: 1;
       position: relative;
@@ -124,140 +92,38 @@
       left: 0;
       width: 100%;
       height: 100%;
-      display: block;
     }
     
-    /* 通知 */
-    .notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: white;
-      padding: 15px 20px;
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      transform: translateX(150%);
-      transition: transform 0.4s ease;
-    }
-    
-    .notification.show {
-      transform: translateX(0);
-    }
-    
-    .notification-icon {
-      font-size: 24px;
-    }
-    
-    /* 拥抱控制 */
-    .hug-controls {
+    #camera-feed {
       position: absolute;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 15px;
-      z-index: 20;
-    }
-    
-    .hug-btn {
-      background: rgba(255, 255, 255, 0.8);
-      border: none;
-      padding: 10px 20px;
-      border-radius: 30px;
-      font-weight: 500;
-      cursor: pointer;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-      transition: all 0.3s;
-    }
-    
-    .hug-btn:hover {
-      background: white;
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    }
-    
-    #end-hug {
-      background: #FF6B6B;
-      color: white;
-    }
-    
-    /* 拥抱计时器 */
-    .hug-timer {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      background: rgba(0, 0, 0, 0.7);
-      color: white;
-      padding: 8px 15px;
-      border-radius: 20px;
-      font-size: 14px;
-      z-index: 20;
-    }
-    
-    /* 摄像头状态指示器 */
-    .camera-status {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: rgba(0, 0, 0, 0.7);
-      color: white;
-      padding: 8px 15px;
-      border-radius: 20px;
-      font-size: 14px;
-      z-index: 20;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       display: none;
     }
     
-    .camera-status.active {
-      display: block;
-    }
-    
-    /* 添加调试面板修复样式 */
-    .debug-panel {
+    #debug-panel {
       position: fixed;
       bottom: 10px;
       left: 10px;
       background: rgba(0,0,0,0.7);
       color: white;
       padding: 10px;
-      z-index: 10000; /* 确保最高层级 */
+      z-index: 10000;
       border-radius: 8px;
-      max-height: 200px;
-      overflow-y: auto;
-      width: 300px;
-      pointer-events: auto; /* 确保可交互 */
     }
     
     .debug-btn {
       background: #4ECDC4;
       color: white;
       border: none;
-      padding: 8px 15px;
+      padding: 8px;
       margin: 5px 0;
       border-radius: 4px;
       cursor: pointer;
       display: block;
       width: 100%;
-      text-align: center;
-    }
-    
-    .debug-btn:hover {
-      background: #3bb5ac;
-    }
-    
-    #debug-output {
-      margin-top: 10px;
-      font-family: monospace;
-      font-size: 12px;
-      max-height: 120px;
-      overflow-y: auto;
-      background: rgba(255,255,255,0.1);
-      padding: 5px;
-      border-radius: 4px;
     }
   </style>
 </head>
@@ -266,11 +132,11 @@
   <div id="chat-container">
     <div id="chat-box">
       <div class="message bot-message">
-        Hello! I'm HugBot, your emotional companion. How are you feeling today?
+        AR测试模式 - 请输入"sad"测试虚拟拥抱
       </div>
     </div>
     <div id="input-area">
-      <input type="text" id="user-input" placeholder="Share your feelings..." autocomplete="off" />
+      <input type="text" id="user-input" placeholder="输入'sad'测试..." autocomplete="off" />
       <button id="send-button">Send</button>
     </div>
   </div>
@@ -278,497 +144,252 @@
   <!-- AR场景容器 -->
   <div id="ar-container">
     <canvas id="three-canvas"></canvas>
-    <div class="hug-timer" id="hug-timer">Hug Time: 30s</div>
-    <div class="camera-status" id="camera-status">Camera: Waiting...</div>
-    <div class="hug-controls">
-      <button class="hug-btn" id="end-hug">End Hug</button>
+    <video id="camera-feed" autoplay playsinline></video>
+    <div style="position: absolute; top: 20px; left: 20px; color: white; z-index: 20;">
+      <div id="status-text">状态: 等待启动</div>
+      <button id="end-hug" style="background: #FF6B6B; color: white; border: none; padding: 8px; margin-top: 10px; border-radius: 4px;">结束AR</button>
     </div>
   </div>
   
-  <!-- 通知 -->
-  <div class="notification" id="notification">
-    <span class="notification-icon">🧸</span>
-    <span>Sending a virtual hug...</span>
-  </div>
-  
   <!-- 调试面板 -->
-  <div class="debug-panel">
-    <h3>AR System Debugger</h3>
-    <button class="debug-btn" id="test-camera">Test Camera</button>
-    <button class="debug-btn" id="test-ar">Test AR Session</button>
-    <button class="debug-btn" id="test-notification">Test Notification</button>
-    <div id="debug-output"></div>
+  <div id="debug-panel">
+    <button class="debug-btn" id="test-camera">测试摄像头</button>
+    <button class="debug-btn" id="test-ar">测试AR场景</button>
+    <button class="debug-btn" id="test-notification">测试通知</button>
   </div>
 
-  <!-- Three.js + MediaPipe 模块化加载 -->
-  <script type="module">
-    import * as THREE from 'https://cdn.skypack.dev/three';
-    import { GLTFLoader } from 'https://cdn.skypack.dev/three/examples/jsm/loaders/GLTFLoader.js';
-    import { Hands } from 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js';
-    import { Camera } from 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js';
-
-    // 全局变量
-    let scene, camera, renderer, fox, mixer;
-    let handTrackingActive = false;
-    let hugSessionActive = false;
-    const canvas = document.getElementById('three-canvas');
-    const arContainer = document.getElementById('ar-container');
-    const notification = document.getElementById('notification');
-    const hugTimer = document.getElementById('hug-timer');
-    const endHugBtn = document.getElementById('end-hug');
-    const cameraStatus = document.getElementById('camera-status');
-    const debugOutput = document.getElementById('debug-output');
-
-    // 调试日志函数
-    function logDebug(message) {
-      if (!debugOutput) return;
-      const entry = document.createElement('div');
-      entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-      debugOutput.appendChild(entry);
-      debugOutput.scrollTop = debugOutput.scrollHeight;
-      console.log(message);
-    }
-
-    // 初始化Three.js场景
-    function initThreeScene() {
-      logDebug("Initializing Three.js scene");
-      
-      scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x222222);
-      
-      camera = new THREE.PerspectiveCamera(70, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
-      camera.position.set(0, 0, 2);
-      
-      renderer = new THREE.WebGLRenderer({ 
-        canvas, 
-        alpha: false,
-        antialias: true,
-        preserveDrawingBuffer: true
-      });
-      renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-      renderer.setPixelRatio(window.devicePixelRatio);
-      
-      // 添加灯光
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-      scene.add(ambientLight);
-      
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-      directionalLight.position.set(1, 1, 3);
-      scene.add(directionalLight);
-      
-      // 添加网格地板作为参考
-      const gridHelper = new THREE.GridHelper(10, 10, 0x888888, 0x444444);
-      scene.add(gridHelper);
-      
-      logDebug("Three.js scene initialized");
-    }
-
-    // 加载狐狸模型
-    function loadFoxModel() {
-      return new Promise((resolve) => {
-        logDebug("Loading fox model...");
-        const loader = new GLTFLoader();
-        loader.load('fox_rig_finished_walk_cycle_progressive_stop.glb', (gltf) => {
-          fox = gltf.scene;
-          fox.scale.set(0.5, 0.5, 0.5);
-          fox.position.set(0, -1, 0);
-          scene.add(fox);
-          
-          if (gltf.animations.length > 0) {
-            mixer = new THREE.AnimationMixer(fox);
-            mixer.clipAction(gltf.animations[0]).play();
-            logDebug("Fox model loaded with animations");
-          } else {
-            logDebug("Fox model loaded without animations");
-          }
-          
-          resolve();
-        }, undefined, (error) => {
-          console.error('GLB 加载失败：', error);
-          logDebug(`Fox model load failed: ${error.message}`);
-          
-          // 创建替代模型
-          const geometry = new THREE.BoxGeometry(1, 1, 1);
-          const material = new THREE.MeshBasicMaterial({ color: 0xff6b6b });
-          fox = new THREE.Mesh(geometry, material);
-          scene.add(fox);
-          logDebug("Created placeholder cube");
-          resolve();
-        });
-      });
-    }
-
-    // 初始化手部追踪
-    async function initHandTracking() {
-      if (handTrackingActive) return;
-      
-      logDebug("Initializing hand tracking...");
-      updateCameraStatus("Requesting camera...");
-      
-      const hands = new Hands({ 
-        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` 
-      });
-      
-      hands.setOptions({
-        maxNumHands: 1,
-        modelComplexity: 1,
-        minDetectionConfidence: 0.7,
-        minTrackingConfidence: 0.7
-      });
-      
-      hands.onResults(results => {
-        if (!hugSessionActive || !fox) return;
-        
-        if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-          const hand = results.multiHandLandmarks[0];
-          const indexFinger = hand[8]; // 食指尖
-          
-          // 将坐标转换为Three.js世界坐标
-          const x = (indexFinger.x - 0.5) * 4;
-          const y = -(indexFinger.y - 0.5) * 4;
-          
-          // 让小狐狸逐渐靠近手指
-          fox.position.lerp(new THREE.Vector3(x, y, 0), 0.2);
-          
-          // 让狐狸看向手指位置
-          fox.lookAt(x, y, 0);
-          
-          // 播放开心动画
-          if (mixer) {
-            mixer.timeScale = 1.5; // 加快动画速度表示开心
-          }
-        }
-      });
-      
-      const video = document.createElement('video');
-      video.style.display = 'none';
-      document.body.appendChild(video);
-      
-      try {
-        // 检查摄像头权限
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          throw new Error('Browser does not support camera access');
-        }
-        
-        logDebug("Requesting camera access...");
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { 
-            facingMode: 'user',
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          } 
-        });
-        
-        video.srcObject = stream;
-        await video.play();
-        
-        logDebug("Camera access granted, starting hand tracking");
-        updateCameraStatus("Camera active");
-        
-        const cameraUtils = new Camera(video, {
-          onFrame: async () => {
-            try {
-              await hands.send({ image: video });
-            } catch (e) {
-              logDebug(`Hands processing error: ${e.message}`);
-            }
-          },
-          width: 640,
-          height: 480
-        });
-        
-        cameraUtils.start();
-        handTrackingActive = true;
-        logDebug("Hand tracking started successfully");
-      } catch (error) {
-        console.error('摄像头访问失败:', error);
-        logDebug(`Camera access failed: ${error.message}`);
-        updateCameraStatus(`Camera error: ${error.message}`);
-        
-        // 创建调试立方体
-        const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-        const cube = new THREE.Mesh(geometry, material);
-        scene.add(cube);
-        logDebug("Added debug cube to scene");
-      }
-    }
-    
-    // 更新摄像头状态
-    function updateCameraStatus(message) {
-      if (!cameraStatus) return;
-      cameraStatus.textContent = `Camera: ${message}`;
-      cameraStatus.classList.add('active');
-    }
-
-    // 动画循环
-    function animateScene() {
-      requestAnimationFrame(animateScene);
-      
-      if (mixer) {
-        mixer.update(0.016); // 基于60fps的增量
-      }
-      
-      if (fox && hugSessionActive) {
-        // 添加轻微的浮动效果
-        fox.position.y = -1 + Math.sin(Date.now() * 0.002) * 0.1;
-      }
-      
-      if (renderer && scene && camera) {
-        renderer.render(scene, camera);
-      }
-    }
-
-    // 启动AR拥抱会话
-    function startARHugSession() {
-      if (hugSessionActive) {
-        logDebug("AR session already active");
-        return;
-      }
-      
-      logDebug("Starting AR hug session");
-      
-      // 显示AR容器
-      arContainer.style.display = 'block';
-      
-      // 初始化场景（如果尚未初始化）
-      if (!scene) {
-        initThreeScene();
-      }
-      
-      // 开始动画循环
-      animateScene();
-      
-      // 加载模型并开始手部追踪
-      loadFoxModel().then(() => {
-        initHandTracking();
-        hugSessionActive = true;
-        
-        // 开始30秒倒计时
-        startHugTimer(30);
-      });
-      
-      // 显示通知
-      showNotification();
-    }
-    
-    // 结束AR拥抱会话
-    function endARHugSession() {
-      logDebug("Ending AR hug session");
-      hugSessionActive = false;
-      arContainer.style.display = 'none';
-      
-      // 在聊天框中显示消息
-      const chatBox = document.getElementById('chat-box');
-      if (chatBox) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'message bot-message';
-        messageDiv.textContent = "I hope the virtual hug made you feel better! 🦊💖";
-        chatBox.appendChild(messageDiv);
-        chatBox.scrollTop = chatBox.scrollHeight;
-      }
-    }
-    
-    // 显示通知
-    function showNotification() {
-      if (!notification) {
-        logDebug("Notification element not found");
-        return;
-      }
-      
-      logDebug("Showing notification");
-      notification.classList.add('show');
-      
-      // 3秒后自动隐藏
-      setTimeout(() => {
-        notification.classList.remove('show');
-      }, 3000);
-    }
-    
-    // 开始拥抱计时器
-    function startHugTimer(seconds) {
-      if (!hugTimer) return;
-      
-      logDebug(`Starting hug timer: ${seconds} seconds`);
-      let remaining = seconds;
-      hugTimer.textContent = `Hug Time: ${remaining}s`;
-      
-      const timer = setInterval(() => {
-        remaining--;
-        hugTimer.textContent = `Hug Time: ${remaining}s`;
-        
-        if (remaining <= 0) {
-          clearInterval(timer);
-          endARHugSession();
-        }
-      }, 1000);
-    }
-
-    // 将AR功能暴露给全局
-    window.ARSystem = {
-      startARHugSession,
-      endARHugSession,
-      initHandTracking
-    };
-
-    // 初始化Three.js场景但不激活
-    initThreeScene();
-    animateScene();
-    
-    // 添加事件监听器
-    if (endHugBtn) {
-      endHugBtn.addEventListener('click', endARHugSession);
-    }
-    
-    // 添加调试按钮事件监听器
-      document.getElementById('test-camera')?.addEventListener('click', () => {
-        console.log("Test Camera button clicked");
-        if (window.ARSystem?.initHandTracking) {
-          window.ARSystem.initHandTracking();
-        } else {
-          console.error("ARSystem not available");
-        }
-      });
-      
-      document.getElementById('test-ar')?.addEventListener('click', () => {
-        console.log("Test AR Session button clicked");
-        if (window.ARSystem?.startARHugSession) {
-          window.ARSystem.startARHugSession();
-        } else {
-          console.error("ARSystem not available");
-        }
-      });
-      
-      document.getElementById('test-notification')?.addEventListener('click', () => {
-        console.log("Test Notification button clicked");
-        showNotification("Test notification works!");
-      });
-    });
-    
-    // 调试函数
-    window.debugAR = () => {
-      startARHugSession();
-    };
-  </script>
-
-  <!-- 情绪识别逻辑 -->
+  <!-- 使用简单Three.js实现 -->
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const sendBtn = document.getElementById("send-button");
-      const userInput = document.getElementById("user-input");
-      const chatBox = document.getElementById("chat-box");
-      const notification = document.getElementById("notification");
-
-      // 显示通知的函数
-      function showNotification(message) {
-        if (!notification) {
-          console.error("Notification element not found");
+    // 简化版AR系统
+    const ARSystem = {
+      scene: null,
+      camera: null,
+      renderer: null,
+      isActive: false,
+      videoElement: document.getElementById('camera-feed'),
+      statusElement: document.getElementById('status-text'),
+      arContainer: document.getElementById('ar-container'),
+      
+      // 初始化Three.js
+      initThree: function() {
+        this.statusElement.textContent = "状态: 初始化Three.js";
+        console.log("初始化Three.js场景");
+        
+        // 创建场景
+        this.scene = new THREE.Scene();
+        
+        // 创建相机
+        this.camera = new THREE.PerspectiveCamera(
+          75, 
+          window.innerWidth / window.innerHeight,
+          0.1,
+          1000
+        );
+        this.camera.position.z = 5;
+        
+        // 创建渲染器
+        const canvas = document.getElementById('three-canvas');
+        this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        
+        // 添加灯光
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        this.scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(1, 1, 3);
+        this.scene.add(directionalLight);
+        
+        // 添加简单物体 - 使用立方体替代GLB
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+        this.cube = new THREE.Mesh(geometry, material);
+        this.scene.add(this.cube);
+        
+        console.log("Three.js初始化完成");
+        this.statusElement.textContent = "状态: Three.js已初始化";
+      },
+      
+      // 启动摄像头
+      startCamera: function() {
+        this.statusElement.textContent = "状态: 请求摄像头权限";
+        console.log("请求摄像头权限");
+        
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          this.statusElement.textContent = "错误: 浏览器不支持摄像头";
+          console.error("浏览器不支持摄像头API");
           return;
         }
         
-        notification.innerHTML = `<span class="notification-icon">🧸</span> ${message}`;
-        notification.classList.add("show");
+        navigator.mediaDevices.getUserMedia({ video: true })
+          .then(stream => {
+            this.statusElement.textContent = "状态: 摄像头已启动";
+            console.log("摄像头访问成功");
+            
+            // 显示视频流
+            this.videoElement.srcObject = stream;
+            this.videoElement.style.display = 'block';
+            
+            // 开始动画循环
+            this.animate();
+          })
+          .catch(error => {
+            this.statusElement.textContent = `错误: ${error.message}`;
+            console.error("摄像头访问失败:", error);
+          });
+      },
+      
+      // 启动AR会话
+      startARHugSession: function() {
+        if (this.isActive) return;
         
-        setTimeout(() => {
-          notification.classList.remove("show");
-        }, 3000);
+        this.statusElement.textContent = "状态: 启动AR会话";
+        console.log("启动AR会话");
+        
+        // 显示AR容器
+        this.arContainer.style.display = 'block';
+        this.isActive = true;
+        
+        // 初始化Three.js（如果尚未初始化）
+        if (!this.scene) {
+          this.initThree();
+        }
+        
+        // 启动摄像头
+        this.startCamera();
+      },
+      
+      // 结束AR会话
+      endARHugSession: function() {
+        this.statusElement.textContent = "状态: 会话结束";
+        console.log("结束AR会话");
+        this.arContainer.style.display = 'none';
+        this.isActive = false;
+        
+        // 停止视频流
+        if (this.videoElement.srcObject) {
+          const tracks = this.videoElement.srcObject.getTracks();
+          tracks.forEach(track => track.stop());
+          this.videoElement.srcObject = null;
+        }
+      },
+      
+      // 动画循环
+      animate: function() {
+        if (!this.isActive) return;
+        
+        requestAnimationFrame(() => this.animate());
+        
+        // 旋转立方体
+        if (this.cube) {
+          this.cube.rotation.x += 0.01;
+          this.cube.rotation.y += 0.01;
+        }
+        
+        // 渲染场景
+        if (this.renderer && this.scene && this.camera) {
+          this.renderer.render(this.scene, this.camera);
+        }
       }
-
-      // 触发虚拟拥抱
-      function triggerVirtualHug() {
-        console.log("Triggering virtual hug");
-        showNotification("Sending a virtual hug...");
+    };
+    
+    // 暴露给全局
+    window.ARSystem = ARSystem;
+    
+    // 添加事件监听器
+    document.getElementById('end-hug').addEventListener('click', () => {
+      ARSystem.endARHugSession();
+    });
+    
+    document.getElementById('test-camera').addEventListener('click', () => {
+      ARSystem.startARHugSession();
+    });
+    
+    document.getElementById('test-ar').addEventListener('click', () => {
+      ARSystem.startARHugSession();
+    });
+    
+    document.getElementById('test-notification').addEventListener('click', () => {
+      alert("测试通知: 这是虚拟拥抱通知!");
+    });
+    
+    // 初始化Three.js库
+    function loadThreeJS() {
+      return new Promise((resolve, reject) => {
+        if (window.THREE) {
+          console.log("Three.js已加载");
+          resolve();
+          return;
+        }
         
-        // 在聊天框中显示消息
-        appendMessage("HugBot", "I sense you're feeling down. Sending a virtual hug your way... 🧸");
-        
-        // 延迟启动AR场景，让用户看到通知
-        setTimeout(() => {
-          if (window.ARSystem && typeof window.ARSystem.startARHugSession === 'function') {
-            console.log("Calling ARSystem.startARHugSession");
-            window.ARSystem.startARHugSession();
-          } else {
-            console.error("ARSystem not found or startARHugSession is not a function");
-            appendMessage("HugBot", "I'd give you a hug if I could! 🫂");
-          }
-        }, 1500);
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+    
+    // 页面加载完成后初始化
+    window.addEventListener('DOMContentLoaded', async () => {
+      console.log("DOM加载完成");
+      
+      try {
+        // 加载Three.js库
+        await loadThreeJS();
+        console.log("Three.js库加载成功");
+      } catch (error) {
+        console.error("无法加载Three.js:", error);
+        alert("无法加载Three.js库，请检查网络连接");
       }
-
-      // 发送消息
+      
+      // 聊天系统
+      const sendBtn = document.getElementById("send-button");
+      const userInput = document.getElementById("user-input");
+      const chatBox = document.getElementById("chat-box");
+      
       sendBtn.addEventListener("click", async () => {
         const text = userInput.value.trim();
         if (!text) return;
         
-        appendMessage("You", text);
+        // 显示用户消息
+        const userMsg = document.createElement("div");
+        userMsg.className = "message user-message";
+        userMsg.textContent = `You: ${text}`;
+        chatBox.appendChild(userMsg);
+        
         userInput.value = "";
-
-        try {
-          console.log("Sending emotion analysis request for text:", text);
-          // --- Step 1: 情绪识别 ---
-          const emotionRes = await fetch("https://low0028-hugbot-backend.hf.space/emotion", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text })
-          });
+        chatBox.scrollTop = chatBox.scrollHeight;
+        
+        // 检测"sad"关键词
+        if (text.toLowerCase().includes("sad")) {
+          // 显示虚拟拥抱消息
+          const botMsg1 = document.createElement("div");
+          botMsg1.className = "message bot-message";
+          botMsg1.textContent = "HugBot: 检测到伤心情绪，发送虚拟拥抱中... 🧸";
+          chatBox.appendChild(botMsg1);
           
-          if (!emotionRes.ok) {
-            throw new Error(`Emotion API responded with status ${emotionRes.status}`);
-          }
-          
-          const emotionData = await emotionRes.json();
-          console.log("Emotion API response:", emotionData);
-
-          if (emotionData.emotion) {
-            appendMessage("HugBot", `I sense you're feeling **${emotionData.emotion}** (${emotionData.score})`);
-          } else {
-            appendMessage("HugBot", "Sorry, I couldn't understand that emotion.");
-            return;
-          }
-
-          // --- Step 2: 聊天回复 ---
-          console.log("Sending chat request for text:", text);
-          const chatRes = await fetch("https://low0028-hugbot-backend.hf.space/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text })
-          });
-          
-          if (!chatRes.ok) {
-            throw new Error(`Chat API responded with status ${chatRes.status}`);
-          }
-          
-          const chatData = await chatRes.json();
-          console.log("Chat API response:", chatData);
-          appendMessage("HugBot", chatData.response || "I'm here for you ❤️");
-
-          // --- Step 3: 判断是否触发拥抱动画 ---
-          if (emotionData.trigger_hug) {
-            console.log("Emotion data indicates a hug should be triggered");
-            triggerVirtualHug();
-          } else {
-            console.log("No hug triggered based on emotion data");
-          }
-        } catch (error) {
-          console.error("Error:", error);
-          appendMessage("HugBot", "Oops! Something went wrong. Please try again later.");
-          // 记录更详细的错误信息
-          appendMessage("HugBot", `Error details: ${error.message}`);
-        }
-      });
-
-      // 添加消息到聊天框
-      function appendMessage(sender, message) {
-        if (!chatBox) {
-          console.error("Chat box element not found");
-          return;
+          // 启动AR系统
+          setTimeout(() => {
+            if (window.ARSystem && typeof window.ARSystem.startARHugSession === 'function') {
+              window.ARSystem.startARHugSession();
+            } else {
+              const errorMsg = document.createElement("div");
+              errorMsg.className = "message bot-message";
+              errorMsg.textContent = "HugBot: AR系统初始化失败";
+              chatBox.appendChild(errorMsg);
+            }
+          }, 1000);
+        } else {
+          // 普通回复
+          const botMsg = document.createElement("div");
+          botMsg.className = "message bot-message";
+          botMsg.textContent = "HugBot: 收到您的消息";
+          chatBox.appendChild(botMsg);
         }
         
-        const div = document.createElement('div');
-        div.className = `message ${sender === "You" ? 'user-message' : 'bot-message'}`;
-        div.innerHTML = `<strong>${sender}:</strong> ${message}`;
-        chatBox.appendChild(div);
         chatBox.scrollTop = chatBox.scrollHeight;
-      }
+      });
     });
   </script>
 </body>
