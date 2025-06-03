@@ -10,7 +10,7 @@ sendButton.addEventListener("click", async () => {
   userInput.value = "";
 
   try {
-    const response = await fetch("https://your-backend-url/emotion", {
+    const response = await fetch("https://low0028-hugbot-backend.hf.space/emotion", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text: message })
