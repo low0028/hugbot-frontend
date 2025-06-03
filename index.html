@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>线框熊拥抱互动</title>
+    <title>火柴人拥抱手势识别</title>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
@@ -17,60 +17,50 @@
         }
         
         body {
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
             color: #fff;
             min-height: 100vh;
-            overflow: hidden;
             display: flex;
             flex-direction: column;
+            align-items: center;
+            padding: 20px;
         }
         
         .header {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 20px;
             text-align: center;
             backdrop-filter: blur(10px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            z-index: 100;
-            border-bottom: 2px solid rgba(100, 255, 218, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            max-width: 900px;
+            width: 100%;
         }
         
         h1 {
-            font-size: 2.3rem;
-            margin-bottom: 8px;
-            color: #64ffda;
-            text-shadow: 0 0 10px rgba(100, 255, 218, 0.7);
-            letter-spacing: 1px;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #ff6b6b;
+            text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
         }
         
         .subtitle {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            max-width: 800px;
-            margin: 0 auto;
-            line-height: 1.5;
-            color: #a8b2d1;
+            font-size: 1.2rem;
+            opacity: 0.8;
+            line-height: 1.6;
         }
         
         .container {
-            flex: 1;
             position: relative;
-            max-width: 1000px;
-            margin: 0 auto;
+            max-width: 900px;
             width: 100%;
-            height: calc(100vh - 140px);
-            padding: 15px;
-        }
-        
-        .camera-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            border-radius: 15px;
+            height: 70vh;
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-            background: rgba(10, 15, 30, 0.4);
-            border: 1px solid rgba(100, 255, 218, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
         }
         
         .camera-header {
@@ -78,15 +68,12 @@
             top: 0;
             left: 0;
             right: 0;
-            background: rgba(100, 255, 218, 0.2);
-            padding: 12px;
+            background: rgba(255, 107, 107, 0.8);
+            padding: 15px;
             text-align: center;
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             z-index: 10;
-            backdrop-filter: blur(5px);
-            letter-spacing: 1px;
-            color: #64ffda;
         }
         
         #camera-feed {
@@ -96,11 +83,11 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transform: scaleX(-1);
+            transform: scaleX(-1); /* 镜像翻转 */
             z-index: 1;
         }
         
-        #camera-overlay {
+        #overlay-canvas {
             position: absolute;
             top: 0;
             left: 0;
@@ -125,80 +112,73 @@
             left: 0;
             right: 0;
             background: rgba(30, 30, 50, 0.8);
-            padding: 12px;
+            padding: 15px;
             text-align: center;
-            font-size: 1rem;
+            font-size: 1.1rem;
+            border-top: 2px solid rgba(255, 107, 107, 0.5);
             z-index: 10;
-            border-top: 1px solid rgba(100, 255, 218, 0.3);
         }
         
         .status-panel {
             position: absolute;
-            top: 50px;
-            right: 15px;
-            background: rgba(20, 25, 45, 0.85);
-            padding: 12px;
+            top: 60px;
+            right: 20px;
+            background: rgba(30, 30, 50, 0.8);
+            padding: 15px;
             border-radius: 10px;
             z-index: 10;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            min-width: 180px;
-            border: 1px solid rgba(100, 255, 218, 0.2);
-            backdrop-filter: blur(5px);
+            gap: 10px;
+            min-width: 200px;
         }
         
         .status-card {
-            background: rgba(10, 15, 30, 0.7);
-            padding: 10px;
-            border-radius: 8px;
+            background: rgba(20, 20, 40, 0.9);
+            padding: 15px;
+            border-radius: 10px;
             text-align: center;
-            border: 1px solid rgba(100, 255, 218, 0.1);
         }
         
         .status-card h3 {
-            color: #64ffda;
-            margin-bottom: 6px;
-            font-size: 0.9rem;
+            color: #4ECDC4;
+            margin-bottom: 10px;
+            font-size: 1rem;
         }
         
         .status-value {
-            font-size: 1rem;
+            font-size: 1.2rem;
             font-weight: 700;
-            color: #ff6b6b;
+            color: #FFE66D;
         }
         
         .controls {
-            position: absolute;
-            bottom: 70px;
-            left: 50%;
-            transform: translateX(-50%);
             display: flex;
-            gap: 12px;
-            z-index: 100;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         
         .control-btn {
-            background: linear-gradient(135deg, #0a192f, #172a45);
-            color: #64ffda;
-            border: 1px solid rgba(100, 255, 218, 0.3);
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-size: 0.95rem;
+            background: linear-gradient(135deg, #FF6B6B, #ff5252);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
             display: flex;
             align-items: center;
-            gap: 6px;
-            z-index: 100;
+            gap: 8px;
         }
         
         .control-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(100, 255, 218, 0.4);
-            background: linear-gradient(135deg, #112240, #1a3a5f);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.6);
         }
         
         .control-btn:active {
@@ -211,7 +191,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(10, 15, 30, 0.9);
+            background: rgba(10, 15, 30, 0.8);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -223,10 +203,10 @@
         .spinner {
             width: 50px;
             height: 50px;
-            border: 5px solid rgba(100, 255, 218, 0.3);
+            border: 5px solid rgba(255, 107, 107, 0.3);
             border-radius: 50%;
-            border-top-color: #64ffda;
-            animation: spin 1.5s ease-in-out infinite;
+            border-top-color: #ff6b6b;
+            animation: spin 1s ease-in-out infinite;
             margin-bottom: 20px;
         }
         
@@ -236,148 +216,176 @@
         
         .loading-text {
             font-size: 1.2rem;
-            color: #64ffda;
-            text-align: center;
-            max-width: 80%;
-            line-height: 1.6;
+            color: #FFE66D;
         }
         
-        .hint {
+        .hand-guide {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: rgba(100, 255, 218, 0.7);
-            font-size: 1.3rem;
-            text-align: center;
-            max-width: 80%;
-            z-index: 50;
+            width: 200px;
+            height: 200px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50,15 C60,5 80,10 85,25 C90,40 85,55 70,65 L50,85 L30,65 C15,55 10,40 15,25 C20,10 40,5 50,15 Z" fill="none" stroke="rgba(255,107,107,0.6)" stroke-width="2"/></svg>') no-repeat center;
+            background-size: contain;
+            opacity: 0.7;
+            z-index: 15;
             pointer-events: none;
-            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
-            background: rgba(10, 15, 30, 0.6);
-            padding: 20px;
-            border-radius: 15px;
-            border: 1px solid rgba(100, 255, 218, 0.3);
-            backdrop-filter: blur(5px);
+            display: none;
         }
         
         .fps-counter {
             position: absolute;
-            top: 10px;
-            left: 10px;
+            bottom: 10px;
+            right: 10px;
             background: rgba(0, 0, 0, 0.5);
-            color: #64ffda;
+            color: white;
             padding: 5px 10px;
             border-radius: 5px;
-            font-size: 13px;
+            font-size: 14px;
             z-index: 20;
         }
         
-        .tech-badge {
+        .info-panel {
+            background: rgba(30, 30, 50, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            max-width: 900px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .info-panel h2 {
+            color: #4ECDC4;
+            margin-bottom: 15px;
+        }
+        
+        .info-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .info-card {
+            background: rgba(20, 20, 40, 0.6);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .info-card h3 {
+            color: #FFE66D;
+            margin-bottom: 10px;
+        }
+        
+        .hug-hint {
             position: absolute;
-            bottom: 50px;
-            right: 10px;
-            background: rgba(100, 255, 218, 0.1);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10, 15, 30, 0.7);
             color: #64ffda;
-            padding: 4px 8px;
-            border-radius: 5px;
-            font-size: 11px;
-            z-index: 20;
-            border: 1px solid rgba(100, 255, 218, 0.2);
-        }
-        
-        .animation-info {
-            position: absolute;
-            bottom: 85px;
-            left: 10px;
-            background: rgba(10, 15, 30, 0.6);
-            padding: 10px 15px;
-            border-radius: 8px;
-            max-width: 300px;
-            border: 1px solid rgba(100, 255, 218, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.4rem;
+            z-index: 25;
+            pointer-events: none;
+            display: none;
+            border: 2px solid rgba(100, 255, 218, 0.3);
             backdrop-filter: blur(5px);
-        }
-        
-        .animation-title {
-            color: #64ffda;
-            font-size: 1.1rem;
-            margin-bottom: 8px;
-        }
-        
-        .animation-description {
-            color: #a8b2d1;
-            font-size: 0.9rem;
-            line-height: 1.5;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            max-width: 80%;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>线框熊拥抱互动</h1>
-        <p class="subtitle">伸出手臂，线框熊会检测您的位置并给您一个虚拟拥抱</p>
+        <h1>火柴人拥抱手势识别</h1>
+        <p class="subtitle">伸出手臂，火柴人会检测您的位置并给您一个虚拟拥抱</p>
     </div>
     
     <div class="container">
-        <div class="camera-container">
-            <div class="camera-header">摄像头画面与3D熊动画叠加</div>
-            <div class="loading-overlay" id="loading-overlay">
-                <div class="spinner"></div>
-                <div class="loading-text">正在加载手部识别模型与3D场景，请稍候...</div>
-            </div>
-            <video id="camera-feed" autoplay playsinline></video>
-            <canvas id="camera-overlay"></canvas>
-            <canvas id="three-canvas"></canvas>
-            <div class="instructions">
-                请将手臂放在摄像头视野范围内，线框熊会尝试定位您的手臂位置
-            </div>
-            
-            <div class="status-panel">
-                <div class="status-card">
-                    <h3>动画状态</h3>
-                    <div id="animation-status" class="status-value">等待中</div>
-                </div>
-                <div class="status-card">
-                    <h3>检测置信度</h3>
-                    <div id="confidence" class="status-value">0%</div>
-                </div>
-                <div class="status-card">
-                    <h3>追踪状态</h3>
-                    <div id="tracking-status" class="status-value">未开始</div>
-                </div>
-            </div>
-            
-            <div class="fps-counter" id="fps-counter">FPS: 0</div>
-            <div class="tech-badge">MediaPipe + Three.js</div>
-            
-            <div class="animation-info">
-                <h3 class="animation-title">线框拥抱熊</h3>
-                <p class="animation-description">
-                    当系统检测到您的手臂位置时，线框熊会靠近并张开双臂给您一个虚拟拥抱。
-                </p>
-            </div>
-            
-            <div class="hint" id="animation-hint">请启动摄像头并伸出手臂</div>
+        <div class="camera-header">摄像头实时画面与火柴人动画</div>
+        <div class="loading-overlay" id="loading-overlay">
+            <div class="spinner"></div>
+            <div class="loading-text">正在加载手部识别模型，请稍候...</div>
         </div>
+        <div class="hand-guide" id="hand-guide"></div>
+        <video id="camera-feed" autoplay playsinline></video>
+        <canvas id="overlay-canvas"></canvas>
+        <canvas id="three-canvas"></canvas>
+        <div class="instructions">
+            请将手臂放在摄像头视野范围内，火柴人会尝试定位您的手臂位置
+        </div>
+        
+        <div class="status-panel">
+            <div class="status-card">
+                <h3>动画状态</h3>
+                <div id="animation-status" class="status-value">等待手势</div>
+            </div>
+            <div class="status-card">
+                <h3>检测置信度</h3>
+                <div id="confidence" class="status-value">0%</div>
+            </div>
+            <div class="status-card">
+                <h3>追踪状态</h3>
+                <div id="tracking-status" class="status-value">未开始</div>
+            </div>
+        </div>
+        
+        <div class="fps-counter" id="fps-counter">FPS: 0</div>
+        <div class="hug-hint" id="hug-hint">张开双臂进行拥抱！</div>
     </div>
     
     <div class="controls">
         <button class="control-btn" id="start-btn">
             <span>▶️</span> 启动摄像头
         </button>
-        <button class="control-btn" id="reset-btn">
-            <span>🔄</span> 重置位置
+        <button class="control-btn" id="hug-btn">
+            <span>🤗</span> 拥抱动画
         </button>
+        <button class="control-btn" id="guide-btn">
+            <span>🖐️</span> 显示手势引导
+        </button>
+    </div>
+
+    <div class="info-panel">
+        <h2>使用说明</h2>
+        <div class="info-content">
+            <div class="info-card">
+                <h3>操作指南</h3>
+                <p>1. 点击"启动摄像头"按钮开始</p>
+                <p>2. 将手臂完全展示在摄像头前</p>
+                <p>3. 火柴人会在手臂附近出现</p>
+                <p>4. 张开双臂触发拥抱动画</p>
+            </div>
+            <div class="info-card">
+                <h3>手势要求</h3>
+                <p>- 张开双臂效果最佳</p>
+                <p>- 确保手臂在画面中央</p>
+                <p>- 避免背景过于复杂</p>
+                <p>- 保持良好光照条件</p>
+            </div>
+            <div class="info-card">
+                <h3>技术说明</h3>
+                <p>使用Mediapipe手部识别技术</p>
+                <p>基于Three.js的3D火柴人动画</p>
+                <p>所有处理在本地完成</p>
+                <p>无需上传任何数据</p>
+            </div>
+        </div>
     </div>
 
     <script>
         // 全局变量
-        let scene, camera, renderer, bear, leftArm, rightArm;
+        let scene, camera, renderer, stickman, leftArm, rightArm;
         let handTrackingActive = false;
-        let leftHandPosition = { x: 0, y: 0, z: 0 };
-        let rightHandPosition = { x: 0, y: 0, z: 0 };
+        let guideVisible = true;
         let lastFrameTime = 0;
         let frameCount = 0;
         let fps = 0;
+        let hugAnimationActive = false;
+        let hugProgress = 0;
         
         // 获取DOM元素
         const loadingOverlay = document.getElementById('loading-overlay');
@@ -385,10 +393,11 @@
         const confidence = document.getElementById('confidence');
         const trackingStatus = document.getElementById('tracking-status');
         const fpsCounter = document.getElementById('fps-counter');
-        const animationHint = document.getElementById('animation-hint');
+        const handGuide = document.getElementById('hand-guide');
         const videoElement = document.getElementById('camera-feed');
-        const overlayCanvas = document.getElementById('camera-overlay');
+        const overlayCanvas = document.getElementById('overlay-canvas');
         const overlayCtx = overlayCanvas.getContext('2d');
+        const hugHint = document.getElementById('hug-hint');
         
         // 初始化Three.js场景
         function initThreeScene() {
@@ -396,11 +405,11 @@
             scene = new THREE.Scene();
             scene.background = null;
             
-            // 创建相机
-            const container = document.querySelector('.camera-container');
-            camera = new THREE.PerspectiveCamera(
-                65, 
-                container.clientWidth / container.clientHeight,
+            // 创建相机（正交相机解决镜像问题）
+            const aspect = overlayCanvas.clientWidth / overlayCanvas.clientHeight;
+            camera = new THREE.OrthographicCamera(
+                -aspect, aspect, // left, right
+                1, -1, // top, bottom
                 0.1,
                 1000
             );
@@ -412,122 +421,99 @@
                 alpha: true,
                 antialias: true
             });
-            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setSize(overlayCanvas.clientWidth, overlayCanvas.clientHeight);
             renderer.setPixelRatio(window.devicePixelRatio);
             
             // 添加灯光
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
             scene.add(ambientLight);
             
-            const directionalLight = new THREE.DirectionalLight(0x64ffda, 0.8);
-            directionalLight.position.set(2, 3, 4);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(1, 1, 3);
             scene.add(directionalLight);
             
-            // 创建线框熊模型
-            createWireframeBear();
+            // 创建火柴人
+            createStickman();
             
             // 开始动画循环
             animateScene();
         }
         
-        // 创建简化版线框熊模型
-        function createWireframeBear() {
-            const bearGroup = new THREE.Group();
+        // 创建火柴人模型
+        function createStickman() {
+            const stickmanGroup = new THREE.Group();
             
-            // 熊身体（圆柱体）
-            const bodyGeometry = new THREE.CylinderGeometry(0.5, 0.5, 1.2, 12);
-            const bodyMaterial = new THREE.MeshBasicMaterial({ 
-                color: 0x64ffda, 
-                wireframe: true,
-                emissive: 0x00ffaa,
-                emissiveIntensity: 0.3
-            });
+            // 身体（垂直线）
+            const bodyGeometry = new THREE.BoxGeometry(0.05, 0.6, 0.05);
+            const bodyMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
             const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.rotation.x = Math.PI / 2;
-            bearGroup.add(body);
+            body.position.y = -0.1;
+            stickmanGroup.add(body);
             
-            // 熊头（球体）
-            const headGeometry = new THREE.SphereGeometry(0.5, 12, 12);
-            const head = new THREE.Mesh(headGeometry, bodyMaterial);
-            head.position.y = 0.2;
-            head.position.z = -0.8;
-            bearGroup.add(head);
+            // 头部（球体）
+            const headGeometry = new THREE.SphereGeometry(0.15, 16, 16);
+            const headMaterial = new THREE.MeshBasicMaterial({ color: 0xff6b6b });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = 0.3;
+            stickmanGroup.add(head);
             
-            // 熊耳朵（小圆柱体）
-            const earGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.1, 8);
-            const earMaterial = new THREE.MeshBasicMaterial({ 
-                color: 0x64ffda, 
-                wireframe: true
-            });
+            // 左臂
+            const leftArmGeometry = new THREE.BoxGeometry(0.4, 0.05, 0.05);
+            leftArm = new THREE.Mesh(leftArmGeometry, bodyMaterial);
+            leftArm.position.set(-0.2, 0.1, 0);
+            leftArm.rotation.z = Math.PI / 6;
+            stickmanGroup.add(leftArm);
             
-            const leftEar = new THREE.Mesh(earGeometry, earMaterial);
-            leftEar.position.set(-0.35, 0.5, -0.8);
-            leftEar.rotation.x = Math.PI / 2;
-            bearGroup.add(leftEar);
+            // 右臂
+            const rightArmGeometry = new THREE.BoxGeometry(0.4, 0.05, 0.05);
+            rightArm = new THREE.Mesh(rightArmGeometry, bodyMaterial);
+            rightArm.position.set(0.2, 0.1, 0);
+            rightArm.rotation.z = -Math.PI / 6;
+            stickmanGroup.add(rightArm);
             
-            const rightEar = new THREE.Mesh(earGeometry, earMaterial);
-            rightEar.position.set(0.35, 0.5, -0.8);
-            rightEar.rotation.x = Math.PI / 2;
-            bearGroup.add(rightEar);
+            // 左腿
+            const leftLegGeometry = new THREE.BoxGeometry(0.05, 0.4, 0.05);
+            const leftLeg = new THREE.Mesh(leftLegGeometry, bodyMaterial);
+            leftLeg.position.set(-0.1, -0.5, 0);
+            leftLeg.rotation.z = Math.PI / 8;
+            stickmanGroup.add(leftLeg);
             
-            // 熊腿（后腿，圆柱体）
-            const legGeometry = new THREE.CylinderGeometry(0.12, 0.12, 0.6, 8);
-            const legMaterial = new THREE.MeshBasicMaterial({ 
-                color: 0x64ffda, 
-                wireframe: true
-            });
+            // 右腿
+            const rightLegGeometry = new THREE.BoxGeometry(0.05, 0.4, 0.05);
+            const rightLeg = new THREE.Mesh(rightLegGeometry, bodyMaterial);
+            rightLeg.position.set(0.1, -0.5, 0);
+            rightLeg.rotation.z = -Math.PI / 8;
+            stickmanGroup.add(rightLeg);
             
-            const backLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
-            backLeftLeg.position.set(-0.3, -0.7, 0.3);
-            backLeftLeg.rotation.x = Math.PI / 6;
-            bearGroup.add(backLeftLeg);
+            // 完成火柴人模型
+            stickman = stickmanGroup;
+            stickman.position.set(0, 0, 0);
+            stickman.visible = false;
+            scene.add(stickman);
+        }
+        
+        // 更新拥抱动画
+        function updateHugAnimation() {
+            if (!hugAnimationActive) return;
             
-            const backRightLeg = new THREE.Mesh(legGeometry, legMaterial);
-            backRightLeg.position.set(0.3, -0.7, 0.3);
-            backRightLeg.rotation.x = Math.PI / 6;
-            bearGroup.add(backRightLeg);
+            // 增加拥抱进度
+            hugProgress += 0.05;
+            if (hugProgress > 1) hugProgress = 0;
             
-            // 熊手臂（前肢）
-            const armGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.7, 8);
-            const armMaterial = new THREE.MeshBasicMaterial({ 
-                color: 0xff6b6b, 
-                wireframe: true,
-                emissive: 0xff5555,
-                emissiveIntensity: 0.3
-            });
+            // 计算手臂角度（正弦波动画）
+            const angle = Math.PI / 3 - (Math.sin(hugProgress * Math.PI * 2) * Math.PI / 3);
             
-            leftArm = new THREE.Mesh(armGeometry, armMaterial);
-            leftArm.position.set(-0.5, -0.1, -0.1);
-            leftArm.rotation.z = Math.PI / 3;
-            bearGroup.add(leftArm);
-            
-            rightArm = new THREE.Mesh(armGeometry, armMaterial);
-            rightArm.position.set(0.5, -0.1, -0.1);
-            rightArm.rotation.z = -Math.PI / 3;
-            bearGroup.add(rightArm);
-            
-            // 完成熊模型
-            bear = bearGroup;
-            bear.position.y = -0.5;
-            bear.scale.set(0.7, 0.7, 0.7);
-            scene.add(bear);
+            // 应用角度
+            leftArm.rotation.z = angle;
+            rightArm.rotation.z = -angle;
         }
         
         // 动画循环
         function animateScene() {
             requestAnimationFrame(animateScene);
             
-            // 更新FPS计数
-            updateFPS();
-            
-            // 手臂拥抱动画
-            if (bear && (leftHandPosition.x !== 0 || rightHandPosition.x !== 0)) {
-                const time = Date.now() * 0.001;
-                const hugIntensity = 0.5 + Math.sin(time) * 0.5;
-                
-                leftArm.rotation.z = Math.PI / 3 - hugIntensity * 0.5;
-                rightArm.rotation.z = -Math.PI / 3 + hugIntensity * 0.5;
-            }
+            // 更新拥抱动画
+            updateHugAnimation();
             
             // 渲染场景
             renderer.render(scene, camera);
@@ -539,6 +525,7 @@
             
             animationStatus.textContent = "正在启动摄像头";
             trackingStatus.textContent = "初始化中";
+            loadingOverlay.style.display = 'flex';
             
             const hands = new window.Hands({
                 locateFile: (file) => {
@@ -549,7 +536,7 @@
             hands.setOptions({
                 maxNumHands: 2,
                 modelComplexity: 1,
-                minDetectionConfidence: 0.7,
+                minDetectionConfidence: 0.5,
                 minTrackingConfidence: 0.5
             });
             
@@ -564,9 +551,33 @@
                 // 清除覆盖层
                 overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
                 
-                // 绘制检测结果
-                if (results.multiHandLandmarks) {
-                    for (const landmarks of results.multiHandLandmarks) {
+                if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                    // 显示火柴人
+                    stickman.visible = true;
+                    
+                    // 隐藏手势引导
+                    handGuide.style.display = 'none';
+                    
+                    // 更新状态
+                    trackingStatus.textContent = "追踪中";
+                    
+                    // 计算双手中心位置
+                    let avgX = 0, avgY = 0;
+                    for (let i = 0; i < results.multiHandLandmarks.length; i++) {
+                        const landmarks = results.multiHandLandmarks[i];
+                        const palmBase = landmarks[0];
+                        
+                        // 更新置信度
+                        if (i === 0) {
+                            const conf = Math.round(results.multiHandedness[i].score * 100);
+                            confidence.textContent = `${conf}%`;
+                        }
+                        
+                        // 累加位置
+                        avgX += palmBase.x;
+                        avgY += palmBase.y;
+                        
+                        // 绘制检测结果
                         window.drawConnectors(
                             overlayCtx, landmarks, window.HAND_CONNECTIONS,
                             {color: '#64FFDA', lineWidth: 2}
@@ -577,18 +588,40 @@
                         );
                     }
                     
-                    // 更新手部位置
-                    updateHandPositions(results);
+                    // 计算平均位置
+                    avgX /= results.multiHandLandmarks.length;
+                    avgY /= results.multiHandLandmarks.length;
                     
-                    // 更新状态
-                    trackingStatus.textContent = "追踪中";
-                    animationHint.style.display = 'none';
+                    // 转换为3D场景坐标（解决镜像问题）
+                    const aspect = overlayCanvas.width / overlayCanvas.height;
+                    const posX = (0.5 - avgX) * 2 * aspect; // 镜像翻转
+                    const posY = -(avgY - 0.5) * 2; // 反转Y轴
+                    
+                    // 更新火柴人位置
+                    stickman.position.set(posX, posY, 0.5);
+                    
+                    // 检测拥抱手势（双手张开）
+                    if (results.multiHandLandmarks.length >= 2) {
+                        animationStatus.textContent = "拥抱中";
+                        hugAnimationActive = true;
+                        hugHint.style.display = 'block';
+                    } else {
+                        animationStatus.textContent = "手臂检测到";
+                        hugHint.style.display = 'none';
+                    }
                 } else {
                     // 没有检测到手部
-                    animationStatus.textContent = "等待中";
+                    stickman.visible = false;
+                    animationStatus.textContent = "等待手势";
                     confidence.textContent = "0%";
                     trackingStatus.textContent = "未检测到手部";
-                    animationHint.style.display = 'block';
+                    hugAnimationActive = false;
+                    hugHint.style.display = 'none';
+                    
+                    // 显示手势引导
+                    if (guideVisible) {
+                        handGuide.style.display = 'block';
+                    }
                 }
             });
             
@@ -614,11 +647,22 @@
                 overlayCanvas.width = videoElement.videoWidth;
                 overlayCanvas.height = videoElement.videoHeight;
                 
+                // 设置Three.js画布尺寸
+                renderer.setSize(overlayCanvas.width, overlayCanvas.height);
+                
+                // 更新相机比例
+                const aspect = overlayCanvas.width / overlayCanvas.height;
+                camera.left = -aspect;
+                camera.right = aspect;
+                camera.top = 1;
+                camera.bottom = -1;
+                camera.updateProjectionMatrix();
+                
                 animationStatus.textContent = "检测中";
                 trackingStatus.textContent = "已就绪";
                 
                 // 启动摄像头处理
-                const camera = new window.Camera(videoElement, {
+                const cameraUtil = new window.Camera(videoElement, {
                     onFrame: async () => {
                         try {
                             await hands.send({ image: videoElement });
@@ -631,7 +675,7 @@
                     height: videoElement.videoHeight
                 });
                 
-                camera.start();
+                cameraUtil.start();
                 handTrackingActive = true;
                 
             } catch (error) {
@@ -644,43 +688,7 @@
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'instructions';
                 errorDiv.innerHTML = `<div style="color: #ff6b6b; font-weight: bold;">错误: ${error.message}</div>`;
-                document.querySelector('.camera-container').appendChild(errorDiv);
-            }
-        }
-        
-        // 更新手部位置
-        function updateHandPositions(results) {
-            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-                for (let i = 0; i < results.multiHandLandmarks.length; i++) {
-                    const landmarks = results.multiHandLandmarks[i];
-                    const handedness = results.multiHandedness[i];
-                    
-                    // 更新置信度
-                    const conf = Math.round(handedness.score * 100);
-                    confidence.textContent = `${conf}%`;
-                    
-                    // 获取手掌中心位置
-                    const palmBase = landmarks[0];
-                    const palmX = (palmBase.x - 0.5) * 2;
-                    const palmY = -(palmBase.y - 0.5) * 2;
-                    
-                    // 根据左右手更新位置
-                    if (handedness.label === 'Left') {
-                        leftHandPosition = { x: palmX, y: palmY, z: 0 };
-                        animationStatus.textContent = "左臂检测到";
-                    } else if (handedness.label === 'Right') {
-                        rightHandPosition = { x: palmX, y: palmY, z: 0 };
-                        animationStatus.textContent = "右臂检测到";
-                    }
-                    
-                    // 更新熊的位置（在左右手中间）
-                    if (bear) {
-                        const avgX = (leftHandPosition.x + rightHandPosition.x) / 2;
-                        const avgY = (leftHandPosition.y + rightHandPosition.y) / 2;
-                        bear.position.x = avgX * 3;
-                        bear.position.y = avgY * 2 - 0.5;
-                    }
-                }
+                document.querySelector('.container').appendChild(errorDiv);
             }
         }
         
@@ -699,19 +707,17 @@
             }
         }
         
-        // 重置熊位置
-        function resetBearPosition() {
-            if (bear) {
-                bear.position.set(0, -0.5, 0);
-                leftArm.rotation.z = Math.PI / 3;
-                rightArm.rotation.z = -Math.PI / 3;
+        // 切换拥抱动画
+        function toggleHugAnimation() {
+            hugAnimationActive = !hugAnimationActive;
+            const btn = document.getElementById('hug-btn');
+            if (hugAnimationActive) {
+                btn.innerHTML = '<span>🤗</span> 停止拥抱';
+                animationStatus.textContent = "拥抱中";
+            } else {
+                btn.innerHTML = '<span>🤗</span> 拥抱动画';
+                animationStatus.textContent = "动画已停止";
             }
-            leftHandPosition = { x: 0, y: 0, z: 0 };
-            rightHandPosition = { x: 0, y: 0, z: 0 };
-            animationStatus.textContent = "已重置";
-            setTimeout(() => {
-                animationStatus.textContent = "等待中";
-            }, 2000);
         }
         
         // 初始化
@@ -722,27 +728,39 @@
             // 添加事件监听器
             document.getElementById('start-btn').addEventListener('click', () => {
                 initHandTracking();
-                animationHint.textContent = "请伸出手臂...";
             });
             
-            document.getElementById('reset-btn').addEventListener('click', () => {
-                resetBearPosition();
+            document.getElementById('hug-btn').addEventListener('click', () => {
+                toggleHugAnimation();
             });
+            
+            document.getElementById('guide-btn').addEventListener('click', () => {
+                guideVisible = !guideVisible;
+                const btn = document.getElementById('guide-btn');
+                if (guideVisible) {
+                    btn.innerHTML = '<span>🖐️</span> 隐藏引导';
+                    handGuide.style.display = 'block';
+                } else {
+                    btn.innerHTML = '<span>🖐️</span> 显示引导';
+                    handGuide.style.display = 'none';
+                }
+            });
+            
+            // 初始显示引导
+            handGuide.style.display = 'block';
             
             // 响应窗口大小变化
             window.addEventListener('resize', () => {
                 if (camera && renderer) {
-                    const container = document.querySelector('.camera-container');
-                    camera.aspect = container.clientWidth / container.clientHeight;
+                    const aspect = overlayCanvas.clientWidth / overlayCanvas.clientHeight;
+                    camera.left = -aspect;
+                    camera.right = aspect;
+                    camera.top = 1;
+                    camera.bottom = -1;
                     camera.updateProjectionMatrix();
-                    renderer.setSize(container.clientWidth, container.clientHeight);
+                    renderer.setSize(overlayCanvas.clientWidth, overlayCanvas.clientHeight);
                 }
             });
-            
-            // 设置初始加载状态
-            setTimeout(() => {
-                loadingOverlay.style.display = 'none';
-            }, 2000);
         });
     </script>
 </body>
