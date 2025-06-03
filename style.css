@@ -13,6 +13,7 @@ body {
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   padding: 16px;
+  z-index: 10;
 }
 
 #chat-box {
@@ -41,4 +42,9 @@ body {
   top: 0;
   width: 65%;
   height: 100%;
+  z-index: 1;
+}
+
+#camera-feed {
+  display: none;
 }
