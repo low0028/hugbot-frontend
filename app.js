@@ -1,54 +1,56 @@
-const chatBox = document.getElementById("chat-box");
-const userInput = document.getElementById("user-input");
-const sendButton = document.getElementById("send-button");
+document.addEventListener("DOMContentLoaded", () => {
+  const sendBtn = document.getElementById("send-button");
+  const userInput = document.getElementById("user-input");
+  const chatBox = document.getElementById("chat-box");
 
-sendButton.addEventListener("click", async () => {
-  const message = userInput.value.trim();
-  if (!message) return;
+  sendBtn.addEventListener("click", async () => {
+    const text = userInput.value.trim();
+    if (!text) return;
+    appendMessage("You", text);
+    userInput.value = "";
 
-  appendMessage("You", message);
-  userInput.value = "";
+    try {
+      // --- Step 1: 情绪识别 ---
+      const emotionRes = await fetch("https://your-backend-url/emotion", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text })
+      });
+      const emotionData = await emotionRes.json();
 
-  try {
-    const response = await fetch("https://low0028-hugbot-backend.hf.space/emotion", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: message })
-    });
+      if (emotionData.emotion) {
+        appendMessage("HugBot", `I sense you're feeling **${emotionData.emotion}** (${emotionData.score})`);
+      } else {
+        appendMessage("HugBot", "Sorry, I couldn't understand that emotion.");
+        return;
+      }
 
-    if (!response.ok) {
-      throw new Error("Server error");
+      // --- Step 2: 聊天回复 ---
+      const chatRes = await fetch("https://your-backend-url/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text })
+      });
+      const chatData = await chatRes.json();
+      appendMessage("HugBot", chatData.response || "I'm here for you ❤️");
+
+      // --- Step 3: 判断是否触发拥抱动画 ---
+      if (emotionData.trigger_hug) {
+        setTimeout(() => {
+          alert("🧸 Sending a virtual hug...");
+        }, 500);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      appendMessage("HugBot", "Oops! Something went wrong.");
     }
+  });
 
-    const data = await response.json();
-
-    if (!data || !data.emotion) {
-      appendMessage("HugBot", "Sorry, I couldn't understand your emotion.");
-      return;
-    }
-
-    const emotion = data.emotion;
-    const score = data.score;
-    const triggerHug = data.trigger_hug;
-
-    appendMessage("HugBot", `I sense you're feeling <strong>${emotion}</strong> (${(score * 100).toFixed(1)}%)`);
-
-    if (triggerHug) {
-      appendMessage("HugBot", "🧸 Sending a virtual hug...");
-      setTimeout(() => {
-        alert("🤗 Here's your hug!");
-      }, 1000);
-    }
-
-  } catch (error) {
-    console.error("Error:", error);
-    appendMessage("HugBot", "Sorry, something went wrong.");
+  function appendMessage(sender, message) {
+    const div = document.createElement("div");
+    div.className = sender === "You" ? "user-message" : "bot-message";
+    div.innerHTML = `<strong>${sender}:</strong> ${message}`;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
   }
 });
-
-function appendMessage(sender, message) {
-  const msg = document.createElement("div");
-  msg.innerHTML = `<strong>${sender}:</strong> ${message}`;
-  chatBox.appendChild(msg);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
