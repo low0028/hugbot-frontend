@@ -4,7 +4,7 @@ const userInput = document.getElementById('user-input');
 const sendButton = document.getElementById('send-button');
 
 // 情绪识别 API 地址（记得换成你自己的 Hugging Face Space 地址）
-const EMOTION_API_URL = 'https://your-huggingface-space-url/emotion';
+const EMOTION_API_URL = 'https://low0028-hugbot-backend.hf.space/emotion';
 
 // 发送按钮点击逻辑
 sendButton.addEventListener('click', async () => {
