@@ -1,795 +1,1052 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Starlight Sanctuary - Emotional Healing Space</title>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #0c1027, #1a1a3e, #0d1930);
-            color: #e6f0ff;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            font-family: 'Poppins', sans-serif;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        /* 星空背景 */
-        .stars {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-        }
-        
-        .star {
-            position: absolute;
-            background-color: #fff;
-            border-radius: 50%;
-            animation: twinkle var(--duration, 3s) infinite ease-in-out;
-        }
-        
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.2; }
-            50% { opacity: 1; }
-        }
-        
-        .header {
-            background: rgba(25, 25, 50, 0.6);
-            padding: 25px 40px;
-            text-align: center;
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            margin-bottom: 30px;
-            max-width: 900px;
-            width: 100%;
-            border: 1px solid rgba(101, 178, 230, 0.3);
-            box-shadow: 0 0 30px rgba(101, 178, 230, 0.2);
-            position: relative;
-            z-index: 10;
-        }
-        
-        h1 {
-            font-size: 3.2rem;
-            margin-bottom: 15px;
-            color: #a8d8ff;
-            text-shadow: 0 0 15px rgba(168, 216, 255, 0.7);
-            font-family: 'Playfair Display', serif;
-            letter-spacing: 1px;
-        }
-        
-        .subtitle {
-            font-size: 1.4rem;
-            line-height: 1.7;
-            max-width: 700px;
-            margin: 0 auto;
-            color: #c5d5ff;
-            font-weight: 300;
-        }
-        
-        .container {
-            position: relative;
-            max-width: 900px;
-            width: 100%;
-            height: 65vh;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 0 40px rgba(101, 178, 230, 0.3);
-            background: rgba(15, 25, 45, 0.3);
-            margin-bottom: 30px;
-            border: 1px solid rgba(101, 178, 230, 0.2);
-            z-index: 10;
-        }
-        
-        .camera-header {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(to right, rgba(25, 55, 109, 0.9), rgba(56, 103, 214, 0.7));
-            padding: 18px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 1.3rem;
-            z-index: 15;
-            color: #e6f7ff;
-            letter-spacing: 1px;
-            font-family: 'Playfair Display', serif;
-        }
-        
-        #camera-feed {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transform: scaleX(-1); /* Mirror flip */
-            z-index: 5;
-            opacity: 0.4;
-        }
-        
-        #overlay-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-        }
-        
-        .instructions {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(15, 30, 60, 0.85);
-            padding: 18px;
-            text-align: center;
-            font-size: 1.2rem;
-            z-index: 15;
-            color: #b8d4ff;
-            font-weight: 500;
-            border-top: 1px solid rgba(101, 178, 230, 0.3);
-        }
-        
-        .controls {
-            display: flex;
-            gap: 20px;
-            margin-top: 25px;
-            flex-wrap: wrap;
-            justify-content: center;
-            z-index: 10;
-        }
-        
-        .control-btn {
-            background: linear-gradient(135deg, #4a7bc8, #65b2e6);
-            color: white;
-            border: none;
-            padding: 16px 35px;
-            border-radius: 50px;
-            font-size: 1.2rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 6px 20px rgba(101, 178, 230, 0.4);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            min-width: 220px;
-            justify-content: center;
-            letter-spacing: 1px;
-        }
-        
-        .control-btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(101, 178, 230, 0.6);
-        }
-        
-        .control-btn:active {
-            transform: translateY(2px);
-        }
-        
-        .star-animation {
-            position: absolute;
-            z-index: 500;
-            opacity: 0;
-            pointer-events: none;
-            animation: starFloat 3s ease-out forwards;
-        }
-        
-        @keyframes starFloat {
-            0% { opacity: 0; transform: translate(0, 0) scale(0.3); }
-            20% { opacity: 1; transform: translate(0, -20px) scale(1); }
-            80% { opacity: 0.8; }
-            100% { opacity: 0; transform: translate(var(--tx, 0), var(--ty, -150px)) scale(0.5); }
-        }
-        
-        .loading-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(10, 20, 40, 0.9);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 200;
-            backdrop-filter: blur(5px);
-        }
-        
-        .spinner {
-            width: 60px;
-            height: 60px;
-            border: 6px solid rgba(101, 178, 230, 0.3);
-            border-radius: 50%;
-            border-top-color: #65b2e6;
-            animation: spin 1.5s ease-in-out infinite;
-            margin-bottom: 25px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .loading-text {
-            font-size: 1.4rem;
-            color: #a8d8ff;
-            text-align: center;
-            max-width: 80%;
-        }
-        
-        .encouragement {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 2.5rem;
-            color: #ffd700;
-            text-align: center;
-            text-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
-            opacity: 0;
-            transition: opacity 1s ease;
-            z-index: 20;
-            max-width: 80%;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 15px;
-            font-family: 'Playfair Display', serif;
-        }
-        
-        .moon {
-            position: absolute;
-            top: 40px;
-            right: 40px;
-            width: 100px;
-            height: 100px;
-            background: radial-gradient(circle, #f9f3d5 0%, #e6d8aa 70%);
-            border-radius: 50%;
-            box-shadow: 0 0 40px #f9f3d5, 0 0 80px rgba(249, 243, 213, 0.6);
-            z-index: 8;
-        }
-        
-        .moon-crater {
-            position: absolute;
-            background: #d4c69e;
-            border-radius: 50%;
-        }
-        
-        .capture-effect {
-            position: absolute;
-            width: 100px;
-            height: 100px;
-            border: 4px solid #65b2e6;
-            border-radius: 50%;
-            box-shadow: 0 0 30px #65b2e6;
-            z-index: 25;
-            opacity: 0;
-            pointer-events: none;
-        }
-        
-        footer {
-            margin-top: 20px;
-            text-align: center;
-            color: #8aa2d8;
-            font-size: 1rem;
-            z-index: 10;
-            max-width: 900px;
-        }
-        
-        @media (max-width: 768px) {
-            .container {
-                height: 60vh;
-            }
-            
-            h1 {
-                font-size: 2.2rem;
-            }
-            
-            .subtitle {
-                font-size: 1.1rem;
-            }
-            
-            .control-btn {
-                padding: 14px 25px;
-                font-size: 1.1rem;
-                min-width: 180px;
-            }
-            
-            .moon {
-                width: 70px;
-                height: 70px;
-                top: 20px;
-                right: 20px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Starlight Companion - Emotional Support Chatbot</title>
+  <style>
+    /* 全局样式 */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0c1027 0%, #1a1a3e 100%);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      color: #e6f0ff;
+    }
+    
+    /* 聊天容器 */
+    #chat-container {
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 25, 45, 0.7);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      box-shadow: 0 0 20px rgba(101, 178, 230, 0.2);
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+      position: relative;
+      transition: all 0.5s ease;
+    }
+    
+    /* 聊天框 */
+    #chat-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+      margin-bottom: 15px;
+      background: rgba(25, 35, 65, 0.4);
+      border-radius: 12px;
+      box-shadow: inset 0 0 5px rgba(101, 178, 230, 0.1);
+      scrollbar-width: thin;
+      scrollbar-color: #4ECDC4 rgba(25, 35, 65, 0.4);
+    }
+    
+    #chat-box::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    #chat-box::-webkit-scrollbar-thumb {
+      background: #4ECDC4;
+      border-radius: 4px;
+    }
+    
+    /* 消息样式 */
+    .message {
+      margin: 15px 0;
+      padding: 15px 20px;
+      border-radius: 18px;
+      max-width: 85%;
+      animation: fadeIn 0.3s ease;
+      line-height: 1.6;
+      position: relative;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .user-message {
+      background: linear-gradient(135deg, #4a7bc8, #65b2e6);
+      color: white;
+      margin-left: auto;
+      border-bottom-right-radius: 5px;
+      box-shadow: 0 4px 10px rgba(74, 123, 200, 0.3);
+    }
+    
+    .bot-message {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(5px);
+      margin-right: auto;
+      border-bottom-left-radius: 5px;
+      border: 1px solid rgba(101, 178, 230, 0.2);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* 输入区域 */
+    #input-area {
+      display: flex;
+      gap: 10px;
+      margin-top: auto;
+    }
+    
+    #user-input {
+      flex: 1;
+      padding: 15px 20px;
+      border: 1px solid rgba(101, 178, 230, 0.3);
+      border-radius: 25px;
+      font-size: 16px;
+      outline: none;
+      transition: all 0.3s;
+      background: rgba(25, 35, 65, 0.5);
+      color: #e6f0ff;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    #user-input::placeholder {
+      color: #8aa2d8;
+    }
+    
+    #user-input:focus {
+      border-color: #65b2e6;
+      box-shadow: 0 0 0 3px rgba(101, 178, 230, 0.3);
+    }
+    
+    #send-button {
+      background: linear-gradient(135deg, #4a7bc8, #65b2e6);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      padding: 0 30px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s;
+      min-width: 100px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 16px;
+      box-shadow: 0 6px 20px rgba(101, 178, 230, 0.4);
+    }
+    
+    #send-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(101, 178, 230, 0.6);
+    }
+    
+    #send-button:active {
+      transform: translateY(1px);
+    }
+    
+    /* 星际空间容器 */
+    #starlight-container {
+      flex: 1;
+      position: relative;
+      display: none;
+      background: linear-gradient(135deg, #0c1027, #1a1a3e, #0d1930);
+      overflow: hidden;
+    }
+    
+    /* 星空背景 */
+    .stars {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    .star {
+      position: absolute;
+      background-color: #fff;
+      border-radius: 50%;
+      animation: twinkle var(--duration, 3s) infinite ease-in-out;
+    }
+    
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 1; }
+    }
+    
+    /* 月亮 */
+    .moon {
+      position: absolute;
+      top: 40px;
+      right: 40px;
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle, #f9f3d5 0%, #e6d8aa 70%);
+      border-radius: 50%;
+      box-shadow: 0 0 40px #f9f3d5, 0 0 80px rgba(249, 243, 213, 0.6);
+      z-index: 2;
+    }
+    
+    .moon-crater {
+      position: absolute;
+      background: #d4c69e;
+      border-radius: 50%;
+    }
+    
+    .starlight-header {
+      position: absolute;
+      top: 30px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      z-index: 15;
+    }
+    
+    .starlight-header h1 {
+      font-size: 2.5rem;
+      color: #a8d8ff;
+      text-shadow: 0 0 15px rgba(168, 216, 255, 0.7);
+      font-family: 'Playfair Display', serif;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+    
+    .starlight-subtitle {
+      font-size: 1.2rem;
+      color: #c5d5ff;
+      font-weight: 300;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .starlight-content {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+    }
+    
+    .camera-container {
+      position: relative;
+      width: 90%;
+      max-width: 800px;
+      height: 65vh;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 0 40px rgba(101, 178, 230, 0.3);
+      background: rgba(15, 25, 45, 0.3);
+      margin-bottom: 20px;
+      border: 1px solid rgba(101, 178, 230, 0.2);
+    }
+    
+    .camera-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to right, rgba(25, 55, 109, 0.9), rgba(56, 103, 214, 0.7));
+      padding: 15px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.2rem;
+      z-index: 15;
+      color: #e6f7ff;
+      letter-spacing: 1px;
+      font-family: 'Playfair Display', serif;
+    }
+    
+    #starlight-camera-feed {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
+      z-index: 5;
+      opacity: 0.4;
+    }
+    
+    #starlight-overlay-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+    }
+    
+    .instructions {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(15, 30, 60, 0.85);
+      padding: 15px;
+      text-align: center;
+      font-size: 1.1rem;
+      z-index: 15;
+      color: #b8d4ff;
+      font-weight: 500;
+      border-top: 1px solid rgba(101, 178, 230, 0.3);
+    }
+    
+    .starlight-controls {
+      display: flex;
+      gap: 15px;
+      z-index: 10;
+      max-width: 800px;
+      width: 90%;
+    }
+    
+    .starlight-btn {
+      background: linear-gradient(135deg, #4a7bc8, #65b2e6);
+      color: white;
+      border: none;
+      padding: 14px 25px;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(101, 178, 230, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      justify-content: center;
+      letter-spacing: 1px;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    .starlight-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(101, 178, 230, 0.6);
+    }
+    
+    .starlight-btn:active {
+      transform: translateY(1px);
+    }
+    
+    .encouragement {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2rem;
+      color: #ffd700;
+      text-align: center;
+      text-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+      opacity: 0;
+      transition: opacity 1s ease;
+      z-index: 20;
+      max-width: 80%;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 15px;
+      font-family: 'Playfair Display', serif;
+      pointer-events: none;
+    }
+    
+    .back-to-chat {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(25, 35, 65, 0.7);
+      color: #a8d8ff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-weight: 500;
+      cursor: pointer;
+      z-index: 30;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(101, 178, 230, 0.3);
+    }
+    
+    .back-to-chat:hover {
+      background: rgba(35, 55, 95, 0.9);
+      transform: translateY(-2px);
+    }
+    
+    /* 通知 */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(25, 35, 65, 0.9);
+      padding: 15px 20px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transform: translateX(150%);
+      transition: transform 0.4s ease;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(101, 178, 230, 0.3);
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification-icon {
+      font-size: 24px;
+      color: #65b2e6;
+    }
+    
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      
+      #chat-container, #starlight-container {
+        width: 100%;
+        height: 100%;
+      }
+      
+      .starlight-header h1 {
+        font-size: 1.8rem;
+      }
+      
+      .starlight-subtitle {
+        font-size: 1rem;
+        padding: 0 15px;
+      }
+      
+      .camera-container {
+        height: 55vh;
+      }
+      
+      .starlight-btn {
+        padding: 12px 20px;
+        font-size: 1rem;
+      }
+      
+      .moon {
+        width: 70px;
+        height: 70px;
+        top: 20px;
+        right: 20px;
+      }
+    }
+  </style>
 </head>
 <body>
+  <!-- 聊天界面 -->
+  <div id="chat-container">
+    <div id="chat-box">
+      <div class="message bot-message">
+        <strong>Starlight Companion:</strong> Hello! I'm your emotional companion. How are you feeling today?
+      </div>
+    </div>
+    <div id="input-area">
+      <input type="text" id="user-input" placeholder="Share your feelings..." autocomplete="off" />
+      <button id="send-button">Send</button>
+    </div>
+  </div>
+  
+  <!-- 星际空间容器 -->
+  <div id="starlight-container">
     <!-- 星空背景 -->
     <div class="stars" id="stars"></div>
     
     <!-- 月亮 -->
     <div class="moon" id="moon"></div>
     
-    <div class="header">
-        <h1>Starlight Sanctuary</h1>
-        <p class="subtitle">Reach out to capture stars of hope. Each carries comforting words to soothe your heart and calm your emotions.</p>
+    <!-- 返回聊天按钮 -->
+    <button class="back-to-chat" id="back-to-chat">← Back to Chat</button>
+    
+    <div class="starlight-header">
+      <h1>Starlight Sanctuary</h1>
+      <p class="starlight-subtitle">Reach out to capture stars of hope. Each carries comforting words to soothe your heart.</p>
     </div>
     
-    <div class="container">
+    <div class="starlight-content">
+      <div class="camera-container">
         <div class="camera-header">Starlight Sanctuary - Capture Stars of Comfort</div>
-        <div class="loading-overlay" id="loading-overlay">
-            <div class="spinner"></div>
-            <div class="loading-text">Preparing your sanctuary of peace...</div>
-        </div>
-        <video id="camera-feed" autoplay playsinline></video>
-        <canvas id="overlay-canvas"></canvas>
+        <video id="starlight-camera-feed" autoplay playsinline></video>
+        <canvas id="starlight-overlay-canvas"></canvas>
         <div class="instructions">
-            Open your hands to capture comforting stars in the night sky...
+          Open your hands to capture comforting stars in the night sky...
         </div>
         
         <!-- 鼓励语显示 -->
         <div class="encouragement" id="encouragement"></div>
+      </div>
+      
+      <div class="starlight-controls">
+        <button class="starlight-btn" id="begin-healing">
+          <span>✨</span> Begin Healing Journey
+        </button>
+        <button class="starlight-btn" id="make-wish">
+          <span>🌠</span> Make a Wish
+        </button>
+        <button class="starlight-btn" id="reset-stars">
+          <span>🔄</span> Renew Sanctuary
+        </button>
+      </div>
     </div>
-    
-    <div class="controls">
-        <button class="control-btn" id="start-btn">
-            <span>✨</span> Begin Healing Journey
-        </button>
-        <button class="control-btn" id="wish-btn">
-            <span>🌠</span> Make a Wish
-        </button>
-        <button class="control-btn" id="reset-btn">
-            <span>🔄</span> Renew Sanctuary
-        </button>
-    </div>
-    
-    <footer>
-        <p>Starlight Sanctuary © 2023 | May every star bring you peace and emotional healing</p>
-    </footer>
+  </div>
+  
+  <!-- 通知 -->
+  <div class="notification" id="notification">
+    <span class="notification-icon">🌌</span>
+    <span>Entering Starlight Sanctuary...</span>
+  </div>
 
-    <script>
-        // 全局变量
-        let handTrackingActive = false;
-        let lastFrameTime = 0;
-        let frameCount = 0;
-        let fps = 0;
-        let stars = [];
-        let capturedStars = 0;
+  <script>
+    // 全局变量
+    let handTrackingActive = false;
+    let stars = [];
+    let capturedStars = 0;
+    let starInterval;
+    
+    // 情感特定的鼓励语
+    const encouragements = {
+      general: [
+        "Breathe deeply. This moment will pass.",
+        "You are stronger than you feel right now.",
+        "Your feelings are temporary visitors. Let them in, then let them go.",
+        "You've survived every difficult day so far. You will survive this too.",
+        "It's okay not to be okay. Be gentle with yourself.",
+        "This pain is part of your story, not the whole book.",
+        "Your resilience is greater than your struggles.",
+        "Healing is not linear. Each step matters.",
+        "You are worthy of peace and inner calm.",
+        "The night is darkest just before dawn. Hold on."
+      ],
+      sadness: [
+        "Tears cleanse the soul. Let them flow.",
+        "Your sadness honors what matters to you.",
+        "This heaviness will lift. Be patient with yourself.",
+        "You are not alone in your pain.",
+        "Sadness carves depth for greater joy later.",
+        "Be gentle with your tender heart today.",
+        "This pain is creating space for new growth.",
+        "You've survived sadness before. You will again.",
+        "Your feelings are valid messengers.",
+        "The depth of your sadness reflects your capacity for joy."
+      ],
+      anger: [
+        "Anger is a valid emotion. Breathe through it.",
+        "Pause. Count to ten. Give yourself space to respond, not react.",
+        "Your anger is a signal that something needs attention.",
+        "Transform anger into positive action when you're ready.",
+        "This feeling will pass like a storm cloud.",
+        "You have the power to respond with calm strength.",
+        "Anger is energy - channel it constructively.",
+        "Breathe in calm, breathe out tension.",
+        "You control your response, not the trigger.",
+        "This frustration does not define you."
+      ],
+      anxiety: [
+        "This moment is just one moment in time.",
+        "You have survived every anxious moment so far.",
+        "Focus on your breath - in and out.",
+        "This feeling will pass. You are safe right now.",
+        "Name five things you can see around you.",
+        "You are stronger than your anxiety.",
+        "This too shall pass. Be patient with yourself.",
+        "Ground yourself in the present moment.",
+        "Your mind is telling stories, not facts.",
+        "You have the tools to get through this."
+      ]
+    };
+    
+    // DOM元素
+    const chatContainer = document.getElementById('chat-container');
+    const starlightContainer = document.getElementById('starlight-container');
+    const chatBox = document.getElementById('chat-box');
+    const userInput = document.getElementById('user-input');
+    const sendButton = document.getElementById('send-button');
+    const backToChat = document.getElementById('back-to-chat');
+    const notification = document.getElementById('notification');
+    const encouragement = document.getElementById('encouragement');
+    const starsContainer = document.getElementById('stars');
+    const moon = document.getElementById('moon');
+    const cameraFeed = document.getElementById('starlight-camera-feed');
+    const overlayCanvas = document.getElementById('starlight-overlay-canvas');
+    const ctx = overlayCanvas.getContext('2d');
+    const beginHealing = document.getElementById('begin-healing');
+    const makeWish = document.getElementById('make-wish');
+    const resetStars = document.getElementById('reset-stars');
+    
+    // 创建星空背景
+    function createStars() {
+      starsContainer.innerHTML = '';
+      for (let i = 0; i < 150; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.left = `${Math.random() * 100}%`;
+        star.style.top = `${Math.random() * 100}%`;
+        star.style.width = `${Math.random() * 3 + 1}px`;
+        star.style.height = star.style.width;
+        star.style.animationDuration = `${Math.random() * 5 + 2}s`;
+        starsContainer.appendChild(star);
+      }
+    }
+    
+    // 创建月亮陨石坑
+    function createMoonCraters() {
+      moon.innerHTML = '';
+      for (let i = 0; i < 8; i++) {
+        const crater = document.createElement('div');
+        crater.className = 'moon-crater';
+        crater.style.width = `${Math.random() * 20 + 5}px`;
+        crater.style.height = crater.style.width;
+        crater.style.top = `${Math.random() * 80 + 10}%`;
+        crater.style.left = `${Math.random() * 80 + 10}%`;
+        moon.appendChild(crater);
+      }
+    }
+    
+    // 初始化手部追踪
+    async function initHandTracking() {
+      if (handTrackingActive) return;
+      
+      // 创建Hands对象
+      const hands = new window.Hands({
+        locateFile: (file) => {
+          return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+        }
+      });
+      
+      // 设置选项
+      hands.setOptions({
+        maxNumHands: 2,
+        modelComplexity: 1,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5
+      });
+      
+      // 结果处理
+      hands.onResults((results) => {
+        // 清除画布
+        ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
         
-        // 情感特定的鼓励语
-        const encouragements = {
-            general: [
-                "Breathe deeply. This moment will pass.",
-                "You are stronger than you feel right now.",
-                "Your feelings are temporary visitors. Let them in, then let them go.",
-                "You've survived every difficult day so far. You will survive this too.",
-                "It's okay not to be okay. Be gentle with yourself.",
-                "This pain is part of your story, not the whole book.",
-                "Your resilience is greater than your struggles.",
-                "Healing is not linear. Each step matters.",
-                "You are worthy of peace and inner calm.",
-                "The night is darkest just before dawn. Hold on."
-            ],
-            anger: [
-                "Anger is a valid emotion. Breathe through it.",
-                "Pause. Count to ten. Give yourself space to respond, not react.",
-                "Your anger is a signal that something needs attention.",
-                "Transform anger into positive action when you're ready.",
-                "This feeling will pass like a storm cloud.",
-                "You have the power to respond with calm strength.",
-                "Anger is energy - channel it constructively.",
-                "Breathe in calm, breathe out tension.",
-                "You control your response, not the trigger.",
-                "This frustration does not define you."
-            ],
-            sadness: [
-                "Tears cleanse the soul. Let them flow.",
-                "Your sadness honors what matters to you.",
-                "This heaviness will lift. Be patient with yourself.",
-                "You are not alone in your pain.",
-                "Sadness carves depth for greater joy later.",
-                "Be gentle with your tender heart today.",
-                "This pain is creating space for new growth.",
-                "You've survived sadness before. You will again.",
-                "Your feelings are valid messengers.",
-                "The depth of your sadness reflects your capacity for joy."
-            ]
-        };
+        // 绘制星空
+        drawStars();
         
-        // DOM元素
-        const encouragement = document.getElementById('encouragement');
-        const loadingOverlay = document.getElementById('loading-overlay');
-        const videoElement = document.getElementById('camera-feed');
-        const canvasElement = document.getElementById('overlay-canvas');
-        const canvasCtx = canvasElement.getContext('2d');
-        const starsContainer = document.getElementById('stars');
-        const moon = document.getElementById('moon');
-        
-        // 创建星空背景
-        function createStars() {
-            starsContainer.innerHTML = '';
-            for (let i = 0; i < 150; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.left = `${Math.random() * 100}%`;
-                star.style.top = `${Math.random() * 100}%`;
-                star.style.width = `${Math.random() * 3 + 1}px`;
-                star.style.height = star.style.width;
-                star.style.animationDuration = `${Math.random() * 5 + 2}s`;
-                starsContainer.appendChild(star);
-            }
+        if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+          // 检测到手部
+          for (const landmarks of results.multiHandLandmarks) {
+            const indexTip = landmarks[8]; // 食指指尖
+            let x = indexTip.x * overlayCanvas.width;
+            let y = indexTip.y * overlayCanvas.height;
+            
+            // 解决镜像问题：翻转x坐标
+            x = overlayCanvas.width - x;
+            
+            // 绘制手部位置光晕
+            drawHandHalo(x, y);
+            
+            // 检测是否捕捉到星星
+            checkStarCapture(x, y);
+          }
         }
         
-        // 创建月亮陨石坑
-        function createMoonCraters() {
-            for (let i = 0; i < 8; i++) {
-                const crater = document.createElement('div');
-                crater.className = 'moon-crater';
-                crater.style.width = `${Math.random() * 20 + 5}px`;
-                crater.style.height = crater.style.width;
-                crater.style.top = `${Math.random() * 80 + 10}%`;
-                crater.style.left = `${Math.random() * 80 + 10}%`;
-                moon.appendChild(crater);
-            }
-        }
-        
-        // 初始化手部追踪
-        async function initHandTracking() {
-            if (handTrackingActive) return;
-            
-            loadingOverlay.style.display = 'flex';
-            
-            // 创建Hands对象
-            const hands = new window.Hands({
-                locateFile: (file) => {
-                    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-                }
-            });
-            
-            // 设置选项
-            hands.setOptions({
-                maxNumHands: 2,
-                modelComplexity: 1,
-                minDetectionConfidence: 0.5,
-                minTrackingConfidence: 0.5
-            });
-            
-            // 结果处理
-            hands.onResults((results) => {
-                if (loadingOverlay.style.display !== 'none') {
-                    loadingOverlay.style.display = 'none';
-                    createStars();
-                    createMoonCraters();
-                }
-                
-                // 更新FPS计数
-                updateFPS();
-                
-                // 清除画布
-                canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-                
-                // 绘制星空
-                drawStars();
-                
-                if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-                    // 检测到手部
-                    for (const landmarks of results.multiHandLandmarks) {
-                        const indexTip = landmarks[8]; // 食指指尖
-                        let x = indexTip.x * canvasElement.width;
-                        let y = indexTip.y * canvasElement.height;
-                        
-                        // 解决镜像问题：翻转x坐标
-                        x = canvasElement.width - x;
-                        
-                        // 绘制手部位置光晕
-                        drawHandHalo(x, y);
-                        
-                        // 检测是否捕捉到星星
-                        checkStarCapture(x, y);
-                    }
-                }
-                
-                // 更新星星
-                updateStars();
-            });
-            
-            try {
-                // 获取摄像头访问权限
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { 
-                        facingMode: 'user',
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
-                    } 
-                });
-                
-                videoElement.srcObject = stream;
-                await videoElement.play();
-                
-                // 设置画布尺寸
-                canvasElement.width = videoElement.videoWidth;
-                canvasElement.height = videoElement.videoHeight;
-                
-                // 启动摄像头处理
-                const camera = new window.Camera(videoElement, {
-                    onFrame: async () => {
-                        try {
-                            await hands.send({ image: videoElement });
-                        } catch (e) {
-                            console.error('Hand processing error:', e);
-                        }
-                    },
-                    width: videoElement.videoWidth,
-                    height: videoElement.videoHeight
-                });
-                
-                camera.start();
-                handTrackingActive = true;
-                
-            } catch (error) {
-                console.error("Camera access failed:", error);
-                loadingOverlay.style.display = 'none';
-                
-                // 创建错误信息
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'instructions';
-                errorDiv.innerHTML = `<div style="color: #ff6b6b; font-weight: bold;">Error: ${error.message}</div>`;
-                document.querySelector('.container').appendChild(errorDiv);
-            }
-        }
-        
-        // 绘制手部位置光晕
-        function drawHandHalo(x, y) {
-            canvasCtx.save();
-            canvasCtx.beginPath();
-            canvasCtx.arc(x, y, 40, 0, Math.PI * 2);
-            
-            const gradient = canvasCtx.createRadialGradient(x, y, 0, x, y, 40);
-            gradient.addColorStop(0, 'rgba(101, 178, 230, 0.8)');
-            gradient.addColorStop(1, 'rgba(101, 178, 230, 0)');
-            
-            canvasCtx.fillStyle = gradient;
-            canvasCtx.fill();
-            canvasCtx.restore();
-        }
-        
-        // 绘制星星
-        function drawStars() {
-            // 随机添加新星星
-            if (Math.random() < 0.05 && stars.length < 30) {
-                stars.push({
-                    x: Math.random() * canvasElement.width,
-                    y: Math.random() * canvasElement.height * 0.8,
-                    size: Math.random() * 8 + 4,
-                    brightness: Math.random() * 0.5 + 0.5,
-                    speed: Math.random() * 1 + 0.5,
-                    captured: false
-                });
-            }
-            
-            // 绘制所有星星
-            stars.forEach(star => {
-                if (star.captured) return;
-                
-                canvasCtx.save();
-                canvasCtx.beginPath();
-                canvasCtx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-                
-                const gradient = canvasCtx.createRadialGradient(
-                    star.x, star.y, 0, 
-                    star.x, star.y, star.size
-                );
-                gradient.addColorStop(0, `rgba(255, 255, 255, ${star.brightness})`);
-                gradient.addColorStop(1, `rgba(168, 216, 255, ${star.brightness * 0.3})`);
-                
-                canvasCtx.fillStyle = gradient;
-                canvasCtx.fill();
-                
-                // 添加星芒效果
-                for (let i = 0; i < 4; i++) {
-                    canvasCtx.save();
-                    canvasCtx.translate(star.x, star.y);
-                    canvasCtx.rotate(i * Math.PI / 4);
-                    
-                    canvasCtx.beginPath();
-                    canvasCtx.moveTo(star.size * 1.5, 0);
-                    canvasCtx.lineTo(star.size * 2.5, 0);
-                    canvasCtx.strokeStyle = `rgba(255, 255, 255, ${star.brightness * 0.7})`;
-                    canvasCtx.lineWidth = 2;
-                    canvasCtx.stroke();
-                    
-                    canvasCtx.restore();
-                }
-                
-                canvasCtx.restore();
-            });
-        }
-        
-        // 更新星星位置
-        function updateStars() {
-            stars = stars.filter(star => {
-                // 被捕抓的星星向上飞走
-                if (star.captured) {
-                    star.y -= star.speed * 3;
-                    return star.y > -50;
-                }
-                
-                // 未被捕抓的星星缓慢移动
-                star.x += (Math.random() - 0.5) * star.speed;
-                star.y += (Math.random() - 0.5) * star.speed;
-                
-                // 确保星星在屏幕内
-                star.x = Math.max(10, Math.min(canvasElement.width - 10, star.x));
-                star.y = Math.max(10, Math.min(canvasElement.height - 10, star.y));
-                
-                return true;
-            });
-        }
-        
-        // 检测是否捕捉到星星
-        function checkStarCapture(x, y) {
-            stars.forEach((star, index) => {
-                if (star.captured) return;
-                
-                const distance = Math.sqrt(Math.pow(star.x - x, 2) + Math.pow(star.y - y, 2));
-                
-                if (distance < 50) {
-                    star.captured = true;
-                    capturedStars++;
-                    
-                    // 显示鼓励语
-                    showEncouragement('general');
-                    
-                    // 创建捕捉效果
-                    createCaptureEffect(star.x, star.y);
-                }
-            });
-        }
-        
-        // 显示鼓励语
-        function showEncouragement(type) {
-            const texts = encouragements[type];
-            const text = texts[Math.floor(Math.random() * texts.length)];
-            encouragement.textContent = text;
-            encouragement.style.opacity = 1;
-            
-            setTimeout(() => {
-                encouragement.style.opacity = 0;
-            }, 3000);
-        }
-        
-        // 创建捕捉效果
-        function createCaptureEffect(x, y) {
-            // 捕捉光圈效果
-            const effect = document.createElement('div');
-            effect.className = 'capture-effect';
-            effect.style.left = `${x - 50}px`;
-            effect.style.top = `${y - 50}px`;
-            document.querySelector('.container').appendChild(effect);
-            
-            // 动画
-            let size = 100;
-            const grow = setInterval(() => {
-                size += 10;
-                effect.style.width = `${size}px`;
-                effect.style.height = `${size}px`;
-                effect.style.left = `${x - size/2}px`;
-                effect.style.top = `${y - size/2}px`;
-                effect.style.opacity = `${1 - size/200}`;
-                
-                if (size > 200) {
-                    clearInterval(grow);
-                    effect.remove();
-                }
-            }, 20);
-        }
-        
-        // 重置星空
-        function resetStars() {
-            stars = [];
-            capturedStars = 0;
-            
-            // 添加重置动画
-            for (let i = 0; i < 15; i++) {
-                setTimeout(() => {
-                    const star = document.createElement('div');
-                    star.className = 'star-animation';
-                    star.innerHTML = '✨';
-                    star.style.left = `${Math.random() * 100}%`;
-                    star.style.top = `${Math.random() * 100 + 100}%`;
-                    star.style.fontSize = `${Math.random() * 30 + 20}px`;
-                    star.style.setProperty('--tx', `${(Math.random() - 0.5) * 300}px`);
-                    star.style.setProperty('--ty', `${-Math.random() * 300 - 150}px`);
-                    document.body.appendChild(star);
-                    
-                    setTimeout(() => {
-                        star.remove();
-                    }, 3000);
-                }, i * 100);
-            }
-            
-            showEncouragement('general');
-        }
-        
-        // 更新FPS计数
-        function updateFPS() {
-            frameCount++;
-            const now = performance.now();
-            const elapsed = now - lastFrameTime;
-            
-            if (elapsed >= 1000) {
-                fps = Math.round((frameCount * 1000) / elapsed);
-                frameCount = 0;
-                lastFrameTime = now;
-            }
-        }
-        
-        // 许愿功能
-        function makeAWish() {
-            const wish = document.createElement('div');
-            wish.className = 'star-animation';
-            wish.innerHTML = '💫';
-            wish.style.left = `${Math.random() * 100}%`;
-            wish.style.top = `${Math.random() * 100 + 100}%`;
-            wish.style.fontSize = '40px';
-            wish.style.setProperty('--tx', `${(Math.random() - 0.5) * 200}px`);
-            wish.style.setProperty('--ty', `${-Math.random() * 200 - 200}px`);
-            document.body.appendChild(wish);
-            
-            setTimeout(() => {
-                wish.remove();
-            }, 3000);
-            
-            // 显示许愿语
-            const wishes = [
-                "May you find peace in this moment",
-                "May your heart heal with each passing day",
-                "May you find strength in your vulnerability",
-                "May calm replace turmoil in your soul",
-                "May you release what no longer serves you"
-            ];
-            
-            encouragement.textContent = wishes[Math.floor(Math.random() * wishes.length)];
-            encouragement.style.opacity = 1;
-            
-            setTimeout(() => {
-                encouragement.style.opacity = 0;
-            }, 4000);
-        }
-        
-        // 初始化
-        window.addEventListener('DOMContentLoaded', () => {
-            // 添加事件监听器
-            document.getElementById('start-btn').addEventListener('click', initHandTracking);
-            document.getElementById('reset-btn').addEventListener('click', resetStars);
-            document.getElementById('wish-btn').addEventListener('click', makeAWish);
-            
-            // 创建初始星星
-            createStars();
-            createMoonCraters();
+        // 更新星星
+        updateStars();
+      });
+      
+      try {
+        // 获取摄像头访问权限
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { 
+            facingMode: 'user',
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          } 
         });
-    </script>
+        
+        cameraFeed.srcObject = stream;
+        await cameraFeed.play();
+        
+        // 设置画布尺寸
+        overlayCanvas.width = cameraFeed.videoWidth;
+        overlayCanvas.height = cameraFeed.videoHeight;
+        
+        // 启动摄像头处理
+        const camera = new window.Camera(cameraFeed, {
+          onFrame: async () => {
+            try {
+              await hands.send({ image: cameraFeed });
+            } catch (e) {
+              console.error('Hand processing error:', e);
+            }
+          },
+          width: cameraFeed.videoWidth,
+          height: cameraFeed.videoHeight
+        });
+        
+        camera.start();
+        handTrackingActive = true;
+        
+      } catch (error) {
+        console.error("Camera access failed:", error);
+        appendMessage("Starlight Companion", "Couldn't access camera. You can still use the sanctuary for emotional support.");
+      }
+    }
+    
+    // 绘制手部位置光晕
+    function drawHandHalo(x, y) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(x, y, 40, 0, Math.PI * 2);
+      
+      const gradient = ctx.createRadialGradient(x, y, 0, x, y, 40);
+      gradient.addColorStop(0, 'rgba(101, 178, 230, 0.8)');
+      gradient.addColorStop(1, 'rgba(101, 178, 230, 0)');
+      
+      ctx.fillStyle = gradient;
+      ctx.fill();
+      ctx.restore();
+    }
+    
+    // 绘制星星
+    function drawStars() {
+      // 随机添加新星星
+      if (Math.random() < 0.05 && stars.length < 30) {
+        stars.push({
+          x: Math.random() * overlayCanvas.width,
+          y: Math.random() * overlayCanvas.height * 0.8,
+          size: Math.random() * 8 + 4,
+          brightness: Math.random() * 0.5 + 0.5,
+          speed: Math.random() * 1 + 0.5,
+          captured: false
+        });
+      }
+      
+      // 绘制所有星星
+      stars.forEach(star => {
+        if (star.captured) return;
+        
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+        
+        const gradient = ctx.createRadialGradient(
+          star.x, star.y, 0, 
+          star.x, star.y, star.size
+        );
+        gradient.addColorStop(0, `rgba(255, 255, 255, ${star.brightness})`);
+        gradient.addColorStop(1, `rgba(168, 216, 255, ${star.brightness * 0.3})`);
+        
+        ctx.fillStyle = gradient;
+        ctx.fill();
+        
+        // 添加星芒效果
+        for (let i = 0; i < 4; i++) {
+          ctx.save();
+          ctx.translate(star.x, star.y);
+          ctx.rotate(i * Math.PI / 4);
+          
+          ctx.beginPath();
+          ctx.moveTo(star.size * 1.5, 0);
+          ctx.lineTo(star.size * 2.5, 0);
+          ctx.strokeStyle = `rgba(255, 255, 255, ${star.brightness * 0.7})`;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          
+          ctx.restore();
+        }
+        
+        ctx.restore();
+      });
+    }
+    
+    // 更新星星位置
+    function updateStars() {
+      stars = stars.filter(star => {
+        // 被捕抓的星星向上飞走
+        if (star.captured) {
+          star.y -= star.speed * 3;
+          return star.y > -50;
+        }
+        
+        // 未被捕抓的星星缓慢移动
+        star.x += (Math.random() - 0.5) * star.speed;
+        star.y += (Math.random() - 0.5) * star.speed;
+        
+        // 确保星星在屏幕内
+        star.x = Math.max(10, Math.min(overlayCanvas.width - 10, star.x));
+        star.y = Math.max(10, Math.min(overlayCanvas.height - 10, star.y));
+        
+        return true;
+      });
+    }
+    
+    // 检测是否捕捉到星星
+    function checkStarCapture(x, y) {
+      stars.forEach((star, index) => {
+        if (star.captured) return;
+        
+        const distance = Math.sqrt(Math.pow(star.x - x, 2) + Math.pow(star.y - y, 2));
+        
+        if (distance < 50) {
+          star.captured = true;
+          capturedStars++;
+          
+          // 显示鼓励语
+          showEncouragement('general');
+        }
+      });
+    }
+    
+    // 显示鼓励语
+    function showEncouragement(type) {
+      const texts = encouragements[type];
+      const text = texts[Math.floor(Math.random() * texts.length)];
+      encouragement.textContent = text;
+      encouragement.style.opacity = 1;
+      
+      setTimeout(() => {
+        encouragement.style.opacity = 0;
+      }, 4000);
+    }
+    
+    // 重置星空
+    function resetStarlight() {
+      stars = [];
+      capturedStars = 0;
+      showEncouragement('general');
+    }
+    
+    // 许愿功能
+    function makeAWish() {
+      const wishes = [
+        "May you find peace in this moment",
+        "May your heart heal with each passing day",
+        "May you find strength in your vulnerability",
+        "May calm replace turmoil in your soul",
+        "May you release what no longer serves you"
+      ];
+      
+      encouragement.textContent = wishes[Math.floor(Math.random() * wishes.length)];
+      encouragement.style.opacity = 1;
+      
+      setTimeout(() => {
+        encouragement.style.opacity = 0;
+      }, 4000);
+    }
+    
+    // 添加消息到聊天框
+    function appendMessage(sender, message) {
+      const div = document.createElement('div');
+      div.className = `message ${sender === "You" ? 'user-message' : 'bot-message'}`;
+      div.innerHTML = `<strong>${sender}:</strong> ${message}`;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+    
+    // 显示通知
+    function showNotification(message) {
+      notification.innerHTML = `<span class="notification-icon">🌌</span> ${message}`;
+      notification.classList.add("show");
+      
+      setTimeout(() => {
+        notification.classList.remove("show");
+      }, 3000);
+    }
+    
+    // 进入星际空间
+    function enterStarlightSanctuary() {
+      chatContainer.style.display = 'none';
+      starlightContainer.style.display = 'block';
+      showNotification("Entering Starlight Sanctuary...");
+      createStars();
+      createMoonCraters();
+    }
+    
+    // 返回聊天界面
+    function returnToChat() {
+      starlightContainer.style.display = 'none';
+      chatContainer.style.display = 'flex';
+      showNotification("Returning to chat...");
+    }
+    
+    // 模拟情绪分析API
+    async function analyzeEmotion(text) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          // 模拟AI情绪分析
+          const sadWords = ['sad', 'unhappy', 'depressed', 'cry', 'tears', 'lonely', 'hurt'];
+          const angryWords = ['angry', 'mad', 'furious', 'rage', 'hate', 'annoyed'];
+          const anxiousWords = ['anxious', 'worry', 'nervous', 'stress', 'panic', 'afraid'];
+          
+          let emotion = 'general';
+          let triggerSanctuary = false;
+          
+          if (sadWords.some(word => text.toLowerCase().includes(word))) {
+            emotion = 'sadness';
+            triggerSanctuary = true;
+          } else if (angryWords.some(word => text.toLowerCase().includes(word))) {
+            emotion = 'anger';
+            triggerSanctuary = true;
+          } else if (anxiousWords.some(word => text.toLowerCase().includes(word))) {
+            emotion = 'anxiety';
+            triggerSanctuary = true;
+          }
+          
+          resolve({
+            emotion,
+            triggerSanctuary
+          });
+        }, 800);
+      });
+    }
+    
+    // 模拟聊天回复API
+    async function getChatResponse(text) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          // 根据用户消息生成响应
+          const responses = {
+            greeting: ["Hello! How are you feeling today?", "Hi there! What's on your mind?", "Welcome back. How can I support you today?"],
+            sad: ["I'm sorry to hear you're feeling this way. Would you like to visit our Starlight Sanctuary?", "It sounds like you're going through a tough time. Remember that feelings are temporary.", "I'm here for you. Sometimes looking at the stars can help put things in perspective."],
+            angry: ["I sense some frustration. Taking deep breaths can help calm the nervous system.", "Anger is a natural emotion. Would you like to try a grounding exercise?", "I understand you're upset. Sometimes shifting perspective can help."],
+            anxious: ["Anxiety can feel overwhelming. Remember to breathe deeply and focus on this moment.", "It sounds like you're feeling anxious. Would you like to try a mindfulness exercise?", "I'm here with you. Let's work through this together."],
+            general: ["Thank you for sharing. How else can I support you?", "I appreciate you opening up. What else is on your mind?", "I'm listening. Tell me more about how you're feeling."]
+          };
+          
+          let responseCategory = 'general';
+          
+          if (text.toLowerCase().includes('sad') || text.toLowerCase().includes('unhappy')) {
+            responseCategory = 'sad';
+          } else if (text.toLowerCase().includes('angry') || text.toLowerCase().includes('mad')) {
+            responseCategory = 'angry';
+          } else if (text.toLowerCase().includes('anxious') || text.toLowerCase().includes('nervous')) {
+            responseCategory = 'anxious';
+          } else if (text.toLowerCase().includes('hello') || text.toLowerCase().includes('hi')) {
+            responseCategory = 'greeting';
+          }
+          
+          const responseOptions = responses[responseCategory] || responses.general;
+          const response = responseOptions[Math.floor(Math.random() * responseOptions.length)];
+          
+          resolve(response);
+        }, 1000);
+      });
+    }
+    
+    // 初始化
+    window.addEventListener('DOMContentLoaded', () => {
+      // 添加事件监听器
+      sendButton.addEventListener('click', sendMessage);
+      userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
+      });
+      
+      backToChat.addEventListener('click', returnToChat);
+      beginHealing.addEventListener('click', initHandTracking);
+      makeWish.addEventListener('click', makeAWish);
+      resetStars.addEventListener('click', resetStarlight);
+      
+      // 初始创建星星和月亮（不显示）
+      createStars();
+      createMoonCraters();
+      
+      // 模拟初始加载
+      setTimeout(() => {
+        appendMessage("Starlight Companion", "I'm here to listen whenever you need to talk. You can share anything that's on your mind.");
+      }, 1000);
+    });
+    
+    // 发送消息
+    async function sendMessage() {
+      const text = userInput.value.trim();
+      if (!text) return;
+      
+      appendMessage("You", text);
+      userInput.value = "";
+      
+      try {
+        // 分析情绪
+        const emotionData = await analyzeEmotion(text);
+        
+        // 获取聊天响应
+        const chatResponse = await getChatResponse(text);
+        appendMessage("Starlight Companion", chatResponse);
+        
+        // 如果检测到强烈情绪，建议进入星际空间
+        if (emotionData.triggerSanctuary) {
+          setTimeout(() => {
+            appendMessage("Starlight Companion", "I sense you might benefit from a calming experience. Would you like to visit the Starlight Sanctuary?");
+            
+            // 添加选项按钮
+            const optionsDiv = document.createElement('div');
+            optionsDiv.style.marginTop = '10px';
+            optionsDiv.style.display = 'flex';
+            optionsDiv.style.gap = '10px';
+            
+            const yesBtn = document.createElement('button');
+            yesBtn.textContent = 'Yes, please';
+            yesBtn.style.padding = '8px 16px';
+            yesBtn.style.background = '#65b2e6';
+            yesBtn.style.color = 'white';
+            yesBtn.style.border = 'none';
+            yesBtn.style.borderRadius = '20px';
+            yesBtn.style.cursor = 'pointer';
+            yesBtn.addEventListener('click', enterStarlightSanctuary);
+            
+            const noBtn = document.createElement('button');
+            noBtn.textContent = 'Not now';
+            noBtn.style.padding = '8px 16px';
+            noBtn.style.background = 'rgba(255,255,255,0.1)';
+            noBtn.style.color = '#a8d8ff';
+            noBtn.style.border = '1px solid rgba(101,178,230,0.3)';
+            noBtn.style.borderRadius = '20px';
+            noBtn.style.cursor = 'pointer';
+            noBtn.addEventListener('click', () => {
+              appendMessage("Starlight Companion", "Okay, I'm here whenever you're ready.");
+              optionsDiv.remove();
+            });
+            
+            optionsDiv.appendChild(yesBtn);
+            optionsDiv.appendChild(noBtn);
+            
+            const lastMessage = chatBox.lastChild;
+            lastMessage.appendChild(optionsDiv);
+          }, 800);
+        }
+      } catch (error) {
+        appendMessage("Starlight Companion", "Oops! Something went wrong. Please try again.");
+      }
+    }
+    
+    // 加载MediaPipe库
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js';
+    script.crossOrigin = 'anonymous';
+    document.head.appendChild(script);
+    
+    const script2 = document.createElement('script');
+    script2.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js';
+    script2.crossOrigin = 'anonymous';
+    document.head.appendChild(script2);
+    
+    const script3 = document.createElement('script');
+    script3.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js';
+    script3.crossOrigin = 'anonymous';
+    script3.onload = () => {
+      window.Hands = window.hands.Hands;
+      window.Camera = window.cameraUtils.Camera;
+    };
+    document.head.appendChild(script3);
+  </script>
 </body>
 </html>
