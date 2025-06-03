@@ -1,20 +1,22 @@
-// 获取 DOM 元素
+// DOM 元素
 const chatBox = document.getElementById('chat-box');
 const userInput = document.getElementById('user-input');
 const sendButton = document.getElementById('send-button');
 
-// 聊天提交函数
+// 情绪识别 API 地址（记得换成你自己的 Hugging Face Space 地址）
+const EMOTION_API_URL = 'https://low0028-hugbot-backend.hf.space/emotion';
+
+// 发送按钮点击逻辑
 sendButton.addEventListener('click', async () => {
   const text = userInput.value.trim();
   if (!text) return;
 
-  appendMessage('You', text);
+  appendMessage(`You: ${text}`);
+  appendMessage(`You: Analyzing...`);
   userInput.value = '';
-  sendButton.disabled = true;
-  userInput.disabled = true;
 
   try {
-    const response = await fetch('https://your-space-name.hf.space/emotion', {
+    const response = await fetch(EMOTION_API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text })
@@ -22,31 +24,26 @@ sendButton.addEventListener('click', async () => {
 
     const result = await response.json();
     const emotion = result.label;
-    const score = (result.score * 100).toFixed(1);
+    const score = result.score;
 
-    appendMessage('HugBot', `I sense you're feeling **${emotion}** (${score}%)`);
+    appendMessage(`HugBot: I sense you're feeling **${emotion}** (${score.toFixed(2)})`);
 
-    if (['sadness', 'anger', 'fear'].includes(emotion.toLowerCase())) {
-      showNotification('🧸 Sending a virtual hug...');
+    if (['sadness', 'anger', 'fear', 'disgust'].includes(emotion.toLowerCase()) && score > 0.6) {
+      setTimeout(() => {
+        alert('🧸 Sending a virtual hug...');
+        // 手部识别 + 小狐狸动作逻辑自动执行，无需这里手动调用
+      }, 500);
     }
   } catch (error) {
-    appendMessage('HugBot', 'Sorry, something went wrong.');
-  } finally {
-    sendButton.disabled = false;
-    userInput.disabled = false;
-    userInput.focus();
+    appendMessage('HugBot: Sorry, something went wrong.');
+    console.error(error);
   }
 });
 
-// 聊天框追加信息
-function appendMessage(sender, text) {
+// 添加信息到聊天框
+function appendMessage(text) {
   const message = document.createElement('div');
-  message.innerHTML = `<strong>${sender}:</strong> ${text}`;
+  message.textContent = text;
   chatBox.appendChild(message);
   chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-// 触发通知（可自定义为动画触发器）
-function showNotification(text) {
-  alert(text); // 可以改成触发小狐狸动画
 }
