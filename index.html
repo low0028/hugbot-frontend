@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>手掌爱心手势识别</title>
+    <title>线框3D拥抱动画手势识别</title>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
@@ -16,63 +17,88 @@
         }
         
         body {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             color: #fff;
             min-height: 100vh;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            padding: 20px;
         }
         
         .header {
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.5);
             padding: 20px;
             text-align: center;
             backdrop-filter: blur(10px);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
-            margin-bottom: 20px;
-            max-width: 900px;
-            width: 100%;
+            z-index: 100;
+            border-bottom: 2px solid rgba(100, 255, 218, 0.3);
         }
         
         h1 {
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             margin-bottom: 10px;
-            color: #ff6b6b;
-            text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+            color: #64ffda;
+            text-shadow: 0 0 15px rgba(100, 255, 218, 0.7);
+            letter-spacing: 1px;
         }
         
         .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.8;
+            font-size: 1.3rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
             line-height: 1.6;
+            color: #a8b2d1;
         }
         
         .container {
+            flex: 1;
             position: relative;
-            max-width: 900px;
+            max-width: 1200px;
+            margin: 0 auto;
             width: 100%;
-            height: 70vh;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            background: rgba(0, 0, 0, 0.2);
-            margin-bottom: 20px;
+            height: calc(100vh - 160px);
+            display: flex;
+            padding: 20px;
+            gap: 20px;
         }
         
-        .camera-header {
+        .camera-section {
+            flex: 1;
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            background: rgba(10, 15, 30, 0.4);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+        }
+        
+        .animation-section {
+            flex: 1;
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            background: rgba(10, 15, 30, 0.2);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .section-header {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            background: rgba(255, 107, 107, 0.8);
-            padding: 15px;
+            background: rgba(100, 255, 218, 0.2);
+            padding: 12px;
             text-align: center;
             font-weight: 600;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             z-index: 10;
+            backdrop-filter: blur(5px);
+            letter-spacing: 1px;
         }
         
         #camera-feed {
@@ -82,17 +108,24 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transform: scaleX(-1); /* 镜像翻转 */
+            transform: scaleX(-1);
             z-index: 1;
         }
         
-        #overlay-canvas {
+        #camera-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: 2;
+        }
+        
+        #three-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 10, 20, 0.8);
         }
         
         .instructions {
@@ -104,15 +137,15 @@
             padding: 15px;
             text-align: center;
             font-size: 1.1rem;
-            border-top: 2px solid rgba(255, 107, 107, 0.5);
             z-index: 10;
+            border-top: 1px solid rgba(100, 255, 218, 0.3);
         }
         
         .status-panel {
             position: absolute;
-            top: 60px;
-            right: 20px;
-            background: rgba(30, 30, 50, 0.8);
+            top: 40px;
+            right: 15px;
+            background: rgba(20, 25, 45, 0.85);
             padding: 15px;
             border-radius: 10px;
             z-index: 10;
@@ -120,75 +153,65 @@
             flex-direction: column;
             gap: 10px;
             min-width: 200px;
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            backdrop-filter: blur(5px);
         }
         
         .status-card {
-            background: rgba(20, 20, 40, 0.9);
-            padding: 15px;
-            border-radius: 10px;
+            background: rgba(10, 15, 30, 0.7);
+            padding: 12px;
+            border-radius: 8px;
             text-align: center;
+            border: 1px solid rgba(100, 255, 218, 0.1);
         }
         
         .status-card h3 {
-            color: #4ECDC4;
-            margin-bottom: 10px;
-            font-size: 1rem;
+            color: #64ffda;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
         }
         
         .status-value {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 700;
-            color: #FFE66D;
+            color: #ff6b6b;
         }
         
         .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
             gap: 15px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
+            z-index: 100;
         }
         
         .control-btn {
-            background: linear-gradient(135deg, #FF6B6B, #ff5252);
-            color: white;
-            border: none;
+            background: linear-gradient(135deg, #0a192f, #172a45);
+            color: #64ffda;
+            border: 1px solid rgba(100, 255, 218, 0.3);
             padding: 12px 25px;
             border-radius: 30px;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
             display: flex;
             align-items: center;
             gap: 8px;
+            z-index: 100;
         }
         
         .control-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.6);
+            box-shadow: 0 8px 20px rgba(100, 255, 218, 0.4);
+            background: linear-gradient(135deg, #112240, #1a3a5f);
         }
         
         .control-btn:active {
             transform: translateY(1px);
-        }
-        
-        .heart-animation {
-            position: absolute;
-            font-size: 60px;
-            z-index: 500;
-            opacity: 0;
-            transform: scale(0.5);
-            animation: heartFloat 4s ease-out forwards;
-            pointer-events: none;
-        }
-        
-        @keyframes heartFloat {
-            0% { opacity: 0; transform: translateY(0) scale(0.5); }
-            20% { opacity: 1; transform: translateY(-20px) scale(1); }
-            80% { opacity: 1; transform: translateY(-100px) scale(1); }
-            100% { opacity: 0; transform: translateY(-150px) scale(0.8); }
         }
         
         .loading-overlay {
@@ -197,7 +220,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(10, 15, 30, 0.8);
+            background: rgba(10, 15, 30, 0.9);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -207,13 +230,13 @@
         }
         
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 107, 107, 0.3);
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(100, 255, 218, 0.3);
             border-radius: 50%;
-            border-top-color: #ff6b6b;
-            animation: spin 1s ease-in-out infinite;
-            margin-bottom: 20px;
+            border-top-color: #64ffda;
+            animation: spin 1.5s ease-in-out infinite;
+            margin-bottom: 25px;
         }
         
         @keyframes spin {
@@ -221,251 +244,434 @@
         }
         
         .loading-text {
-            font-size: 1.2rem;
-            color: #FFE66D;
+            font-size: 1.3rem;
+            color: #64ffda;
+            text-align: center;
+            max-width: 80%;
+            line-height: 1.6;
         }
         
-        .hand-guide {
+        .animation-info {
+            padding: 20px;
+            background: rgba(10, 15, 30, 0.5);
+            border-top: 1px solid rgba(100, 255, 218, 0.2);
+        }
+        
+        .animation-title {
+            color: #64ffda;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .animation-description {
+            color: #a8b2d1;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            text-align: center;
+        }
+        
+        .hint {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 200px;
-            height: 200px;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50,15 C60,5 80,10 85,25 C90,40 85,55 70,65 L50,85 L30,65 C15,55 10,40 15,25 C20,10 40,5 50,15 Z" fill="none" stroke="rgba(255,107,107,0.6)" stroke-width="2"/></svg>') no-repeat center;
-            background-size: contain;
-            opacity: 0.7;
-            z-index: 15;
+            color: rgba(100, 255, 218, 0.7);
+            font-size: 1.5rem;
+            text-align: center;
+            max-width: 80%;
+            z-index: 50;
             pointer-events: none;
-            display: none;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+        }
+        
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #64ffda;
+            pointer-events: none;
+            z-index: 5;
+            box-shadow: 0 0 10px #64ffda;
         }
         
         .fps-counter {
             position: absolute;
-            bottom: 10px;
-            right: 10px;
+            top: 10px;
+            left: 10px;
             background: rgba(0, 0, 0, 0.5);
-            color: white;
+            color: #64ffda;
             padding: 5px 10px;
             border-radius: 5px;
             font-size: 14px;
             z-index: 20;
         }
         
-        .info-panel {
-            background: rgba(30, 30, 50, 0.8);
-            padding: 20px;
-            border-radius: 15px;
-            max-width: 900px;
-            width: 100%;
-            margin-top: 20px;
-        }
-        
-        .info-panel h2 {
-            color: #4ECDC4;
-            margin-bottom: 15px;
-        }
-        
-        .info-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-        
-        .info-card {
-            background: rgba(20, 20, 40, 0.6);
-            padding: 15px;
-            border-radius: 10px;
-        }
-        
-        .info-card h3 {
-            color: #FFE66D;
-            margin-bottom: 10px;
-        }
-        
-        .particle {
+        .tech-badge {
             position: absolute;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #ff6b6b;
-            pointer-events: none;
-            opacity: 0;
-            z-index: 3;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(100, 255, 218, 0.1);
+            color: #64ffda;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 20;
+            border: 1px solid rgba(100, 255, 218, 0.2);
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>手掌爱心手势识别</h1>
-        <p class="subtitle">伸出手掌，系统会检测您的手势并在手掌上方生成动态爱心效果</p>
+        <h1>线框3D拥抱动画</h1>
+        <p class="subtitle">伸出手臂，线框熊会检测您的位置并给您一个虚拟拥抱</p>
     </div>
     
     <div class="container">
-        <div class="camera-header">摄像头实时画面与爱心效果</div>
-        <div class="loading-overlay" id="loading-overlay">
-            <div class="spinner"></div>
-            <div class="loading-text">正在加载手部识别模型，请稍候...</div>
-        </div>
-        <div class="hand-guide" id="hand-guide"></div>
-        <video id="camera-feed" autoplay playsinline></video>
-        <canvas id="overlay-canvas"></canvas>
-        <div class="instructions">
-            请确保摄像头已启用，并将手掌完全展示在摄像头视野中
+        <div class="camera-section">
+            <div class="section-header">摄像头画面与手部检测</div>
+            <div class="loading-overlay" id="camera-loading">
+                <div class="spinner"></div>
+                <div class="loading-text">正在加载手部识别模型，请稍候...</div>
+            </div>
+            <video id="camera-feed" autoplay playsinline></video>
+            <canvas id="camera-overlay"></canvas>
+            <div class="instructions">
+                请将手臂放在摄像头视野范围内，线框熊会尝试定位您的手臂位置
+            </div>
+            
+            <div class="status-panel">
+                <div class="status-card">
+                    <h3>动画状态</h3>
+                    <div id="animation-status" class="status-value">等待中</div>
+                </div>
+                <div class="status-card">
+                    <h3>检测置信度</h3>
+                    <div id="confidence" class="status-value">0%</div>
+                </div>
+                <div class="status-card">
+                    <h3>追踪状态</h3>
+                    <div id="tracking-status" class="status-value">未开始</div>
+                </div>
+            </div>
+            
+            <div class="fps-counter" id="camera-fps">FPS: 0</div>
+            <div class="tech-badge">MediaPipe Hands</div>
         </div>
         
-        <div class="status-panel">
-            <div class="status-card">
-                <h3>爱心状态</h3>
-                <div id="heart-status" class="status-value">等待手势</div>
+        <div class="animation-section">
+            <div class="section-header">线框3D拥抱动画</div>
+            <div class="loading-overlay" id="animation-loading">
+                <div class="spinner"></div>
+                <div class="loading-text">正在初始化3D动画场景，请稍候...</div>
             </div>
-            <div class="status-card">
-                <h3>检测置信度</h3>
-                <div id="confidence" class="status-value">0%</div>
+            <div id="three-container"></div>
+            <div class="hint" id="animation-hint">等待手部检测数据...</div>
+            <div class="animation-info">
+                <h3 class="animation-title">霓虹线框拥抱熊</h3>
+                <p class="animation-description">
+                    当系统检测到您的手臂位置时，线框熊会靠近并张开双臂给您一个虚拟拥抱。
+                    熊模型由发光线条构成，在检测到双手张开姿势时会触发拥抱动画。
+                </p>
             </div>
-            <div class="status-card">
-                <h3>追踪状态</h3>
-                <div id="tracking-status" class="status-value">未开始</div>
-            </div>
+            <div class="fps-counter" id="three-fps">FPS: 0</div>
+            <div class="tech-badge">Three.js</div>
         </div>
-        
-        <div class="fps-counter" id="fps-counter">FPS: 0</div>
     </div>
     
     <div class="controls">
         <button class="control-btn" id="start-btn">
             <span>▶️</span> 启动摄像头
         </button>
-        <button class="control-btn" id="particle-btn">
+        <button class="control-btn" id="reset-btn">
+            <span>🔄</span> 重置动画
+        </button>
+        <button class="control-btn" id="effect-btn">
             <span>✨</span> 粒子效果
         </button>
-        <button class="control-btn" id="guide-btn">
-            <span>🖐️</span> 显示手势引导
-        </button>
-    </div>
-
-    <div class="info-panel">
-        <h2>使用说明</h2>
-        <div class="info-content">
-            <div class="info-card">
-                <h3>操作指南</h3>
-                <p>1. 点击"启动摄像头"按钮开始</p>
-                <p>2. 将手掌完全展示在摄像头前</p>
-                <p>3. 系统会在手掌上方生成爱心效果</p>
-                <p>4. 使用其他按钮控制效果</p>
-            </div>
-            <div class="info-card">
-                <h3>手势要求</h3>
-                <p>- 手掌完全张开效果最佳</p>
-                <p>- 确保手掌在画面中央</p>
-                <p>- 避免背景过于复杂</p>
-                <p>- 保持良好光照条件</p>
-            </div>
-            <div class="info-card">
-                <h3>技术说明</h3>
-                <p>使用Mediapipe手部识别技术</p>
-                <p>基于浏览器的实时处理</p>
-                <p>所有处理在本地完成</p>
-                <p>无需上传任何数据</p>
-            </div>
-        </div>
     </div>
 
     <script>
         // 全局变量
+        let scene, camera, renderer, bear, leftArm, rightArm;
         let handTrackingActive = false;
         let particleEffectActive = true;
-        let guideVisible = true;
-        let lastFrameTime = 0;
-        let frameCount = 0;
-        let fps = 0;
+        let leftHandPosition = { x: 0, y: 0, z: 0 };
+        let rightHandPosition = { x: 0, y: 0, z: 0 };
+        let lastCameraFrameTime = 0;
+        let cameraFrameCount = 0;
+        let cameraFps = 0;
+        let lastThreeFrameTime = 0;
+        let threeFrameCount = 0;
+        let threeFps = 0;
         
-        const debugOutput = document.getElementById('debug-output');
-        const heartStatus = document.getElementById('heart-status');
+        // 获取DOM元素
+        const cameraLoading = document.getElementById('camera-loading');
+        const animationLoading = document.getElementById('animation-loading');
+        const animationStatus = document.getElementById('animation-status');
         const confidence = document.getElementById('confidence');
         const trackingStatus = document.getElementById('tracking-status');
-        const loadingOverlay = document.getElementById('loading-overlay');
-        const handGuide = document.getElementById('hand-guide');
-        const fpsCounter = document.getElementById('fps-counter');
+        const cameraFpsElement = document.getElementById('camera-fps');
+        const threeFpsElement = document.getElementById('three-fps');
+        const animationHint = document.getElementById('animation-hint');
         const videoElement = document.getElementById('camera-feed');
-        const canvasElement = document.getElementById('overlay-canvas');
-        const canvasCtx = canvasElement.getContext('2d');
+        const overlayCanvas = document.getElementById('camera-overlay');
+        const overlayCtx = overlayCanvas.getContext('2d');
         
         // 粒子数组
         const particles = [];
+        
+        // 初始化Three.js场景
+        function initThreeScene() {
+            // 创建场景
+            scene = new THREE.Scene();
+            scene.background = null;
+            scene.fog = new THREE.Fog(0x0a192f, 10, 20);
+            
+            // 创建相机
+            const container = document.getElementById('three-container');
+            camera = new THREE.PerspectiveCamera(
+                60, 
+                container.clientWidth / container.clientHeight,
+                0.1,
+                1000
+            );
+            camera.position.set(0, 0, 5);
+            
+            // 创建渲染器
+            renderer = new THREE.WebGLRenderer({ 
+                alpha: true,
+                antialias: true
+            });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+            
+            // 添加灯光
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0x64ffda, 1);
+            directionalLight.position.set(2, 3, 4);
+            scene.add(directionalLight);
+            
+            const pointLight = new THREE.PointLight(0xff6b6b, 1.5, 20);
+            pointLight.position.set(-2, -1, 3);
+            scene.add(pointLight);
+            
+            // 创建线框熊模型
+            createWireframeBear();
+            
+            // 开始动画循环
+            animateThreeScene();
+            
+            // 隐藏加载动画
+            setTimeout(() => {
+                animationLoading.style.display = 'none';
+            }, 1500);
+        }
+        
+        // 创建线框熊模型
+        function createWireframeBear() {
+            const bearGroup = new THREE.Group();
+            
+            // 熊身体
+            const bodyGeometry = new THREE.SphereGeometry(0.8, 12, 12);
+            const bodyMaterial = new THREE.MeshBasicMaterial({ 
+                color: 0x64ffda, 
+                wireframe: true,
+                emissive: 0x00ffaa,
+                emissiveIntensity: 0.5
+            });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            bearGroup.add(body);
+            
+            // 熊头
+            const headGeometry = new THREE.SphereGeometry(0.6, 12, 12);
+            const head = new THREE.Mesh(headGeometry, bodyMaterial);
+            head.position.y = 1.1;
+            bearGroup.add(head);
+            
+            // 熊耳朵
+            const earGeometry = new THREE.SphereGeometry(0.2, 8, 8);
+            const leftEar = new THREE.Mesh(earGeometry, bodyMaterial);
+            leftEar.position.set(-0.4, 1.5, 0);
+            bearGroup.add(leftEar);
+            
+            const rightEar = new THREE.Mesh(earGeometry, bodyMaterial);
+            rightEar.position.set(0.4, 1.5, 0);
+            bearGroup.add(rightEar);
+            
+            // 熊腿
+            const legGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.8, 8);
+            const legMaterial = new THREE.MeshBasicMaterial({ 
+                color: 0x64ffda, 
+                wireframe: true,
+                emissive: 0x00ffaa,
+                emissiveIntensity: 0.5
+            });
+            
+            // 前腿
+            const frontLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
+            frontLeftLeg.position.set(-0.5, -0.9, 0.5);
+            frontLeftLeg.rotation.x = Math.PI / 6;
+            bearGroup.add(frontLeftLeg);
+            
+            const frontRightLeg = new THREE.Mesh(legGeometry, legMaterial);
+            frontRightLeg.position.set(0.5, -0.9, 0.5);
+            frontRightLeg.rotation.x = Math.PI / 6;
+            bearGroup.add(frontRightLeg);
+            
+            // 后腿
+            const backLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
+            backLeftLeg.position.set(-0.5, -0.9, -0.5);
+            backLeftLeg.rotation.x = -Math.PI / 6;
+            bearGroup.add(backLeftLeg);
+            
+            const backRightLeg = new THREE.Mesh(legGeometry, legMaterial);
+            backRightLeg.position.set(0.5, -0.9, -0.5);
+            backRightLeg.rotation.x = -Math.PI / 6;
+            bearGroup.add(backRightLeg);
+            
+            // 熊手臂
+            const armGeometry = new THREE.CylinderGeometry(0.12, 0.12, 0.9, 8);
+            const armMaterial = new THREE.MeshBasicMaterial({ 
+                color: 0xff6b6b, 
+                wireframe: true,
+                emissive: 0xff5555,
+                emissiveIntensity: 0.5
+            });
+            
+            leftArm = new THREE.Mesh(armGeometry, armMaterial);
+            leftArm.position.set(-0.8, 0.1, 0);
+            leftArm.rotation.z = Math.PI / 3;
+            bearGroup.add(leftArm);
+            
+            rightArm = new THREE.Mesh(armGeometry, armMaterial);
+            rightArm.position.set(0.8, 0.1, 0);
+            rightArm.rotation.z = -Math.PI / 3;
+            bearGroup.add(rightArm);
+            
+            // 熊鼻子
+            const noseGeometry = new THREE.SphereGeometry(0.15, 8, 8);
+            const noseMaterial = new THREE.MeshBasicMaterial({ 
+                color: 0xff6b6b, 
+                wireframe: true,
+                emissive: 0xff5555,
+                emissiveIntensity: 0.5
+            });
+            const nose = new THREE.Mesh(noseGeometry, noseMaterial);
+            nose.position.set(0, 1.1, 0.6);
+            bearGroup.add(nose);
+            
+            // 熊眼睛
+            const eyeGeometry = new THREE.SphereGeometry(0.08, 8, 8);
+            const eyeMaterial = new THREE.MeshBasicMaterial({ 
+                color: 0xffffff, 
+                wireframe: true,
+                emissive: 0xffffff,
+                emissiveIntensity: 0.8
+            });
+            
+            const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            leftEye.position.set(-0.2, 1.2, 0.5);
+            bearGroup.add(leftEye);
+            
+            const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            rightEye.position.set(0.2, 1.2, 0.5);
+            bearGroup.add(rightEye);
+            
+            // 完成熊模型
+            bear = bearGroup;
+            bear.position.y = -0.5;
+            scene.add(bear);
+        }
+        
+        // Three.js动画循环
+        function animateThreeScene() {
+            requestAnimationFrame(animateThreeScene);
+            
+            // 更新FPS计数
+            updateThreeFPS();
+            
+            // 旋转熊模型
+            if (bear) {
+                bear.rotation.y += 0.005;
+                
+                // 手臂拥抱动画
+                const time = Date.now() * 0.001;
+                const hugIntensity = 0.5 + Math.sin(time) * 0.5;
+                
+                leftArm.rotation.z = Math.PI / 3 - hugIntensity * 0.5;
+                rightArm.rotation.z = -Math.PI / 3 + hugIntensity * 0.5;
+            }
+            
+            // 更新粒子
+            updateParticles();
+            
+            // 渲染场景
+            renderer.render(scene, camera);
+        }
         
         // 初始化手部追踪
         async function initHandTracking() {
             if (handTrackingActive) return;
             
-            heartStatus.textContent = "正在启动摄像头";
+            animationStatus.textContent = "正在启动摄像头";
             trackingStatus.textContent = "初始化中";
-            loadingOverlay.style.display = 'flex';
+            cameraLoading.style.display = 'flex';
             
-            // 创建Hands对象
             const hands = new window.Hands({
                 locateFile: (file) => {
                     return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
                 }
             });
             
-            // 设置选项
             hands.setOptions({
-                maxNumHands: 1,
+                maxNumHands: 2,
                 modelComplexity: 1,
-                minDetectionConfidence: 0.5,
+                minDetectionConfidence: 0.7,
                 minTrackingConfidence: 0.5
             });
             
-            // 结果处理
             hands.onResults((results) => {
-                if (loadingOverlay.style.display !== 'none') {
-                    loadingOverlay.style.display = 'none';
+                if (cameraLoading.style.display !== 'none') {
+                    cameraLoading.style.display = 'none';
                 }
                 
                 // 更新FPS计数
-                updateFPS();
+                updateCameraFPS();
                 
-                // 清除画布
-                canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+                // 清除覆盖层
+                overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
                 
-                if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-                    const hand = results.multiHandLandmarks[0];
-                    const palmBase = hand[0]; // 手掌根部
+                // 绘制检测结果
+                if (results.multiHandLandmarks) {
+                    for (const landmarks of results.multiHandLandmarks) {
+                        window.drawConnectors(
+                            overlayCtx, landmarks, window.HAND_CONNECTIONS,
+                            {color: '#64FFDA', lineWidth: 2}
+                        );
+                        window.drawLandmarks(
+                            overlayCtx, landmarks,
+                            {color: '#FF6B6B', lineWidth: 1, radius: 3}
+                        );
+                    }
                     
-                    // 显示手势引导
-                    handGuide.style.display = 'none';
+                    // 更新手部位置
+                    updateHandPositions(results);
                     
                     // 更新状态
                     trackingStatus.textContent = "追踪中";
-                    
-                    // 计算手掌中心位置（在摄像头的坐标系中）
-                    const palmX = palmBase.x * canvasElement.width;
-                    const palmY = palmBase.y * canvasElement.height;
-                    
-                    // 更新置信度
-                    const conf = Math.round(results.multiHandedness[0].score * 100);
-                    confidence.textContent = `${conf}%`;
-                    
-                    // 绘制爱心效果
-                    drawHeartEffect(palmX, palmY, conf);
-                    
-                    // 更新状态
-                    heartStatus.textContent = "爱心效果已激活";
+                    animationHint.style.display = 'none';
                 } else {
                     // 没有检测到手部
-                    heartStatus.textContent = "等待手势";
+                    animationStatus.textContent = "等待中";
                     confidence.textContent = "0%";
                     trackingStatus.textContent = "未检测到手部";
-                    
-                    // 显示手势引导
-                    if (guideVisible) {
-                        handGuide.style.display = 'block';
-                    }
+                    animationHint.style.display = 'block';
                 }
-                
-                // 更新粒子
-                updateParticles();
             });
             
             try {
@@ -486,11 +692,11 @@
                 videoElement.srcObject = stream;
                 await videoElement.play();
                 
-                // 设置画布尺寸
-                canvasElement.width = videoElement.videoWidth;
-                canvasElement.height = videoElement.videoHeight;
+                // 设置覆盖层尺寸
+                overlayCanvas.width = videoElement.videoWidth;
+                overlayCanvas.height = videoElement.videoHeight;
                 
-                heartStatus.textContent = "检测手势中";
+                animationStatus.textContent = "检测中";
                 trackingStatus.textContent = "已就绪";
                 
                 // 启动摄像头处理
@@ -512,81 +718,72 @@
                 
             } catch (error) {
                 console.error("摄像头访问失败:", error);
-                heartStatus.textContent = "摄像头错误";
+                animationStatus.textContent = "摄像头错误";
                 trackingStatus.textContent = "错误";
-                loadingOverlay.style.display = 'none';
+                cameraLoading.style.display = 'none';
                 
                 // 创建错误信息
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'instructions';
                 errorDiv.innerHTML = `<div style="color: #ff6b6b; font-weight: bold;">错误: ${error.message}</div>`;
-                document.querySelector('.container').appendChild(errorDiv);
+                document.querySelector('.camera-section').appendChild(errorDiv);
             }
         }
         
-        // 绘制爱心效果
-        function drawHeartEffect(x, y, confidence) {
-            // 根据置信度调整大小
-            const size = 50 + (confidence * 0.5);
-            const opacity = Math.min(0.9, confidence / 100);
-            
-            // 绘制爱心
-            canvasCtx.save();
-            canvasCtx.translate(x, y);
-            
-            // 爱心路径
-            canvasCtx.beginPath();
-            for (let i = 0; i < Math.PI * 2; i += 0.01) {
-                const px = 16 * Math.pow(Math.sin(i), 3);
-                const py = -(13 * Math.cos(i) - 5 * Math.cos(2 * i) - 2 * Math.cos(3 * i) - Math.cos(4 * i));
-                
-                canvasCtx.lineTo(px * size / 16, py * size / 16);
-            }
-            canvasCtx.closePath();
-            
-            // 填充样式
-            const gradient = canvasCtx.createRadialGradient(0, 0, 0, 0, 0, size);
-            gradient.addColorStop(0, `rgba(255, 107, 107, ${opacity + 0.2})`);
-            gradient.addColorStop(1, `rgba(255, 50, 50, ${opacity})`);
-            
-            canvasCtx.fillStyle = gradient;
-            canvasCtx.fill();
-            
-            // 描边
-            canvasCtx.strokeStyle = `rgba(255, 200, 200, ${opacity})`;
-            canvasCtx.lineWidth = 2;
-            canvasCtx.stroke();
-            
-            canvasCtx.restore();
-            
-            // 添加粒子
-            if (particleEffectActive && confidence > 50) {
-                createParticles(x, y, confidence);
+        // 更新手部位置
+        function updateHandPositions(results) {
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                for (let i = 0; i < results.multiHandLandmarks.length; i++) {
+                    const landmarks = results.multiHandLandmarks[i];
+                    const handedness = results.multiHandedness[i];
+                    
+                    // 更新置信度
+                    const conf = Math.round(handedness.score * 100);
+                    confidence.textContent = `${conf}%`;
+                    
+                    // 获取手掌中心位置
+                    const palmBase = landmarks[0];
+                    const palmX = (palmBase.x - 0.5) * 2;
+                    const palmY = -(palmBase.y - 0.5) * 2;
+                    
+                    // 根据左右手更新位置
+                    if (handedness.label === 'Left') {
+                        leftHandPosition = { x: palmX, y: palmY, z: 0 };
+                        animationStatus.textContent = "左臂检测到";
+                    } else if (handedness.label === 'Right') {
+                        rightHandPosition = { x: palmX, y: palmY, z: 0 };
+                        animationStatus.textContent = "右臂检测到";
+                    }
+                    
+                    // 更新熊的位置（在左右手中间）
+                    if (bear) {
+                        const avgX = (leftHandPosition.x + rightHandPosition.x) / 2;
+                        const avgY = (leftHandPosition.y + rightHandPosition.y) / 2;
+                        bear.position.x = avgX * 3;
+                        bear.position.y = avgY * 2 - 0.5;
+                        
+                        // 添加粒子效果
+                        if (particleEffectActive) {
+                            createParticles(avgX, avgY);
+                        }
+                    }
+                }
             }
         }
         
         // 创建粒子
-        function createParticles(x, y, countFactor) {
-            const count = Math.floor(countFactor / 10);
-            
-            for (let i = 0; i < count; i++) {
-                const angle = Math.random() * Math.PI * 2;
-                const speed = 0.5 + Math.random() * 2;
-                const size = 2 + Math.random() * 6;
-                const distance = 20 + Math.random() * 50;
-                
-                particles.push({
-                    x: x,
-                    y: y,
-                    size: size,
-                    color: `hsl(${Math.random() * 20 + 340}, 100%, 70%)`,
-                    angle: angle,
-                    speed: speed,
-                    distance: distance,
-                    maxDistance: distance,
-                    opacity: 0.8,
-                    life: 100
-                });
+        function createParticles(x, y) {
+            for (let i = 0; i < 3; i++) {
+                const particle = {
+                    x: x * window.innerWidth/2 + window.innerWidth/4,
+                    y: y * window.innerHeight/2 + window.innerHeight/4,
+                    size: Math.random() * 4 + 2,
+                    speedX: (Math.random() - 0.5) * 4,
+                    speedY: (Math.random() - 0.5) * 4,
+                    life: 100,
+                    color: `hsl(${Math.random() * 60 + 160}, 100%, 70%)`
+                };
+                particles.push(particle);
             }
         }
         
@@ -596,68 +793,96 @@
                 const p = particles[i];
                 
                 // 更新位置
-                p.distance += p.speed;
-                p.x += Math.cos(p.angle) * p.speed;
-                p.y += Math.sin(p.angle) * p.speed;
+                p.x += p.speedX;
+                p.y += p.speedY;
+                p.life -= 2;
                 
-                // 减少生命值
-                p.life -= 1;
-                p.opacity = p.life / 100;
-                
-                // 绘制粒子
-                if (p.life > 0) {
-                    canvasCtx.globalAlpha = p.opacity;
-                    canvasCtx.fillStyle = p.color;
-                    canvasCtx.beginPath();
-                    canvasCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    canvasCtx.fill();
-                    canvasCtx.globalAlpha = 1;
-                } else {
-                    // 移除死亡粒子
+                // 移除死亡粒子
+                if (p.life <= 0) {
                     particles.splice(i, 1);
+                    continue;
                 }
+                
+                // 创建DOM粒子（仅用于演示，实际应用中建议使用Canvas或WebGL）
+                const particleElement = document.createElement('div');
+                particleElement.className = 'particle';
+                particleElement.style.left = `${p.x}px`;
+                particleElement.style.top = `${p.y}px`;
+                particleElement.style.width = `${p.size}px`;
+                particleElement.style.height = `${p.size}px`;
+                particleElement.style.background = p.color;
+                particleElement.style.opacity = p.life / 100;
+                document.body.appendChild(particleElement);
+                
+                // 1秒后移除粒子
+                setTimeout(() => {
+                    if (particleElement.parentNode) {
+                        particleElement.parentNode.removeChild(particleElement);
+                    }
+                }, 100);
             }
         }
         
-        // 更新FPS计数
-        function updateFPS() {
-            frameCount++;
+        // 更新摄像头FPS计数
+        function updateCameraFPS() {
+            cameraFrameCount++;
             const now = performance.now();
-            const elapsed = now - lastFrameTime;
+            const elapsed = now - lastCameraFrameTime;
             
             if (elapsed >= 1000) {
-                fps = Math.round((frameCount * 1000) / elapsed);
-                frameCount = 0;
-                lastFrameTime = now;
+                cameraFps = Math.round((cameraFrameCount * 1000) / elapsed);
+                cameraFrameCount = 0;
+                lastCameraFrameTime = now;
                 
-                fpsCounter.textContent = `FPS: ${fps}`;
+                cameraFpsElement.textContent = `FPS: ${cameraFps}`;
             }
         }
         
-        // 显示爱心动画
-        function showHeartAnimation() {
-            const heartAnim = document.createElement('div');
-            heartAnim.className = 'heart-animation';
-            heartAnim.innerHTML = '❤️';
-            heartAnim.style.left = `${Math.random() * 80 + 10}%`;
-            document.body.appendChild(heartAnim);
+        // 更新Three.js FPS计数
+        function updateThreeFPS() {
+            threeFrameCount++;
+            const now = performance.now();
+            const elapsed = now - lastThreeFrameTime;
             
+            if (elapsed >= 1000) {
+                threeFps = Math.round((threeFrameCount * 1000) / elapsed);
+                threeFrameCount = 0;
+                lastThreeFrameTime = now;
+                
+                threeFpsElement.textContent = `FPS: ${threeFps}`;
+            }
+        }
+        
+        // 重置动画
+        function resetAnimation() {
+            if (bear) {
+                bear.position.set(0, -0.5, 0);
+                leftArm.rotation.z = Math.PI / 3;
+                rightArm.rotation.z = -Math.PI / 3;
+            }
+            animationStatus.textContent = "已重置";
             setTimeout(() => {
-                document.body.removeChild(heartAnim);
-            }, 4000);
+                animationStatus.textContent = "等待中";
+            }, 2000);
         }
         
         // 初始化
         window.addEventListener('DOMContentLoaded', () => {
+            // 初始化Three.js场景
+            initThreeScene();
+            
             // 添加事件监听器
             document.getElementById('start-btn').addEventListener('click', () => {
                 initHandTracking();
-                showHeartAnimation();
             });
             
-            document.getElementById('particle-btn').addEventListener('click', () => {
+            document.getElementById('reset-btn').addEventListener('click', () => {
+                resetAnimation();
+            });
+            
+            document.getElementById('effect-btn').addEventListener('click', () => {
                 particleEffectActive = !particleEffectActive;
-                const btn = document.getElementById('particle-btn');
+                const btn = document.getElementById('effect-btn');
                 if (particleEffectActive) {
                     btn.innerHTML = '<span>✨</span> 粒子效果';
                 } else {
@@ -665,20 +890,15 @@
                 }
             });
             
-            document.getElementById('guide-btn').addEventListener('click', () => {
-                guideVisible = !guideVisible;
-                const btn = document.getElementById('guide-btn');
-                if (guideVisible) {
-                    btn.innerHTML = '<span>🖐️</span> 隐藏引导';
-                    handGuide.style.display = 'block';
-                } else {
-                    btn.innerHTML = '<span>🖐️</span> 显示引导';
-                    handGuide.style.display = 'none';
+            // 响应窗口大小变化
+            window.addEventListener('resize', () => {
+                if (camera && renderer) {
+                    const container = document.getElementById('three-container');
+                    camera.aspect = container.clientWidth / container.clientHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(container.clientWidth, container.clientHeight);
                 }
             });
-            
-            // 初始显示引导
-            handGuide.style.display = 'block';
         });
     </script>
 </body>
