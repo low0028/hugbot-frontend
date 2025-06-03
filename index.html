@@ -3,99 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>星光许愿池 - 情感安慰空间</title>
+    <title>虚拟宠物陪伴 - 交互式安慰体验</title>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
         }
         
         body {
-            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-            color: #e6e6ff;
+            background: linear-gradient(135deg, #fff9f4, #fff0e8, #ffece2);
+            color: #5a3e36;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             padding: 20px;
-            font-family: 'ZCOOL XiaoWei', serif;
-            overflow: hidden;
+            overflow-x: hidden;
             position: relative;
         }
         
-        /* 星空背景 */
-        .stars {
+        /* 浮动爱心背景 */
+        .floating-hearts {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: -1;
+            z-index: 0;
         }
         
-        .star {
+        .floating-heart {
             position: absolute;
-            background-color: #fff;
-            border-radius: 50%;
-            animation: twinkle var(--duration, 3s) infinite ease-in-out;
+            color: rgba(255, 182, 193, 0.3);
+            font-size: 24px;
+            animation: float 15s infinite linear;
         }
         
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.2; }
-            50% { opacity: 1; }
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 0.7; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
         }
         
         .header {
-            background: rgba(25, 25, 50, 0.6);
+            background: rgba(255, 255, 255, 0.85);
             padding: 25px 40px;
             text-align: center;
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             max-width: 900px;
             width: 100%;
-            border: 1px solid rgba(101, 178, 230, 0.3);
-            box-shadow: 0 0 30px rgba(101, 178, 230, 0.2);
             position: relative;
             z-index: 10;
+            border: 2px solid rgba(255, 223, 223, 0.5);
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.05);
         }
         
         h1 {
-            font-size: 3.2rem;
+            font-size: 2.8rem;
             margin-bottom: 15px;
-            color: #a8d8ff;
-            text-shadow: 0 0 15px rgba(168, 216, 255, 0.7);
-            font-family: 'Ma Shan Zheng', cursive;
-            letter-spacing: 3px;
+            color: #e67a7a;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            display: inline-block;
+        }
+        
+        h1::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, #ffb6c1, #e67a7a);
+            border-radius: 2px;
         }
         
         .subtitle {
-            font-size: 1.4rem;
-            line-height: 1.7;
+            font-size: 1.3rem;
+            line-height: 1.6;
             max-width: 700px;
             margin: 0 auto;
-            color: #c5d5ff;
+            color: #7d5d5b;
         }
         
         .container {
             position: relative;
             max-width: 900px;
             width: 100%;
-            height: 65vh;
+            height: 70vh;
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 0 40px rgba(101, 178, 230, 0.3);
-            background: rgba(15, 25, 45, 0.3);
-            margin-bottom: 30px;
-            border: 1px solid rgba(101, 178, 230, 0.2);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.5);
+            margin-bottom: 25px;
+            border: 2px solid rgba(255, 223, 223, 0.6);
             z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .camera-header {
@@ -103,15 +119,14 @@
             top: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(to right, rgba(25, 55, 109, 0.9), rgba(56, 103, 214, 0.7));
+            background: rgba(230, 122, 122, 0.9);
             padding: 18px;
             text-align: center;
             font-weight: 600;
             font-size: 1.3rem;
-            z-index: 15;
-            color: #e6f7ff;
+            z-index: 10;
+            color: white;
             letter-spacing: 1px;
-            font-family: 'Ma Shan Zheng', cursive;
         }
         
         #camera-feed {
@@ -122,8 +137,8 @@
             height: 100%;
             object-fit: cover;
             transform: scaleX(-1);
-            z-index: 5;
-            opacity: 0.4;
+            z-index: 1;
+            opacity: 0.3;
         }
         
         #overlay-canvas {
@@ -132,7 +147,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 10;
+            z-index: 2;
         }
         
         .instructions {
@@ -140,57 +155,201 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(15, 30, 60, 0.85);
+            background: rgba(255, 255, 255, 0.9);
             padding: 18px;
             text-align: center;
             font-size: 1.2rem;
-            z-index: 15;
-            color: #b8d4ff;
+            z-index: 10;
+            color: #7d5d5b;
             font-weight: 500;
-            border-top: 1px solid rgba(101, 178, 230, 0.3);
+            border-top: 2px solid rgba(230, 122, 122, 0.3);
         }
         
-        .wish-panel {
+        .pet-container {
+            position: relative;
+            width: 300px;
+            height: 350px;
+            z-index: 5;
+        }
+        
+        .pet {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
+        
+        .pet-body {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 180px;
+            background: #ffd5c2;
+            border-radius: 50% 50% 40% 40%;
+            z-index: 11;
+        }
+        
+        .pet-head {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 160px;
+            height: 160px;
+            background: #ffd5c2;
+            border-radius: 50%;
+            z-index: 12;
+        }
+        
+        .pet-ear {
+            position: absolute;
+            width: 50px;
+            height: 80px;
+            background: #ffd5c2;
+            border-radius: 50%;
+            top: -20px;
+            z-index: 10;
+        }
+        
+        .pet-ear.left {
+            left: 20px;
+            transform: rotate(-30deg);
+        }
+        
+        .pet-ear.right {
+            right: 20px;
+            transform: rotate(30deg);
+        }
+        
+        .pet-eye {
+            position: absolute;
+            width: 25px;
+            height: 35px;
+            background: #5a3e36;
+            border-radius: 50%;
+            top: 65px;
+            z-index: 13;
+        }
+        
+        .pet-eye.left {
+            left: 55px;
+        }
+        
+        .pet-eye.right {
+            right: 55px;
+        }
+        
+        .pet-eye-inner {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            top: 8px;
+            left: 5px;
+        }
+        
+        .pet-nose {
+            position: absolute;
+            width: 30px;
+            height: 20px;
+            background: #ff9e9e;
+            border-radius: 50%;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 13;
+        }
+        
+        .pet-mouth {
+            position: absolute;
+            width: 30px;
+            height: 15px;
+            border-bottom: 3px solid #ff9e9e;
+            border-radius: 0 0 50% 50%;
+            top: 115px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 13;
+        }
+        
+        .pet-paw {
+            position: absolute;
+            width: 50px;
+            height: 40px;
+            background: #ffd5c2;
+            border-radius: 50%;
+            bottom: 40px;
+            z-index: 10;
+        }
+        
+        .pet-paw.left {
+            left: 45px;
+        }
+        
+        .pet-paw.right {
+            right: 45px;
+        }
+        
+        .pet-tail {
+            position: absolute;
+            width: 100px;
+            height: 20px;
+            background: #ffd5c2;
+            border-radius: 10px;
+            bottom: 110px;
+            right: 20px;
+            transform-origin: left center;
+            z-index: 9;
+            transform: rotate(-30deg);
+        }
+        
+        .heart {
+            position: absolute;
+            color: #ff6b6b;
+            font-size: 24px;
+            z-index: 20;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .status-panel {
             position: absolute;
             top: 70px;
-            left: 25px;
-            background: rgba(20, 35, 70, 0.85);
+            right: 25px;
+            background: rgba(255, 255, 255, 0.9);
             padding: 20px;
             border-radius: 15px;
             z-index: 15;
-            min-width: 280px;
-            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(101, 178, 230, 0.3);
-            max-width: 300px;
+            min-width: 220px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(230, 122, 122, 0.2);
         }
         
-        .wish-card {
-            background: rgba(30, 50, 90, 0.6);
-            padding: 20px;
+        .status-card {
+            background: linear-gradient(to right, #fff0e8, #fff5f1);
+            padding: 18px;
             border-radius: 12px;
-            margin-bottom: 20px;
-            border-left: 3px solid #65b2e6;
-            transition: all 0.5s ease;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
         }
         
-        .wish-card:last-child {
-            margin-bottom: 0;
-        }
-        
-        .wish-card h3 {
-            color: #a8d8ff;
+        .status-card h3 {
+            color: #e67a7a;
             margin-bottom: 12px;
+            font-size: 1.1rem;
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 1.3rem;
+            justify-content: center;
+            gap: 8px;
         }
         
-        .wish-text {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            color: #d5e6ff;
-            font-style: italic;
+        .status-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #e67a7a;
         }
         
         .controls {
@@ -203,47 +362,49 @@
         }
         
         .control-btn {
-            background: linear-gradient(135deg, #4a7bc8, #65b2e6);
+            background: linear-gradient(135deg, #e67a7a, #d46a6a);
             color: white;
             border: none;
-            padding: 16px 35px;
+            padding: 15px 30px;
             border-radius: 50px;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 6px 20px rgba(101, 178, 230, 0.4);
+            box-shadow: 0 6px 15px rgba(230, 122, 122, 0.4);
             display: flex;
             align-items: center;
-            gap: 12px;
-            min-width: 220px;
+            gap: 10px;
+            min-width: 200px;
             justify-content: center;
-            font-family: 'Ma Shan Zheng', cursive;
-            letter-spacing: 1px;
         }
         
         .control-btn:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(101, 178, 230, 0.6);
+            box-shadow: 0 10px 25px rgba(230, 122, 122, 0.5);
         }
         
         .control-btn:active {
             transform: translateY(2px);
         }
         
-        .star-animation {
+        .pet-message {
             position: absolute;
-            z-index: 500;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1.2rem;
+            color: #e67a7a;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
             opacity: 0;
-            pointer-events: none;
-            animation: starFloat 3s ease-out forwards;
-        }
-        
-        @keyframes starFloat {
-            0% { opacity: 0; transform: translate(0, 0) scale(0.3); }
-            20% { opacity: 1; transform: translate(0, -20px) scale(1); }
-            80% { opacity: 0.8; }
-            100% { opacity: 0; transform: translate(var(--tx, 0), var(--ty, -150px)) scale(0.5); }
+            transition: opacity 0.3s ease;
+            z-index: 15;
+            font-weight: 500;
+            max-width: 80%;
+            text-align: center;
         }
         
         .loading-overlay {
@@ -252,7 +413,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(10, 20, 40, 0.9);
+            background: rgba(255, 255, 255, 0.9);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -264,9 +425,9 @@
         .spinner {
             width: 60px;
             height: 60px;
-            border: 6px solid rgba(101, 178, 230, 0.3);
+            border: 6px solid rgba(230, 122, 122, 0.3);
             border-radius: 50%;
-            border-top-color: #65b2e6;
+            border-top-color: #e67a7a;
             animation: spin 1.5s ease-in-out infinite;
             margin-bottom: 25px;
         }
@@ -277,85 +438,99 @@
         
         .loading-text {
             font-size: 1.4rem;
-            color: #a8d8ff;
+            color: #e67a7a;
             text-align: center;
             max-width: 80%;
         }
         
-        .encouragement {
+        .pet-mood {
             position: absolute;
-            top: 50%;
+            top: 50px;
             left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 2.5rem;
-            color: #ffd700;
-            text-align: center;
-            text-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            color: #e67a7a;
+            z-index: 15;
             opacity: 0;
-            transition: opacity 1s ease;
-            z-index: 20;
-            max-width: 80%;
-            font-family: 'Ma Shan Zheng', cursive;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 15px;
+            transition: opacity 0.3s ease;
         }
         
-        .moon {
-            position: absolute;
-            top: 40px;
-            right: 40px;
-            width: 100px;
-            height: 100px;
-            background: radial-gradient(circle, #f9f3d5 0%, #e6d8aa 70%);
-            border-radius: 50%;
-            box-shadow: 0 0 40px #f9f3d5, 0 0 80px rgba(249, 243, 213, 0.6);
-            z-index: 8;
+        .tail-animation {
+            animation: tailWag 0.5s ease-in-out infinite alternate;
         }
         
-        .moon-crater {
-            position: absolute;
-            background: #d4c69e;
-            border-radius: 50%;
+        @keyframes tailWag {
+            0% { transform: rotate(-30deg); }
+            100% { transform: rotate(-10deg); }
         }
         
-        .comet {
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            background: #fff;
-            border-radius: 50%;
-            box-shadow: 0 0 20px #65b2e6;
-            z-index: 7;
-            opacity: 0;
+        .pet-happy {
+            animation: petHappy 0.5s ease-in-out;
         }
         
-        .heart {
-            position: absolute;
-            color: #ff6b6b;
-            z-index: 6;
-            opacity: 0;
+        @keyframes petHappy {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
         
-        .capture-effect {
-            position: absolute;
-            width: 100px;
-            height: 100px;
-            border: 4px solid #65b2e6;
-            border-radius: 50%;
-            box-shadow: 0 0 30px #65b2e6;
-            z-index: 25;
-            opacity: 0;
-            pointer-events: none;
+        .heart-animation {
+            animation: heartFloat 3s ease-out forwards;
         }
         
-        footer {
-            margin-top: 20px;
-            text-align: center;
-            color: #8aa2d8;
-            font-size: 1rem;
-            z-index: 10;
+        @keyframes heartFloat {
+            0% { opacity: 0; transform: translateY(0) scale(0.5); }
+            20% { opacity: 1; transform: translateY(-20px) scale(1); }
+            80% { opacity: 0.8; transform: translateY(-80px); }
+            100% { opacity: 0; transform: translateY(-100px) scale(0.5); }
+        }
+        
+        .info-panel {
+            background: rgba(255, 255, 255, 0.85);
+            padding: 25px;
+            border-radius: 20px;
             max-width: 900px;
+            width: 100%;
+            margin-top: 20px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.05);
+            border: 2px solid rgba(255, 223, 223, 0.5);
+        }
+        
+        .info-panel h2 {
+            color: #e67a7a;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 2rem;
+        }
+        
+        .info-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+        
+        .info-card {
+            background: linear-gradient(to bottom, #fff5f1, #fff9f7);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            border: 1px solid rgba(230, 122, 122, 0.1);
+        }
+        
+        .info-card h3 {
+            color: #e67a7a;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .info-card p {
+            color: #7d5d5b;
+            line-height: 1.6;
+            font-size: 1.1rem;
         }
         
         @media (max-width: 768px) {
@@ -377,10 +552,10 @@
                 min-width: 180px;
             }
             
-            .wish-panel {
+            .status-panel {
                 position: relative;
                 top: auto;
-                left: auto;
+                right: auto;
                 margin: 20px auto;
                 max-width: 90%;
             }
@@ -388,117 +563,153 @@
     </style>
 </head>
 <body>
-    <!-- 星空背景 -->
-    <div class="stars" id="stars"></div>
-    
-    <!-- 月亮 -->
-    <div class="moon" id="moon"></div>
+    <!-- 浮动爱心背景 -->
+    <div class="floating-hearts" id="floating-hearts"></div>
     
     <div class="header">
-        <h1>星光许愿池</h1>
-        <p class="subtitle">伸出双手，捕捉属于你的希望星辰。每颗星星都承载着温暖的话语，愿它们为你带来安慰与力量</p>
+        <h1>虚拟宠物陪伴</h1>
+        <p class="subtitle">伸出手掌抚摸屏幕上的小可爱，它会用温暖的反应安慰你的心灵</p>
     </div>
     
     <div class="container">
-        <div class="camera-header">星空许愿池 - 捕捉希望的星辰</div>
+        <div class="camera-header">宠物互动区</div>
         <div class="loading-overlay" id="loading-overlay">
             <div class="spinner"></div>
-            <div class="loading-text">正在准备星空许愿池，请稍候...</div>
+            <div class="loading-text">正在准备虚拟宠物，请稍候...</div>
         </div>
         <video id="camera-feed" autoplay playsinline></video>
         <canvas id="overlay-canvas"></canvas>
         <div class="instructions">
-            请张开双手，在夜空中捕捉闪烁的星辰...
+            伸出手掌，在宠物上方轻轻移动来抚摸它
         </div>
         
-        <!-- 鼓励语面板 -->
-        <div class="wish-panel">
-            <div class="wish-card">
-                <h3>🌟 温暖寄语</h3>
-                <p class="wish-text">每颗星星都见证着你的坚强，黑夜终将过去</p>
-            </div>
-            <div class="wish-card">
-                <h3>💫 心灵小语</h3>
-                <p class="wish-text">你并不孤单，整个星空都在为你闪耀</p>
+        <!-- 宠物容器 -->
+        <div class="pet-container">
+            <div class="pet">
+                <div class="pet-tail" id="pet-tail"></div>
+                <div class="pet-ear left"></div>
+                <div class="pet-ear right"></div>
+                <div class="pet-body"></div>
+                <div class="pet-paw left"></div>
+                <div class="pet-paw right"></div>
+                <div class="pet-head">
+                    <div class="pet-eye left">
+                        <div class="pet-eye-inner"></div>
+                    </div>
+                    <div class="pet-eye right">
+                        <div class="pet-eye-inner"></div>
+                    </div>
+                    <div class="pet-nose"></div>
+                    <div class="pet-mouth"></div>
+                </div>
             </div>
         </div>
         
-        <!-- 鼓励语显示 -->
-        <div class="encouragement" id="encouragement"></div>
+        <!-- 宠物消息 -->
+        <div class="pet-message" id="pet-message"></div>
+        
+        <!-- 宠物心情 -->
+        <div class="pet-mood" id="pet-mood">❤️</div>
+        
+        <!-- 状态面板 -->
+        <div class="status-panel">
+            <div class="status-card">
+                <h3>宠物心情</h3>
+                <div id="mood-status" class="status-value">平静</div>
+            </div>
+            <div class="status-card">
+                <h3>抚摸强度</h3>
+                <div id="interaction-level" class="status-value">0%</div>
+            </div>
+            <div class="status-card">
+                <h3>互动次数</h3>
+                <div id="interaction-count" class="status-value">0</div>
+            </div>
+        </div>
     </div>
     
     <div class="controls">
         <button class="control-btn" id="start-btn">
-            <span>✨</span> 开启星空之旅
-        </button>
-        <button class="control-btn" id="wish-btn">
-            <span>🌠</span> 许下心愿
+            <span>🐾</span> 开始互动
         </button>
         <button class="control-btn" id="reset-btn">
-            <span>🔄</span> 重置星空
+            <span>🔄</span> 重置宠物
+        </button>
+        <button class="control-btn" id="treat-btn">
+            <span>🍪</span> 给予零食
         </button>
     </div>
-    
-    <footer>
-        <p>星光许愿池 © 2023 | 愿每一颗星星都为你带来温暖与希望</p>
-    </footer>
+
+    <div class="info-panel">
+        <h2>互动指南</h2>
+        <div class="info-content">
+            <div class="info-card">
+                <h3>🐱 如何互动</h3>
+                <p>1. 点击"开始互动"按钮启用摄像头</p>
+                <p>2. 将手掌放在宠物上方轻轻移动</p>
+                <p>3. 宠物会根据抚摸强度做出不同反应</p>
+                <p>4. 尝试给予零食看看特殊反应</p>
+            </div>
+            <div class="info-card">
+                <h3>💖 宠物反应</h3>
+                <p>- 轻轻抚摸：摇尾巴，发出爱心</p>
+                <p>- 持续抚摸：跳跃，显示开心表情</p>
+                <p>- 给予零食：特别动画和感谢消息</p>
+                <p>- 停止互动：恢复平静状态</p>
+            </div>
+            <div class="info-card">
+                <h3>🌟 设计理念</h3>
+                <p>虚拟宠物陪伴旨在通过温暖互动提供情感安慰，帮助缓解压力和负面情绪，让您感受到被关心和陪伴的温暖。</p>
+            </div>
+        </div>
+    </div>
 
     <script>
         // 全局变量
         let handTrackingActive = false;
-        let lastFrameTime = 0;
-        let frameCount = 0;
-        let fps = 0;
-        let stars = [];
-        let capturedStars = 0;
-        const encouragements = [
-            "你比想象中更坚强",
-            "黑暗不会永远停留",
-            "你的存在本身就是一道光",
-            "每一步都是成长",
-            "让过去过去，让未来到来",
-            "你值得所有的美好",
-            "给自己一点时间，慢慢来",
-            "伤口终将变成智慧",
-            "风雨过后，必有彩虹",
-            "今天的不易是明天的力量"
-        ];
+        let interactionCount = 0;
+        let lastInteractionTime = 0;
+        let petMood = "平静";
+        let tailAnimationActive = false;
+        let hearts = [];
         
         // DOM元素
-        const encouragement = document.getElementById('encouragement');
+        const moodStatus = document.getElementById('mood-status');
+        const interactionLevel = document.getElementById('interaction-level');
+        const interactionCountElem = document.getElementById('interaction-count');
         const loadingOverlay = document.getElementById('loading-overlay');
-        const fpsCounter = document.getElementById('fps-counter');
+        const petTail = document.getElementById('pet-tail');
+        const petMessage = document.getElementById('pet-message');
+        const petMood = document.getElementById('pet-mood');
         const videoElement = document.getElementById('camera-feed');
         const canvasElement = document.getElementById('overlay-canvas');
         const canvasCtx = canvasElement.getContext('2d');
-        const starsContainer = document.getElementById('stars');
-        const moon = document.getElementById('moon');
+        const floatingHearts = document.getElementById('floating-hearts');
         
-        // 创建星空背景
-        function createStars() {
-            starsContainer.innerHTML = '';
-            for (let i = 0; i < 150; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.left = `${Math.random() * 100}%`;
-                star.style.top = `${Math.random() * 100}%`;
-                star.style.width = `${Math.random() * 3 + 1}px`;
-                star.style.height = star.style.width;
-                star.style.animationDuration = `${Math.random() * 5 + 2}s`;
-                starsContainer.appendChild(star);
-            }
-        }
+        // 宠物消息数组
+        const petMessages = [
+            "喵~ 好舒服",
+            "喜欢你这样摸我",
+            "再多摸一会儿嘛",
+            "呼噜呼噜~",
+            "你让我好开心",
+            "好幸福的感觉",
+            "不要停~",
+            "你是我最好的朋友"
+        ];
         
-        // 创建月亮陨石坑
-        function createMoonCraters() {
-            for (let i = 0; i < 8; i++) {
-                const crater = document.createElement('div');
-                crater.className = 'moon-crater';
-                crater.style.width = `${Math.random() * 20 + 5}px`;
-                crater.style.height = crater.style.width;
-                crater.style.top = `${Math.random() * 80 + 10}%`;
-                crater.style.left = `${Math.random() * 80 + 10}%`;
-                moon.appendChild(crater);
+        // 创建浮动爱心
+        function createFloatingHearts() {
+            floatingHearts.innerHTML = '';
+            for (let i = 0; i < 30; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'floating-heart';
+                heart.innerHTML = '❤️';
+                heart.style.left = `${Math.random() * 100}%`;
+                heart.style.fontSize = `${Math.random() * 20 + 15}px`;
+                heart.style.animationDuration = `${Math.random() * 10 + 10}s`;
+                heart.style.animationDelay = `${Math.random() * 5}s`;
+                floatingHearts.appendChild(heart);
             }
         }
         
@@ -507,6 +718,7 @@
             if (handTrackingActive) return;
             
             loadingOverlay.style.display = 'flex';
+            moodStatus.textContent = "等待中";
             
             // 创建Hands对象
             const hands = new window.Hands({
@@ -517,7 +729,7 @@
             
             // 设置选项
             hands.setOptions({
-                maxNumHands: 2,
+                maxNumHands: 1,
                 modelComplexity: 1,
                 minDetectionConfidence: 0.5,
                 minTrackingConfidence: 0.5
@@ -527,36 +739,33 @@
             hands.onResults((results) => {
                 if (loadingOverlay.style.display !== 'none') {
                     loadingOverlay.style.display = 'none';
-                    createStars();
-                    createMoonCraters();
+                    createFloatingHearts();
                 }
-                
-                // 更新FPS计数
-                updateFPS();
                 
                 // 清除画布
                 canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
                 
-                // 绘制星空
-                drawStars();
-                
+                // 绘制手部位置光晕
                 if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-                    // 检测到手部
-                    for (const landmarks of results.multiHandLandmarks) {
-                        const indexTip = landmarks[8]; // 食指指尖
-                        const x = indexTip.x * canvasElement.width;
-                        const y = indexTip.y * canvasElement.height;
-                        
-                        // 绘制手部位置光晕
-                        drawHandHalo(x, y);
-                        
-                        // 检测是否捕捉到星星
-                        checkStarCapture(x, y);
+                    const landmarks = results.multiHandLandmarks[0];
+                    const indexTip = landmarks[8]; // 食指指尖
+                    const x = indexTip.x * canvasElement.width;
+                    const y = indexTip.y * canvasElement.height;
+                    
+                    // 绘制手部光晕
+                    drawHandHalo(x, y);
+                    
+                    // 检测是否在抚摸宠物
+                    checkPetInteraction(x, y);
+                } else {
+                    // 没有检测到手部
+                    if (petMood !== "平静") {
+                        setPetMood("平静");
                     }
                 }
                 
-                // 更新星星
-                updateStars();
+                // 更新并绘制爱心
+                updateHearts();
             });
             
             try {
@@ -599,7 +808,7 @@
                 // 创建错误信息
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'instructions';
-                errorDiv.innerHTML = `<div style="color: #ff6b6b; font-weight: bold;">错误: ${error.message}</div>`;
+                errorDiv.innerHTML = `<div style="color: #e67a7a; font-weight: bold;">错误: ${error.message}</div>`;
                 document.querySelector('.container').appendChild(errorDiv);
             }
         }
@@ -608,245 +817,227 @@
         function drawHandHalo(x, y) {
             canvasCtx.save();
             canvasCtx.beginPath();
-            canvasCtx.arc(x, y, 40, 0, Math.PI * 2);
+            canvasCtx.arc(x, y, 60, 0, Math.PI * 2);
             
-            const gradient = canvasCtx.createRadialGradient(x, y, 0, x, y, 40);
-            gradient.addColorStop(0, 'rgba(101, 178, 230, 0.8)');
-            gradient.addColorStop(1, 'rgba(101, 178, 230, 0)');
+            const gradient = canvasCtx.createRadialGradient(x, y, 0, x, y, 60);
+            gradient.addColorStop(0, 'rgba(230, 122, 122, 0.4)');
+            gradient.addColorStop(1, 'rgba(230, 122, 122, 0)');
             
             canvasCtx.fillStyle = gradient;
             canvasCtx.fill();
             canvasCtx.restore();
         }
         
-        // 绘制星星
-        function drawStars() {
-            // 随机添加新星星
-            if (Math.random() < 0.05 && stars.length < 30) {
-                stars.push({
-                    x: Math.random() * canvasElement.width,
-                    y: Math.random() * canvasElement.height * 0.8,
-                    size: Math.random() * 8 + 4,
-                    brightness: Math.random() * 0.5 + 0.5,
-                    speed: Math.random() * 1 + 0.5,
-                    captured: false
-                });
-            }
+        // 检测宠物互动
+        function checkPetInteraction(x, y) {
+            // 宠物位置（屏幕中央）
+            const petX = canvasElement.width / 2;
+            const petY = canvasElement.height / 2 - 50;
             
-            // 绘制所有星星
-            stars.forEach(star => {
-                if (star.captured) return;
+            // 计算距离
+            const distance = Math.sqrt(Math.pow(petX - x, 2) + Math.pow(petY - y, 2));
+            
+            // 互动强度（距离越小，强度越大）
+            const level = Math.max(0, 100 - Math.min(100, distance / 3));
+            interactionLevel.textContent = `${Math.round(level)}%`;
+            
+            if (distance < 150) {
+                // 在互动范围内
+                const now = Date.now();
                 
-                canvasCtx.save();
-                canvasCtx.beginPath();
-                canvasCtx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                // 至少间隔500ms才计为一次新互动
+                if (now - lastInteractionTime > 500) {
+                    interactionCount++;
+                    interactionCountElem.textContent = interactionCount;
+                    lastInteractionTime = now;
+                }
                 
-                const gradient = canvasCtx.createRadialGradient(
-                    star.x, star.y, 0, 
-                    star.x, star.y, star.size
-                );
-                gradient.addColorStop(0, `rgba(255, 255, 255, ${star.brightness})`);
-                gradient.addColorStop(1, `rgba(168, 216, 255, ${star.brightness * 0.3})`);
+                // 根据互动强度设置宠物心情
+                if (level > 70) {
+                    setPetMood("非常开心");
+                    createHeart(petX, petY - 100);
+                    
+                    // 添加尾巴动画
+                    if (!tailAnimationActive) {
+                        petTail.classList.add('tail-animation');
+                        tailAnimationActive = true;
+                    }
+                    
+                    // 随机显示宠物消息
+                    if (Math.random() < 0.1) {
+                        showPetMessage();
+                    }
+                    
+                    // 随机跳跃
+                    if (Math.random() < 0.05) {
+                        document.querySelector('.pet').classList.add('pet-happy');
+                        setTimeout(() => {
+                            document.querySelector('.pet').classList.remove('pet-happy');
+                        }, 500);
+                    }
+                } else if (level > 30) {
+                    setPetMood("开心");
+                    
+                    // 添加尾巴动画
+                    if (!tailAnimationActive) {
+                        petTail.classList.add('tail-animation');
+                        tailAnimationActive = true;
+                    }
+                    
+                    // 随机显示宠物消息
+                    if (Math.random() < 0.05) {
+                        showPetMessage();
+                    }
+                } else {
+                    setPetMood("舒适");
+                }
+            } else {
+                // 不在互动范围内
+                setPetMood("平静");
                 
-                canvasCtx.fillStyle = gradient;
-                canvasCtx.fill();
+                // 移除尾巴动画
+                if (tailAnimationActive) {
+                    petTail.classList.remove('tail-animation');
+                    tailAnimationActive = false;
+                }
+            }
+        }
+        
+        // 设置宠物心情
+        function setPetMood(mood) {
+            if (petMood !== mood) {
+                petMood = mood;
+                moodStatus.textContent = mood;
                 
-                // 添加星芒效果
-                for (let i = 0; i < 4; i++) {
+                // 显示心情表情
+                petMood.style.opacity = 1;
+                petMood.textContent = mood === "非常开心" ? "😻" : 
+                                      mood === "开心" ? "😸" : 
+                                      mood === "舒适" ? "😺" : "😼";
+                
+                setTimeout(() => {
+                    petMood.style.opacity = 0;
+                }, 2000);
+            }
+        }
+        
+        // 显示宠物消息
+        function showPetMessage() {
+            const message = petMessages[Math.floor(Math.random() * petMessages.length)];
+            petMessage.textContent = message;
+            petMessage.style.opacity = 1;
+            
+            setTimeout(() => {
+                petMessage.style.opacity = 0;
+            }, 3000);
+        }
+        
+        // 创建爱心
+        function createHeart(x, y) {
+            hearts.push({
+                x: x,
+                y: y,
+                size: Math.random() * 20 + 15,
+                speed: Math.random() * 2 + 1,
+                opacity: 1,
+                element: null
+            });
+        }
+        
+        // 更新爱心
+        function updateHearts() {
+            for (let i = hearts.length - 1; i >= 0; i--) {
+                const heart = hearts[i];
+                heart.y -= heart.speed;
+                heart.opacity -= 0.01;
+                
+                if (heart.opacity <= 0) {
+                    hearts.splice(i, 1);
+                    if (heart.element) {
+                        heart.element.remove();
+                    }
+                } else {
+                    // 绘制爱心
                     canvasCtx.save();
-                    canvasCtx.translate(star.x, star.y);
-                    canvasCtx.rotate(i * Math.PI / 4);
-                    
+                    canvasCtx.globalAlpha = heart.opacity;
+                    canvasCtx.fillStyle = '#ff6b6b';
                     canvasCtx.beginPath();
-                    canvasCtx.moveTo(star.size * 1.5, 0);
-                    canvasCtx.lineTo(star.size * 2.5, 0);
-                    canvasCtx.strokeStyle = `rgba(255, 255, 255, ${star.brightness * 0.7})`;
-                    canvasCtx.lineWidth = 2;
-                    canvasCtx.stroke();
-                    
+                    for (let angle = 0; angle < Math.PI * 2; angle += 0.01) {
+                        const px = 16 * Math.pow(Math.sin(angle), 3);
+                        const py = -(13 * Math.cos(angle) - 5 * Math.cos(2 * angle) - 2 * Math.cos(3 * angle) - Math.cos(4 * angle));
+                        canvasCtx.lineTo(heart.x + px * heart.size / 16, heart.y + py * heart.size / 16);
+                    }
+                    canvasCtx.closePath();
+                    canvasCtx.fill();
                     canvasCtx.restore();
                 }
-                
-                canvasCtx.restore();
-            });
+            }
         }
         
-        // 更新星星位置
-        function updateStars() {
-            stars = stars.filter(star => {
-                // 被捕抓的星星向上飞走
-                if (star.captured) {
-                    star.y -= star.speed * 3;
-                    return star.y > -50;
-                }
-                
-                // 未被捕抓的星星缓慢移动
-                star.x += (Math.random() - 0.5) * star.speed;
-                star.y += (Math.random() - 0.5) * star.speed;
-                
-                // 确保星星在屏幕内
-                star.x = Math.max(10, Math.min(canvasElement.width - 10, star.x));
-                star.y = Math.max(10, Math.min(canvasElement.height - 10, star.y));
-                
-                return true;
-            });
-        }
-        
-        // 检测是否捕捉到星星
-        function checkStarCapture(x, y) {
-            stars.forEach((star, index) => {
-                if (star.captured) return;
-                
-                const distance = Math.sqrt(Math.pow(star.x - x, 2) + Math.pow(star.y - y, 2));
-                
-                if (distance < 50) {
-                    star.captured = true;
-                    capturedStars++;
-                    
-                    // 显示鼓励语
-                    showEncouragement();
-                    
-                    // 创建捕捉效果
-                    createCaptureEffect(star.x, star.y);
-                }
-            });
-        }
-        
-        // 显示鼓励语
-        function showEncouragement() {
-            const text = encouragements[Math.floor(Math.random() * encouragements.length)];
-            encouragement.textContent = text;
-            encouragement.style.opacity = 1;
+        // 给予零食
+        function giveTreat() {
+            interactionCount += 3;
+            interactionCountElem.textContent = interactionCount;
             
-            setTimeout(() => {
-                encouragement.style.opacity = 0;
-            }, 3000);
-        }
-        
-        // 创建捕捉效果
-        function createCaptureEffect(x, y) {
-            // 捕捉光圈效果
-            const effect = document.createElement('div');
-            effect.className = 'capture-effect';
-            effect.style.left = `${x - 50}px`;
-            effect.style.top = `${y - 50}px`;
-            document.querySelector('.container').appendChild(effect);
+            // 显示特别感谢消息
+            petMessage.textContent = "哇！零食！谢谢你！";
+            petMessage.style.opacity = 1;
             
-            // 动画
-            let size = 100;
-            const grow = setInterval(() => {
-                size += 10;
-                effect.style.width = `${size}px`;
-                effect.style.height = `${size}px`;
-                effect.style.left = `${x - size/2}px`;
-                effect.style.top = `${y - size/2}px`;
-                effect.style.opacity = `${1 - size/200}`;
-                
-                if (size > 200) {
-                    clearInterval(grow);
-                    effect.remove();
-                }
-            }, 20);
+            // 显示特别心情
+            petMood.textContent = "🍪";
+            petMood.style.opacity = 1;
             
-            // 创建星星飞向月亮的动画
-            createStarToMoonAnimation(x, y);
-        }
-        
-        // 创建星星飞向月亮的动画
-        function createStarToMoonAnimation(startX, startY) {
-            const moonRect = moon.getBoundingClientRect();
-            const moonX = moonRect.left + moonRect.width / 2;
-            const moonY = moonRect.top + moonRect.height / 2;
-            
-            const star = document.createElement('div');
-            star.className = 'star-animation';
-            star.innerHTML = '⭐';
-            star.style.left = `${startX}px`;
-            star.style.top = `${startY}px`;
-            star.style.fontSize = `${Math.random() * 30 + 20}px`;
-            
-            // 设置动画结束位置
-            const tx = moonX - startX;
-            const ty = moonY - startY - 150;
-            star.style.setProperty('--tx', `${tx}px`);
-            star.style.setProperty('--ty', `${ty}px`);
-            
-            document.body.appendChild(star);
-            
-            setTimeout(() => {
-                star.remove();
-            }, 3000);
-        }
-        
-        // 重置星空
-        function resetStars() {
-            stars = [];
-            capturedStars = 0;
-            
-            // 添加重置动画
-            for (let i = 0; i < 15; i++) {
+            // 创建多个爱心
+            for (let i = 0; i < 10; i++) {
                 setTimeout(() => {
-                    const star = document.createElement('div');
-                    star.className = 'star-animation';
-                    star.innerHTML = '✨';
-                    star.style.left = `${Math.random() * 100}%`;
-                    star.style.top = `${Math.random() * 100 + 100}%`;
-                    star.style.fontSize = `${Math.random() * 30 + 20}px`;
-                    star.style.setProperty('--tx', `${(Math.random() - 0.5) * 300}px`);
-                    star.style.setProperty('--ty', `${-Math.random() * 300 - 150}px`);
-                    document.body.appendChild(star);
-                    
-                    setTimeout(() => {
-                        star.remove();
-                    }, 3000);
+                    const petX = canvasElement.width / 2;
+                    const petY = canvasElement.height / 2 - 150;
+                    createHeart(petX + (Math.random() - 0.5) * 100, petY);
                 }, i * 100);
             }
-        }
-        
-        // 更新FPS计数
-        function updateFPS() {
-            frameCount++;
-            const now = performance.now();
-            const elapsed = now - lastFrameTime;
             
-            if (elapsed >= 1000) {
-                fps = Math.round((frameCount * 1000) / elapsed);
-                frameCount = 0;
-                lastFrameTime = now;
-            }
-        }
-        
-        // 许愿功能
-        function makeAWish() {
-            const wish = document.createElement('div');
-            wish.className = 'star-animation';
-            wish.innerHTML = '💫';
-            wish.style.left = `${Math.random() * 100}%`;
-            wish.style.top = `${Math.random() * 100 + 100}%`;
-            wish.style.fontSize = '40px';
-            wish.style.setProperty('--tx', `${(Math.random() - 0.5) * 200}px`);
-            wish.style.setProperty('--ty', `${-Math.random() * 200 - 200}px`);
-            document.body.appendChild(wish);
-            
+            // 跳跃动画
+            document.querySelector('.pet').classList.add('pet-happy');
             setTimeout(() => {
-                wish.remove();
+                document.querySelector('.pet').classList.remove('pet-happy');
+            }, 1000);
+            
+            // 重置消息和心情
+            setTimeout(() => {
+                petMessage.style.opacity = 0;
+                petMood.style.opacity = 0;
             }, 3000);
+        }
+        
+        // 重置宠物
+        function resetPet() {
+            interactionCount = 0;
+            interactionCountElem.textContent = "0";
+            moodStatus.textContent = "平静";
+            interactionLevel.textContent = "0%";
             
-            // 显示许愿语
-            const wishes = [
-                "愿你找到内心的平静",
-                "愿希望之光永远指引你",
-                "愿你的每一天都比昨天更好",
-                "愿爱和温暖常伴你左右",
-                "愿你勇敢面对所有挑战"
-            ];
+            // 显示重置消息
+            petMessage.textContent = "我们重新开始吧！";
+            petMessage.style.opacity = 1;
             
-            encouragement.textContent = wishes[Math.floor(Math.random() * wishes.length)];
-            encouragement.style.opacity = 1;
+            // 移除尾巴动画
+            if (tailAnimationActive) {
+                petTail.classList.remove('tail-animation');
+                tailAnimationActive = false;
+            }
+            
+            // 创建重置动画
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const petX = canvasElement.width / 2;
+                    const petY = canvasElement.height / 2 - 150;
+                    createHeart(petX, petY);
+                }, i * 200);
+            }
             
             setTimeout(() => {
-                encouragement.style.opacity = 0;
-            }, 4000);
+                petMessage.style.opacity = 0;
+            }, 3000);
         }
         
         // 初始化
@@ -854,13 +1045,12 @@
             // 添加事件监听器
             document.getElementById('start-btn').addEventListener('click', initHandTracking);
             
-            document.getElementById('reset-btn').addEventListener('click', resetStars);
+            document.getElementById('reset-btn').addEventListener('click', resetPet);
             
-            document.getElementById('wish-btn').addEventListener('click', makeAWish);
+            document.getElementById('treat-btn').addEventListener('click', giveTreat);
             
-            // 创建初始星星
-            createStars();
-            createMoonCraters();
+            // 创建初始浮动爱心
+            createFloatingHearts();
         });
     </script>
 </body>
