@@ -1,27 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>GLB 模型测试</title>
+  <meta charset="UTF-8" />
+  <title>HugBot 小狐狸聊天</title>
   <style>
-    body { margin: 0; }
-    canvas { display: block; }
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    #chat-container {
+      flex: 0 0 auto;
+      padding: 10px;
+      background: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    #message {
+      flex: 1;
+      padding: 8px;
+      font-size: 16px;
+    }
+
+    #send-btn {
+      padding: 8px 16px;
+      font-size: 16px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    canvas {
+      display: block;
+      flex: 1 1 auto;
+      width: 100%;
+      height: 100%;
+    }
   </style>
 </head>
 <body>
+  <div id="chat-container">
+    <input type="text" id="message" placeholder="说点什么..." />
+    <button id="send-btn">发送</button>
+  </div>
   <script type="module">
     import * as THREE from 'https://cdn.skypack.dev/three';
     import { GLTFLoader } from 'https://cdn.skypack.dev/three/examples/jsm/loaders/GLTFLoader.js';
     import { OrbitControls } from 'https://cdn.skypack.dev/three/examples/jsm/controls/OrbitControls.js';
 
+    // 初始化 Three.js 场景
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xf0f0f0);
 
-    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / (window.innerHeight - 60), 0.1, 100);
     camera.position.set(1, 1.5, 2);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(window.innerWidth, window.innerHeight - 60); // 减去聊天栏高度
     document.body.appendChild(renderer.domElement);
 
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -31,21 +74,33 @@
     light.position.set(0, 1, 0);
     scene.add(light);
 
-    const loader = new GLTFLoader();
-    loader.load(
-      'fox_rig_finished_walk_cycle_progressive_stop.glb',
-      gltf => {
-        const model = gltf.scene;
-        scene.add(model);
-        console.log("✅ 模型加载成功");
-      },
-      xhr => {
-        console.log(`加载中: ${(xhr.loaded / xhr.total * 100).toFixed(2)}%`);
-      },
-      error => {
-        console.error("❌ 模型加载失败：", error);
+    let foxModel = null;
+
+    // 加载小狐狸模型
+    function loadFoxModel() {
+      if (foxModel) {
+        console.log("🦊 已加载模型");
+        return;
       }
-    );
+
+      const loader = new GLTFLoader();
+      loader.load(
+        'fox_rig_finished_walk_cycle_progressive_stop.glb',
+        gltf => {
+          foxModel = gltf.scene;
+          foxModel.scale.set(0.015, 0.015, 0.015);
+          foxModel.position.set(0, 0, 0);
+          scene.add(foxModel);
+          console.log("✅ 小狐狸加载成功");
+        },
+        xhr => {
+          console.log(`加载中: ${(xhr.loaded / xhr.total * 100).toFixed(2)}%`);
+        },
+        error => {
+          console.error("❌ 加载失败：", error);
+        }
+      );
+    }
 
     function animate() {
       requestAnimationFrame(animate);
@@ -55,9 +110,21 @@
     animate();
 
     window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.aspect = window.innerWidth / (window.innerHeight - 60);
       camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setSize(window.innerWidth, window.innerHeight - 60);
+    });
+
+    // 点击发送按钮
+    document.getElementById('send-btn').addEventListener('click', () => {
+      const msg = document.getElementById('message').value.trim();
+      if (msg) {
+        console.log("📩 发送消息：", msg);
+        // 模拟收到“伤心”的消息就加载狐狸
+        if (msg.includes("难过") || msg.includes("伤心") || msg.includes("拥抱") || msg.includes("hug")) {
+          loadFoxModel();
+        }
+      }
     });
   </script>
 </body>
