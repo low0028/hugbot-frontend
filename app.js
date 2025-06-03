@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // --- Step 2: 聊天回复 ---
-      const chatRes = await fetch("https://your-backend-url/chat", {
+      const chatRes = await fetch("https://low0028-hugbot-backend.hf.space/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text })
