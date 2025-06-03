@@ -151,50 +151,6 @@
             border-top: 1px solid rgba(101, 178, 230, 0.3);
         }
         
-        .wish-panel {
-            position: absolute;
-            top: 70px;
-            left: 25px;
-            background: rgba(20, 35, 70, 0.85);
-            padding: 20px;
-            border-radius: 15px;
-            z-index: 15;
-            min-width: 280px;
-            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(101, 178, 230, 0.3);
-            max-width: 300px;
-        }
-        
-        .wish-card {
-            background: rgba(30, 50, 90, 0.6);
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            border-left: 3px solid #65b2e6;
-            transition: all 0.5s ease;
-        }
-        
-        .wish-card:last-child {
-            margin-bottom: 0;
-        }
-        
-        .wish-card h3 {
-            color: #a8d8ff;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.3rem;
-            font-family: 'Playfair Display', serif;
-        }
-        
-        .wish-text {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            color: #d5e6ff;
-            font-style: italic;
-        }
-        
         .controls {
             display: flex;
             gap: 20px;
@@ -332,42 +288,6 @@
             pointer-events: none;
         }
         
-        .emotion-buttons {
-            position: absolute;
-            bottom: 70px;
-            right: 25px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            z-index: 15;
-        }
-        
-        .emotion-btn {
-            background: rgba(120, 40, 80, 0.7);
-            color: #ffcce6;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 30px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 150, 200, 0.3);
-        }
-        
-        .emotion-btn.anger {
-            background: rgba(180, 40, 60, 0.7);
-            color: #ffd9d9;
-        }
-        
-        .emotion-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        
         footer {
             margin-top: 20px;
             text-align: center;
@@ -394,15 +314,6 @@
                 padding: 14px 25px;
                 font-size: 1.1rem;
                 min-width: 180px;
-            }
-            
-            .wish-panel, .emotion-buttons {
-                position: relative;
-                top: auto;
-                left: auto;
-                right: auto;
-                margin: 20px auto;
-                max-width: 90%;
             }
             
             .moon {
@@ -436,28 +347,6 @@
         <canvas id="overlay-canvas"></canvas>
         <div class="instructions">
             Open your hands to capture comforting stars in the night sky...
-        </div>
-        
-        <!-- 鼓励语面板 -->
-        <div class="wish-panel">
-            <div class="wish-card">
-                <h3>🌟 Comforting Words</h3>
-                <p class="wish-text">Your feelings are valid. Allow yourself to feel, then let them pass like clouds.</p>
-            </div>
-            <div class="wish-card">
-                <h3>💫 Healing Thoughts</h3>
-                <p class="wish-text">This pain is temporary. You've survived 100% of your bad days so far.</p>
-            </div>
-        </div>
-        
-        <!-- 情绪按钮 -->
-        <div class="emotion-buttons">
-            <button class="emotion-btn anger" id="anger-btn">
-                <span>🔥</span> Feeling Angry
-            </button>
-            <button class="emotion-btn" id="sadness-btn">
-                <span>💧</span> Feeling Sad
-            </button>
         </div>
         
         <!-- 鼓励语显示 -->
@@ -896,15 +785,6 @@
             document.getElementById('start-btn').addEventListener('click', initHandTracking);
             document.getElementById('reset-btn').addEventListener('click', resetStars);
             document.getElementById('wish-btn').addEventListener('click', makeAWish);
-            
-            // 情感按钮
-            document.getElementById('anger-btn').addEventListener('click', () => {
-                showEncouragement('anger');
-            });
-            
-            document.getElementById('sadness-btn').addEventListener('click', () => {
-                showEncouragement('sadness');
-            });
             
             // 创建初始星星
             createStars();
