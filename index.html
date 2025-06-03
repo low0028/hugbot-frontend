@@ -65,7 +65,7 @@
 
     function loadModel() {
       const loader = new GLTFLoader();
-      loader.load('model.glb', (gltf) => {
+      loader.load('fox_rig_finished_walk_cycle_progressive_stop.glb', (gltf) => {
         fox = gltf.scene;
         fox.scale.set(0.5, 0.5, 0.5);
         fox.position.set(0, 0, 0);
