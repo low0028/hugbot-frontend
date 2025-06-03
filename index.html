@@ -4,31 +4,36 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HugBot - Emotional Companion</title>
-  <link rel="stylesheet" href="style.css" />
   <style>
+    /* 全局样式 */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
     body { 
-      margin: 0; 
-      overflow: hidden; 
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
       height: 100vh;
+      overflow: hidden;
       display: flex;
     }
     
+    /* 聊天容器 */
     #chat-container {
-      position: relative;
       width: 35%;
       height: 100%;
       background: rgba(255, 255, 255, 0.85);
       backdrop-filter: blur(10px);
       padding: 20px;
-      box-sizing: border-box;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
       display: flex;
       flex-direction: column;
       z-index: 10;
     }
     
+    /* 聊天框 */
     #chat-box {
       flex: 1;
       overflow-y: auto;
@@ -39,6 +44,7 @@
       box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
     }
     
+    /* 消息样式 */
     .message {
       margin: 10px 0;
       padding: 12px 15px;
@@ -66,9 +72,11 @@
       border-bottom-left-radius: 5px;
     }
     
+    /* 输入区域 - 确保始终可见 */
     #input-area {
       display: flex;
       gap: 10px;
+      margin-top: auto; /* 确保位于容器底部 */
     }
     
     #user-input {
@@ -79,6 +87,7 @@
       font-size: 16px;
       outline: none;
       transition: border-color 0.3s;
+      background: white;
     }
     
     #user-input:focus {
@@ -94,12 +103,14 @@
       cursor: pointer;
       font-weight: 500;
       transition: background 0.3s;
+      min-width: 80px;
     }
     
     #send-button:hover {
       background: #ff5252;
     }
     
+    /* AR场景容器 */
     #ar-container {
       flex: 1;
       position: relative;
@@ -115,6 +126,7 @@
       display: block;
     }
     
+    /* 通知 */
     .notification {
       position: fixed;
       top: 20px;
@@ -139,6 +151,7 @@
       font-size: 24px;
     }
     
+    /* 拥抱控制 */
     .hug-controls {
       position: absolute;
       bottom: 30px;
@@ -171,6 +184,7 @@
       color: white;
     }
     
+    /* 拥抱计时器 */
     .hug-timer {
       position: absolute;
       top: 20px;
