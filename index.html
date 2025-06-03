@@ -3,746 +3,554 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HugBot - Advanced AR Companion</title>
+  <title>Fox Model Test</title>
   <style>
     * {
-      box-sizing: border-box;
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
     }
     
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+      background: linear-gradient(135deg, #1a2a6c, #2c3e50);
       color: white;
-      height: 100vh;
-      overflow: hidden;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
     }
     
     .header {
-      background: rgba(0, 0, 0, 0.7);
-      padding: 15px 20px;
       text-align: center;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      z-index: 100;
+      margin-bottom: 30px;
+      padding: 0 20px;
+      z-index: 10;
     }
     
-    .header h1 {
-      font-size: 1.8rem;
-      margin-bottom: 5px;
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
       color: #FF6B6B;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
     
-    .header p {
+    .subtitle {
+      font-size: 1.2rem;
       opacity: 0.8;
+      max-width: 600px;
     }
     
-    #chat-container {
-      width: 100%;
-      height: 35%;
-      background: rgba(30, 30, 50, 0.8);
-      padding: 20px;
+    .container {
       display: flex;
       flex-direction: column;
-      backdrop-filter: blur(5px);
-      border-top: 2px solid #4ECDC4;
-    }
-    
-    #chat-box {
-      flex: 1;
-      overflow-y: auto;
-      padding: 15px;
-      margin-bottom: 15px;
-      background: rgba(20, 20, 40, 0.6);
-      border-radius: 12px;
-      border: 1px solid rgba(100, 200, 255, 0.3);
-    }
-    
-    .message {
-      margin: 12px 0;
-      padding: 12px 18px;
-      border-radius: 18px;
-      max-width: 85%;
-      animation: fadeIn 0.4s ease;
-      line-height: 1.5;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .user-message {
-      background: linear-gradient(135deg, #4ECDC4, #2a8f82);
-      color: white;
-      margin-left: auto;
-      border-bottom-right-radius: 5px;
-    }
-    
-    .bot-message {
-      background: rgba(40, 40, 80, 0.9);
-      border: 1px solid rgba(100, 200, 255, 0.4);
-      margin-right: auto;
-      border-bottom-left-radius: 5px;
-    }
-    
-    #input-area {
-      display: flex;
-      gap: 12px;
       align-items: center;
+      gap: 30px;
+      width: 100%;
+      max-width: 1000px;
+      padding: 20px;
     }
     
-    #user-input {
-      flex: 1;
-      padding: 14px 18px;
-      border: none;
-      border-radius: 30px;
-      background: rgba(50, 50, 80, 0.8);
-      color: white;
-      font-size: 16px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    }
-    
-    #user-input:focus {
-      outline: none;
-      box-shadow: 0 0 0 2px #FF6B6B;
-    }
-    
-    #user-input::placeholder {
-      color: rgba(200, 200, 255, 0.6);
-    }
-    
-    #send-button {
-      background: linear-gradient(135deg, #FF6B6B, #ff5252);
-      color: white;
-      border: none;
-      border-radius: 30px;
-      padding: 14px 28px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 16px;
-      box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);
-      transition: all 0.3s ease;
-    }
-    
-    #send-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(255, 107, 107, 0.4);
-    }
-    
-    #send-button:active {
-      transform: translateY(1px);
-    }
-    
-    #ar-container {
-      flex: 1;
+    .model-container {
       position: relative;
-      display: none;
-      background: linear-gradient(45deg, #0f2027, #203a43, #2c5364);
+      width: 100%;
+      height: 500px;
+      background: rgba(30, 30, 50, 0.5);
+      border-radius: 20px;
       overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+      border: 2px solid rgba(100, 200, 255, 0.3);
     }
     
-    #three-canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
+    #model-canvas {
       width: 100%;
       height: 100%;
-      z-index: 1;
+      display: block;
     }
     
-    #camera-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
+    .controls {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
       width: 100%;
-      height: 100%;
-      z-index: 0;
-      opacity: 0.2;
     }
     
-    .ar-controls {
-      position: absolute;
-      bottom: 25px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 15px;
-      z-index: 20;
-    }
-    
-    .ar-btn {
-      background: rgba(40, 40, 80, 0.85);
-      color: white;
-      border: 2px solid #4ECDC4;
-      padding: 12px 25px;
-      border-radius: 30px;
-      font-weight: 500;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-      transition: all 0.3s;
-      z-index: 30;
-    }
-    
-    .ar-btn:hover {
-      background: rgba(60, 60, 100, 0.9);
-      transform: translateY(-3px);
-    }
-    
-    #end-hug {
-      background: linear-gradient(135deg, #FF6B6B, #e05555);
-      border-color: #ff5252;
-    }
-    
-    .status-panel {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      background: rgba(0, 0, 0, 0.7);
-      color: white;
-      padding: 12px 20px;
-      border-radius: 30px;
-      font-size: 14px;
-      z-index: 20;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      border: 1px solid rgba(100, 200, 255, 0.3);
-    }
-    
-    .notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: linear-gradient(135deg, #FF6B6B, #ff5252);
-      color: white;
-      padding: 18px 25px;
-      border-radius: 15px;
-      box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      transform: translateX(150%);
-      transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    
-    .notification.show {
-      transform: translateX(0);
-    }
-    
-    .notification-icon {
-      font-size: 28px;
-    }
-    
-    .debug-panel {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      background: rgba(20, 20, 40, 0.9);
-      color: white;
-      padding: 15px;
-      z-index: 10000;
-      border-radius: 12px;
-      border: 1px solid rgba(100, 200, 255, 0.3);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-      max-width: 320px;
-    }
-    
-    .debug-title {
-      margin-bottom: 15px;
-      color: #FF6B6B;
-      text-align: center;
-    }
-    
-    .debug-btn {
+    .control-btn {
       background: linear-gradient(135deg, #4ECDC4, #3bb5ac);
       color: white;
       border: none;
-      padding: 12px;
-      margin: 8px 0;
-      border-radius: 8px;
+      padding: 15px 30px;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 600;
       cursor: pointer;
-      display: block;
-      width: 100%;
-      font-weight: 500;
-      box-shadow: 0 4px 10px rgba(78, 205, 196, 0.3);
       transition: all 0.3s;
+      box-shadow: 0 5px 15px rgba(78, 205, 196, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 220px;
     }
     
-    .debug-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(78, 205, 196, 0.4);
+    .control-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(78, 205, 196, 0.6);
     }
     
-    .hug-animation {
-      position: fixed;
-      bottom: 100px;
-      right: 30px;
-      font-size: 60px;
-      z-index: 500;
-      opacity: 0;
-      transform: scale(0.5);
-      animation: hugFloat 4s ease-out forwards;
+    .control-btn:active {
+      transform: translateY(1px);
     }
     
-    @keyframes hugFloat {
-      0% { opacity: 0; transform: translateY(0) scale(0.5); }
-      20% { opacity: 1; transform: translateY(-20px) scale(1); }
-      80% { opacity: 1; transform: translateY(-100px) scale(1); }
-      100% { opacity: 0; transform: translateY(-150px) scale(0.8); }
+    .control-btn.secondary {
+      background: linear-gradient(135deg, #FF6B6B, #ff5252);
+      box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
     }
     
-    .instructions {
-      position: absolute;
-      bottom: 80px;
-      left: 50%;
-      transform: translateX(-50%);
+    .control-btn.secondary:hover {
+      box-shadow: 0 8px 20px rgba(255, 107, 107, 0.6);
+    }
+    
+    .status-panel {
       background: rgba(0, 0, 0, 0.7);
-      color: white;
       padding: 15px 25px;
-      border-radius: 30px;
+      border-radius: 15px;
+      font-size: 1.1rem;
+      margin-top: 20px;
       text-align: center;
-      z-index: 25;
-      max-width: 80%;
-      border: 1px solid rgba(100, 200, 255, 0.4);
+      border: 1px solid rgba(100, 200, 255, 0.3);
+      width: 100%;
+      max-width: 800px;
+    }
+    
+    #status-text {
+      color: #FFE66D;
+      font-weight: 500;
+    }
+    
+    .loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2rem;
+      color: #FF6B6B;
+      z-index: 5;
+    }
+    
+    .debug-info {
+      background: rgba(20, 20, 40, 0.8);
+      padding: 15px;
+      border-radius: 12px;
+      margin-top: 20px;
+      width: 100%;
+      max-width: 800px;
+    }
+    
+    .debug-title {
+      color: #4ECDC4;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    
+    .debug-content {
+      font-family: monospace;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 15px;
+      border-radius: 8px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .model-info {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      max-width: 800px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    
+    .info-card {
+      background: rgba(30, 30, 50, 0.6);
+      padding: 20px;
+      border-radius: 15px;
+      flex: 1;
+      min-width: 250px;
+      border: 1px solid rgba(100, 200, 255, 0.2);
+    }
+    
+    .info-card h3 {
+      color: #FF6B6B;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    
+    .info-item {
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .info-label {
+      color: #4ECDC4;
+    }
+    
+    .info-value {
+      font-weight: 500;
+    }
+    
+    @media (max-width: 768px) {
+      .model-container {
+        height: 400px;
+      }
+      
+      .control-btn {
+        width: 100%;
+        max-width: 350px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="header">
-    <h1>HugBot - Emotional Companion</h1>
-    <p>Your AI friend that understands and cares</p>
+    <h1>Fox Model Test</h1>
+    <p class="subtitle">This page tests loading and displaying the 3D fox model. Use the controls to interact with the model.</p>
   </div>
   
-  <!-- 聊天界面 -->
-  <div id="chat-container">
-    <div id="chat-box">
-      <div class="message bot-message">
-        Hello there! I'm HugBot, your emotional companion. 😊<br>
-        Share your feelings with me - I'm here to listen and support you.<br>
-        Try saying "I feel sad" to experience a virtual hug!
+  <div class="container">
+    <div class="model-container">
+      <canvas id="model-canvas"></canvas>
+      <div class="loading" id="loading">Loading model...</div>
+    </div>
+    
+    <div class="controls">
+      <button class="control-btn" id="load-model">
+        <span>🦊</span> Load Fox Model
+      </button>
+      <button class="control-btn secondary" id="reset-model">
+        <span>🔄</span> Reset Model
+      </button>
+      <button class="control-btn" id="rotate-toggle">
+        <span>🔄</span> Toggle Rotation
+      </button>
+    </div>
+    
+    <div class="status-panel">
+      Status: <span id="status-text">Ready to load model</span>
+    </div>
+    
+    <div class="model-info">
+      <div class="info-card">
+        <h3>Model Information</h3>
+        <div class="info-item">
+          <span class="info-label">File:</span>
+          <span class="info-value">fox_rig_finished_walk_cycle_progressive_stop.glb</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Type:</span>
+          <span class="info-value">GLB (Binary GLTF)</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Size:</span>
+          <span class="info-value">Approx. 1-5 MB</span>
+        </div>
+      </div>
+      
+      <div class="info-card">
+        <h3>Test Instructions</h3>
+        <div class="info-item">
+          <span class="info-label">1.</span>
+          <span class="info-value">Click "Load Fox Model"</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">2.</span>
+          <span class="info-value">Check status messages</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">3.</span>
+          <span class="info-value">Rotate with mouse</span>
+        </div>
       </div>
     </div>
-    <div id="input-area">
-      <input type="text" id="user-input" placeholder="How are you feeling today?" autocomplete="off" />
-      <button id="send-button">Send</button>
+    
+    <div class="debug-info">
+      <h3 class="debug-title">Debug Information</h3>
+      <div class="debug-content" id="debug-output">
+        No debug information yet...
+      </div>
     </div>
-  </div>
-  
-  <!-- AR场景容器 -->
-  <div id="ar-container">
-    <canvas id="three-canvas"></canvas>
-    <div class="status-panel">
-      <div id="status-text">🦊 AR System: Ready</div>
-    </div>
-    <div class="instructions">
-      👋 Show your hand to interact with the virtual companion
-    </div>
-    <div class="ar-controls">
-      <button class="ar-btn" id="end-hug">End Hug Session</button>
-    </div>
-  </div>
-  
-  <!-- 通知 -->
-  <div class="notification" id="notification">
-    <span class="notification-icon">🧸</span>
-    <span>Sending a virtual hug your way...</span>
-  </div>
-  
-  <!-- 调试面板 -->
-  <div class="debug-panel">
-    <h3 class="debug-title">AR System Debugger</h3>
-    <button class="debug-btn" id="test-camera">Test Camera</button>
-    <button class="debug-btn" id="test-ar">Test AR Session</button>
-    <button class="debug-btn" id="test-notification">Test Notification</button>
-    <button class="debug-btn" id="test-model">Test Fox Model</button>
   </div>
 
-  <!-- 加载Three.js库 -->
+  <!-- Three.js Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.min.js"></script>
-  
-  <!-- 加载MediaPipe库 -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
   
   <script>
-    // 增强版AR系统
-    const ARSystem = {
-      scene: null,
-      camera: null,
-      renderer: null,
-      mixer: null,
-      fox: null,
-      isActive: false,
-      statusElement: document.getElementById('status-text'),
-      arContainer: document.getElementById('ar-container'),
-      notification: document.getElementById('notification'),
+    // 全局变量
+    let scene, camera, renderer, controls, foxModel, mixer;
+    let rotateModel = true;
+    const canvas = document.getElementById('model-canvas');
+    const statusText = document.getElementById('status-text');
+    const debugOutput = document.getElementById('debug-output');
+    const loadingElement = document.getElementById('loading');
+    
+    // 初始化场景
+    function initScene() {
+      // 创建场景
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0a192f);
+      scene.fog = new THREE.Fog(0x0a192f, 10, 20);
       
-      // 初始化Three.js
-      initThree: function() {
-        this.updateStatus("🦊 Initializing AR environment...");
-        
-        // 创建场景
-        this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0x0a192f);
-        this.scene.fog = new THREE.Fog(0x0a192f, 10, 20);
-        
-        // 创建相机
-        this.camera = new THREE.PerspectiveCamera(
-          70, 
-          window.innerWidth / window.innerHeight,
-          0.1,
-          1000
-        );
-        this.camera.position.set(0, 1, 5);
-        
-        // 创建渲染器
-        const canvas = document.getElementById('three-canvas');
-        this.renderer = new THREE.WebGLRenderer({ 
-          canvas, 
-          antialias: true,
-          alpha: true
-        });
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setPixelRatio(window.devicePixelRatio);
-        
-        // 添加灯光
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-        this.scene.add(ambientLight);
-        
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(3, 5, 2);
-        directionalLight.castShadow = true;
-        this.scene.add(directionalLight);
-        
-        // 添加环境光
-        const hemisphereLight = new THREE.HemisphereLight(0xffffbb, 0x080820, 0.5);
-        this.scene.add(hemisphereLight);
-        
-        // 添加简单地面
-        const groundGeometry = new THREE.PlaneGeometry(20, 20);
-        const groundMaterial = new THREE.MeshStandardMaterial({ 
-          color: 0x1e3d59,
-          roughness: 0.8,
-          metalness: 0.2
-        });
-        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-        ground.rotation.x = -Math.PI / 2;
-        ground.position.y = -1;
-        this.scene.add(ground);
-        
-        this.updateStatus("🦊 AR environment ready");
-      },
+      // 创建相机
+      camera = new THREE.PerspectiveCamera(
+        60, 
+        canvas.clientWidth / canvas.clientHeight,
+        0.1,
+        1000
+      );
+      camera.position.set(0, 1, 5);
       
-      // 加载狐狸模型
-      loadFoxModel: function() {
-        this.updateStatus("🦊 Loading virtual companion...");
-        
-        return new Promise((resolve) => {
-          // 临时使用立方体作为占位符
-          const geometry = new THREE.BoxGeometry(0.8, 0.8, 0.8);
-          const material = new THREE.MeshPhongMaterial({ 
-            color: 0xFF6B6B,
-            emissive: 0x772222,
-            shininess: 100,
-            wireframe: true
-          });
-          
-          this.fox = new THREE.Mesh(geometry, material);
-          this.fox.position.set(0, 0, 0);
-          this.scene.add(this.fox);
-          
-          this.updateStatus("🦊 Placeholder model loaded");
-          resolve();
-          
-          // 真实模型加载代码（替换占位符）
-          /*
-          const loader = new THREE.GLTFLoader();
-          loader.load('wolvic_3d_model.glb', (gltf) => {
-            this.fox = gltf.scene;
-            this.fox.scale.set(0.5, 0.5, 0.5);
-            this.fox.position.set(0, -1, 0);
-            this.scene.add(this.fox);
-            
-            if (gltf.animations.length > 0) {
-              this.mixer = new THREE.AnimationMixer(this.fox);
-              this.mixer.clipAction(gltf.animations[0]).play();
-            }
-            
-            this.updateStatus("🦊 Virtual companion loaded");
-            resolve();
-          }, undefined, (error) => {
-            console.error("模型加载失败:", error);
-            this.updateStatus("⚠️ Failed to load model");
-            resolve();
-          });
-          */
-        });
-      },
+      // 创建渲染器
+      renderer = new THREE.WebGLRenderer({ 
+        canvas, 
+        antialias: true,
+        alpha: true
+      });
+      renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
       
-      // 启动摄像头和手部追踪
-      startCameraAndTracking: function() {
-        this.updateStatus("👋 Initializing hand tracking...");
-        
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          this.updateStatus("⚠️ Browser doesn't support camera");
-          return;
-        }
-        
-        // 创建手部追踪器
-        const hands = new window.Hands({
-          locateFile: (file) => {
-            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-          }
-        });
-        
-        hands.setOptions({
-          maxNumHands: 1,
-          modelComplexity: 1,
-          minDetectionConfidence: 0.7,
-          minTrackingConfidence: 0.7
-        });
-        
-        hands.onResults((results) => {
-          if (!this.isActive || !this.fox) return;
-          
-          if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-            const landmarks = results.multiHandLandmarks[0];
-            const indexFinger = landmarks[8]; // 食指尖
-            
-            // 将坐标转换为Three.js世界坐标
-            const x = (indexFinger.x - 0.5) * 4;
-            const y = -(indexFinger.y - 0.5) * 4 + 1;
-            
-            // 让小狐狸逐渐靠近手指
-            this.fox.position.lerp(new THREE.Vector3(x, y, 0), 0.2);
-            
-            // 让狐狸看向手指位置
-            this.fox.lookAt(x, y + 0.5, 0);
-          }
-        });
-        
-        // 获取摄像头访问权限
-        navigator.mediaDevices.getUserMedia({ 
-          video: { 
-            facingMode: 'user',
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          } 
-        })
-        .then(stream => {
-          this.updateStatus("👋 Hand tracking active");
-          
-          // 创建摄像头视频源
-          const videoElement = document.createElement('video');
-          videoElement.srcObject = stream;
-          videoElement.play();
-          
-          // 启动摄像头处理
-          const camera = new window.Camera(videoElement, {
-            onFrame: async () => {
-              await hands.send({image: videoElement});
-            },
-            width: 640,
-            height: 480
-          });
-          
-          camera.start();
-        })
-        .catch(error => {
-          console.error("摄像头访问失败:", error);
-          this.updateStatus(`⚠️ Camera error: ${error.message}`);
-        });
-      },
+      // 添加轨道控制
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.screenSpacePanning = false;
+      controls.minDistance = 2;
+      controls.maxDistance = 10;
       
-      // 显示通知
-      showNotification: function(message) {
-        if (!this.notification) return;
-        
-        this.notification.innerHTML = `<span class="notification-icon">🧸</span> ${message}`;
-        this.notification.classList.add("show");
-        
-        setTimeout(() => {
-          this.notification.classList.remove("show");
-        }, 3000);
-      },
+      // 添加灯光
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+      scene.add(ambientLight);
       
-      // 显示拥抱动画
-      showHugAnimation: function() {
-        const hugAnim = document.createElement('div');
-        hugAnim.className = 'hug-animation';
-        hugAnim.innerHTML = '🤗';
-        document.body.appendChild(hugAnim);
-        
-        setTimeout(() => {
-          document.body.removeChild(hugAnim);
-        }, 4000);
-      },
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+      directionalLight.position.set(3, 5, 2);
+      directionalLight.castShadow = true;
+      scene.add(directionalLight);
       
-      // 启动AR会话
-      startARHugSession: function() {
-        if (this.isActive) return;
-        
-        this.showNotification("Sending a virtual hug...");
-        this.updateStatus("🦊 Starting virtual hug session");
-        
-        // 显示AR容器
-        this.arContainer.style.display = 'block';
-        this.isActive = true;
-        
-        // 初始化Three.js（如果尚未初始化）
-        if (!this.scene) {
-          this.initThree();
-        }
-        
-        // 加载模型
-        this.loadFoxModel().then(() => {
-          // 启动摄像头和追踪
-          this.startCameraAndTracking();
-          
-          // 开始动画循环
-          this.animate();
-          
-          // 显示拥抱动画
-          this.showHugAnimation();
-        });
-      },
+      // 添加半球光
+      const hemisphereLight = new THREE.HemisphereLight(0xffffbb, 0x080820, 0.5);
+      scene.add(hemisphereLight);
       
-      // 结束AR会话
-      endARHugSession: function() {
-        this.updateStatus("🦊 Session ended");
-        this.arContainer.style.display = 'none';
-        this.isActive = false;
-      },
+      // 添加简单地面
+      const groundGeometry = new THREE.PlaneGeometry(20, 20);
+      const groundMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0x1e3d59,
+        roughness: 0.8,
+        metalness: 0.2
+      });
+      const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+      ground.rotation.x = -Math.PI / 2;
+      ground.position.y = -1;
+      ground.receiveShadow = true;
+      scene.add(ground);
       
-      // 更新状态
-      updateStatus: function(message) {
-        if (this.statusElement) {
-          this.statusElement.textContent = message;
-        }
-      },
+      // 添加网格辅助
+      const gridHelper = new THREE.GridHelper(20, 20, 0x4a5568, 0x4a5568);
+      scene.add(gridHelper);
       
-      // 动画循环
-      animate: function() {
-        if (!this.isActive) return;
-        
-        requestAnimationFrame(() => this.animate());
-        
-        // 更新模型动画
-        if (this.mixer) {
-          this.mixer.update(0.016);
-        }
-        
-        // 添加浮动效果
-        if (this.fox) {
-          this.fox.position.y = 0.2 + Math.sin(Date.now() * 0.002) * 0.1;
-        }
-        
-        // 渲染场景
-        if (this.renderer && this.scene && this.camera) {
-          this.renderer.render(this.scene, this.camera);
-        }
+      // 添加坐标轴辅助
+      const axesHelper = new THREE.AxesHelper(3);
+      scene.add(axesHelper);
+      
+      updateStatus("Scene initialized successfully");
+      logDebug("Three.js scene initialized with lights and controls");
+    }
+    
+    // 加载狐狸模型
+    function loadFoxModel() {
+      // 显示加载状态
+      loadingElement.style.display = "block";
+      updateStatus("Loading fox model...");
+      logDebug("Starting model loading process");
+      
+      // 清除现有模型
+      if (foxModel) {
+        scene.remove(foxModel);
+        foxModel = null;
       }
-    };
-    
-    // 暴露给全局
-    window.ARSystem = ARSystem;
-    
-    // 页面加载完成后初始化
-    window.addEventListener('DOMContentLoaded', () => {
-      // 绑定AR控制按钮
-      document.getElementById('end-hug').addEventListener('click', () => {
-        ARSystem.endARHugSession();
-        
-        // 在聊天框中显示消息
-        const chatBox = document.getElementById('chat-box');
-        const botMsg = document.createElement("div");
-        botMsg.className = "message bot-message";
-        botMsg.textContent = "HugBot: I hope the virtual hug made you feel better! 🦊💖";
-        chatBox.appendChild(botMsg);
-        chatBox.scrollTop = chatBox.scrollHeight;
-      });
       
-      // 绑定调试按钮
-      document.getElementById('test-camera').addEventListener('click', () => {
-        ARSystem.startCameraAndTracking();
-      });
+      // 创建GLTF加载器
+      const loader = new THREE.GLTFLoader();
       
-      document.getElementById('test-ar').addEventListener('click', () => {
-        ARSystem.startARHugSession();
-      });
-      
-      document.getElementById('test-notification').addEventListener('click', () => {
-        ARSystem.showNotification("Test notification works perfectly!");
-      });
-      
-      document.getElementById('test-model').addEventListener('click', () => {
-        ARSystem.loadFoxModel();
-      });
-      
-      // 聊天系统
-      const sendBtn = document.getElementById("send-button");
-      const userInput = document.getElementById("user-input");
-      const chatBox = document.getElementById("chat-box");
-      
-      sendBtn.addEventListener("click", async () => {
-        const text = userInput.value.trim();
-        if (!text) return;
-        
-        // 显示用户消息
-        const userMsg = document.createElement("div");
-        userMsg.className = "message user-message";
-        userMsg.textContent = `You: ${text}`;
-        chatBox.appendChild(userMsg);
-        
-        userInput.value = "";
-        chatBox.scrollTop = chatBox.scrollHeight;
-        
-        // 检测情绪关键词
-        const sadWords = ['sad', 'unhappy', 'depressed', 'lonely', 'down'];
-        const isSad = sadWords.some(word => text.toLowerCase().includes(word));
-        
-        if (isSad) {
-          // 显示虚拟拥抱消息
-          const botMsg1 = document.createElement("div");
-          botMsg1.className = "message bot-message";
-          botMsg1.innerHTML = "HugBot: I sense you're feeling down. Sending a virtual hug your way... 🧸";
-          chatBox.appendChild(botMsg1);
+      // 尝试加载模型
+      loader.load(
+        'wolvic_3d_model.glb', 
+        (gltf) => {
+          // 隐藏加载指示器
+          loadingElement.style.display = "none";
           
-          // 启动AR系统
-          setTimeout(() => {
-            ARSystem.startARHugSession();
-          }, 1000);
-        } else {
-          // 普通回复
-          const responses = [
-            "Thanks for sharing that with me!",
-            "I'm here to listen whenever you need me.",
-            "Your feelings are important to me.",
-            "I'm always here for you.",
-            "Let me know if you want to talk more about it."
-          ];
+          // 获取模型
+          foxModel = gltf.scene;
           
-          const botMsg = document.createElement("div");
-          botMsg.className = "message bot-message";
-          botMsg.textContent = `HugBot: ${responses[Math.floor(Math.random() * responses.length)]}`;
-          chatBox.appendChild(botMsg);
+          // 设置模型位置和缩放
+          foxModel.scale.set(0.5, 0.5, 0.5);
+          foxModel.position.set(0, -0.5, 0);
+          
+          // 添加到场景
+          scene.add(foxModel);
+          
+          // 设置阴影
+          foxModel.traverse((child) => {
+            if (child.isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+            }
+          });
+          
+          // 检查动画
+          if (gltf.animations && gltf.animations.length > 0) {
+            mixer = new THREE.AnimationMixer(foxModel);
+            const action = mixer.clipAction(gltf.animations[0]);
+            action.play();
+            
+            updateStatus("Fox model loaded with animations");
+            logDebug(`Model loaded successfully with ${gltf.animations.length} animations`);
+          } else {
+            updateStatus("Fox model loaded without animations");
+            logDebug("Model loaded but no animations found");
+          }
+          
+          logDebug("Fox model loaded successfully");
+        },
+        (xhr) => {
+          // 加载进度
+          const percent = (xhr.loaded / xhr.total * 100).toFixed(2);
+          updateStatus(`Loading model: ${percent}%`);
+          logDebug(`Model loading progress: ${percent}%`);
+        },
+        (error) => {
+          // 加载失败
+          loadingElement.style.display = "none";
+          updateStatus("Model loading failed");
+          logDebug(`Model loading error: ${error.message}`);
+          console.error("Model loading error:", error);
+          
+          // 创建备用模型
+          createFallbackModel();
         }
-        
-        chatBox.scrollTop = chatBox.scrollHeight;
+      );
+    }
+    
+    // 创建备用模型
+    function createFallbackModel() {
+      updateStatus("Creating fallback model");
+      logDebug("Creating placeholder model due to loading failure");
+      
+      // 创建几何体
+      const geometry = new THREE.BoxGeometry(1, 1, 1);
+      const material = new THREE.MeshPhongMaterial({ 
+        color: 0xFF6B6B,
+        emissive: 0x772222,
+        shininess: 100,
+        wireframe: true
       });
       
-      // 初始加载Three.js
-      setTimeout(() => {
-        ARSystem.initThree();
-      }, 1000);
+      // 创建网格
+      foxModel = new THREE.Mesh(geometry, material);
+      foxModel.position.set(0, 0, 0);
+      
+      // 添加到场景
+      scene.add(foxModel);
+      
+      logDebug("Fallback placeholder model created");
+    }
+    
+    // 重置模型
+    function resetModel() {
+      if (foxModel) {
+        scene.remove(foxModel);
+        foxModel = null;
+      }
+      
+      if (mixer) {
+        mixer.stopAllAction();
+        mixer = null;
+      }
+      
+      updateStatus("Model reset");
+      logDebug("Model has been reset");
+    }
+    
+    // 动画循环
+    function animate() {
+      requestAnimationFrame(animate);
+      
+      // 更新控制器
+      if (controls) {
+        controls.update();
+      }
+      
+      // 更新动画混合器
+      if (mixer) {
+        mixer.update(0.016);
+      }
+      
+      // 旋转模型
+      if (rotateModel && foxModel) {
+        foxModel.rotation.y += 0.01;
+      }
+      
+      // 渲染场景
+      if (renderer && scene && camera) {
+        renderer.render(scene, camera);
+      }
+    }
+    
+    // 更新状态
+    function updateStatus(message) {
+      statusText.textContent = message;
+    }
+    
+    // 记录调试信息
+    function logDebug(message) {
+      const entry = document.createElement('div');
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      debugOutput.appendChild(entry);
+      debugOutput.scrollTop = debugOutput.scrollHeight;
+    }
+    
+    // 初始化
+    window.addEventListener('load', () => {
+      // 初始化场景
+      initScene();
+      
+      // 启动动画循环
+      animate();
+      
+      // 添加事件监听器
+      document.getElementById('load-model').addEventListener('click', loadFoxModel);
+      document.getElementById('reset-model').addEventListener('click', resetModel);
+      document.getElementById('rotate-toggle').addEventListener('click', () => {
+        rotateModel = !rotateModel;
+        logDebug(`Model rotation ${rotateModel ? "enabled" : "disabled"}`);
+      });
+      
+      // 响应窗口大小变化
+      window.addEventListener('resize', () => {
+        if (camera && renderer) {
+          camera.aspect = canvas.clientWidth / canvas.clientHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+        }
+      });
+      
+      updateStatus("Ready to load model");
+      logDebug("Application initialized");
     });
   </script>
 </body>
