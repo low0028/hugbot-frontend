@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       // --- Step 1: 情绪识别 ---
-      const emotionRes = await fetch("https://your-backend-url/emotion", {
+      const emotionRes = await fetch("https://low0028-hugbot-backend.hf.space/emotion", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text })
