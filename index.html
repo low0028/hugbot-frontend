@@ -34,8 +34,7 @@
       <button id="send-button">Send</button>
     </div>
   </div>
-
-  <!-- Three.js Canvas -->
+<!-- Three.js Canvas -->
   <canvas id="three-canvas"></canvas>
 
   <!-- Three.js + MediaPipe 模块化加载 -->
@@ -54,38 +53,36 @@
     initHandTracking();
 
     function initThree() {
-    scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 0, 2);
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(70, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
+      camera.position.set(0, 0, 2);
 
-    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
+      renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
 
-    const light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(1, 1, 1).normalize();
-    scene.add(light);
-  }
+      const light = new THREE.DirectionalLight(0xffffff, 1);
+      light.position.set(1, 1, 1).normalize();
+      scene.add(light);
+    }
 
-  function loadFoxModel() {
-    const loader = new GLTFLoader();
-    loader.load('./fox_rig_finished_walk_cycle_progressive_stop.glb', (gltf) => {
-      fox = gltf.scene;
-      fox.scale.set(0.4, 0.4, 0.4);
-      fox.position.set(0, 0, 0);
-      scene.add(fox);
+    function loadFoxModel() {
+      const loader = new GLTFLoader();
+      loader.load('fox_rig_finished_walk_cycle_progressive_stop.glb', (gltf) => {
+        fox = gltf.scene;
+        fox.scale.set(0.5, 0.5, 0.5);
+        fox.position.set(0, 0, 0);
+        scene.add(fox);
 
-      if (gltf.animations.length > 0) {
-        mixer = new THREE.AnimationMixer(fox);
-        mixer.clipAction(gltf.animations[0]).play();
-      }
+        if (gltf.animations.length > 0) {
+          mixer = new THREE.AnimationMixer(fox);
+          mixer.clipAction(gltf.animations[0]).play();
+        }
 
-      animate();
-    }, undefined, (error) => {
-      console.error('GLB 加载失败：', error);
-    });
-  }
-
+        animate();
+      }, undefined, (error) => {
+        console.error('GLB 加载失败：', error);
+      });
+    }
 
     function animate() {
       requestAnimationFrame(animate);
@@ -94,7 +91,7 @@
     }
 
     async function initHandTracking() {
-      const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
+      const hands = new Hands({ locateFile: (file) => https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file} });
       hands.setOptions({
         maxNumHands: 1,
         modelComplexity: 1,
@@ -109,7 +106,7 @@
           const y = -(hand[8].y - 0.5) * 2;
 
           // 让小狐狸逐渐靠近而非瞬移
-          fox.position.lerp(new THREE.Vector3(x, y, 0), 0.1);
+          fox.position.lerp(new THREE.Vector3(x, y, 0), 0.2);
         }
       });
 
@@ -121,14 +118,14 @@
       video.srcObject = stream;
       await video.play();
 
-    const cameraFeed = new Camera(video, {
-      onFrame: async () => await hands.send({ image: video }),
-      width: 640,
-      height: 480
-    });
-    cameraFeed.start();
-  }
-</script>
+      const cameraUtils = new Camera(video, {
+        onFrame: async () => await hands.send({ image: video }),
+        width: 640,
+        height: 480
+      });
+      cameraUtils.start();
+    }
+  </script>
 
   <!-- app.js 情绪识别逻辑 -->
   <script src="app.js"></script>
