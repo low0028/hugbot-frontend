@@ -5,6 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HugBot</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    body { margin: 0; overflow: hidden; font-family: Arial, sans-serif; background: #f0f0f0; }
+    #chat-container {
+      position: absolute; top: 10%; left: 5%; width: 30%; background: white;
+      border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 16px;
+    }
+    #chat-box {
+      height: 300px; overflow-y: auto; border-bottom: 1px solid #ccc;
+      margin-bottom: 10px;
+    }
+    #input-area { display: flex; }
+    #user-input { flex: 1; padding: 8px; }
+    #send-button { padding: 8px 16px; }
+    #three-canvas {
+      position: fixed; right: 0; top: 0; width: 65%; height: 100%; display: block;
+    }
+  </style>
 </head>
 <body>
   <div id="chat-container">
@@ -15,6 +32,93 @@
     </div>
   </div>
   <canvas id="three-canvas"></canvas>
+
+  <!-- THREE.js & GLTFLoader -->
+  <script type="module">
+    import * as THREE from 'https://cdn.skypack.dev/three';
+    import { GLTFLoader } from 'https://cdn.skypack.dev/three/examples/jsm/loaders/GLTFLoader.js';
+    import { OrbitControls } from 'https://cdn.skypack.dev/three/examples/jsm/controls/OrbitControls.js';
+    import { Hands } from 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js';
+    import { Camera } from 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js';
+
+    let scene, camera, renderer, fox, mixer;
+    const canvas = document.getElementById('three-canvas');
+
+    initThree();
+    loadModel();
+    initHandTracking();
+
+    function initThree() {
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.1, 1000);
+      camera.position.z = 2;
+
+      renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+
+      const light = new THREE.DirectionalLight(0xffffff, 1);
+      light.position.set(1, 1, 1).normalize();
+      scene.add(light);
+
+      animate();
+    }
+
+    function loadModel() {
+      const loader = new GLTFLoader();
+      loader.load('model.glb', (gltf) => {
+        fox = gltf.scene;
+        fox.scale.set(0.5, 0.5, 0.5);
+        fox.position.set(0, 0, 0);
+        scene.add(fox);
+
+        if (gltf.animations.length > 0) {
+          mixer = new THREE.AnimationMixer(fox);
+          mixer.clipAction(gltf.animations[0]).play();
+        }
+      });
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      if (mixer) mixer.update(0.01);
+      renderer.render(scene, camera);
+    }
+
+    async function initHandTracking() {
+      const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
+      hands.setOptions({
+        maxNumHands: 1,
+        modelComplexity: 1,
+        minDetectionConfidence: 0.8,
+        minTrackingConfidence: 0.8
+      });
+
+      hands.onResults(results => {
+        if (results.multiHandLandmarks.length > 0 && fox) {
+          const hand = results.multiHandLandmarks[0];
+          const x = hand[9].x - 0.5;
+          const y = -(hand[9].y - 0.5);
+          fox.position.set(x * 2, y * 2, 0);
+        }
+      });
+
+      const video = document.createElement('video');
+      video.style.display = 'none';
+      document.body.appendChild(video);
+
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      video.srcObject = stream;
+      await video.play();
+
+      const cameraUtils = new Camera(video, {
+        onFrame: async () => await hands.send({ image: video }),
+        width: 640,
+        height: 480
+      });
+      cameraUtils.start();
+    }
+  </script>
+
   <script src="app.js"></script>
 </body>
 </html>
