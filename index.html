@@ -1,267 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>HugBot AR - 手部交互测试</title>
+  <meta charset="UTF-8">
+  <title>GLB 模型测试</title>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      background: linear-gradient(to right, #dfe9f3 0%, white 100%);
-    }
-
-    #chat-container {
-      height: 35%;
-      background: rgba(255, 255, 255, 0.95);
-      padding: 15px;
-      display: flex;
-      flex-direction: column;
-      z-index: 10;
-    }
-
-    #chat-box {
-      flex: 1;
-      overflow-y: auto;
-      margin-bottom: 10px;
-    }
-
-    .message {
-      margin: 5px 0;
-      padding: 10px 14px;
-      border-radius: 18px;
-      max-width: 75%;
-    }
-
-    .user-message {
-      background: #4ecdc4;
-      color: white;
-      margin-left: auto;
-    }
-
-    .bot-message {
-      background: #f1f1f1;
-      color: #333;
-      margin-right: auto;
-    }
-
-    #input-area {
-      display: flex;
-      gap: 10px;
-    }
-
-    #user-input {
-      flex: 1;
-      padding: 10px;
-      border-radius: 20px;
-      border: 1px solid #ccc;
-    }
-
-    #send-button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 20px;
-      background: #ff6b6b;
-      color: white;
-      cursor: pointer;
-    }
-
-    #ar-container {
-      flex: 1;
-      position: relative;
-      display: none;
-    }
-
-    canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    video {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      z-index: -1;
-    }
-
-    #status-text {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      color: white;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 6px 10px;
-      border-radius: 6px;
-      z-index: 10;
-    }
-
-    #debug-panel {
-      position: fixed;
-      bottom: 10px;
-      left: 10px;
-      background: rgba(0, 0, 0, 0.7);
-      color: white;
-      padding: 10px;
-      border-radius: 8px;
-      z-index: 10000;
-    }
-
-    .debug-btn {
-      background: #4ecdc4;
-      color: white;
-      border: none;
-      padding: 6px 10px;
-      margin: 5px 0;
-      border-radius: 4px;
-      cursor: pointer;
-      display: block;
-    }
+    body { margin: 0; }
+    canvas { display: block; }
   </style>
 </head>
 <body>
-  <!-- 聊天界面 -->
-  <div id="chat-container">
-    <div id="chat-box">
-      <div class="message bot-message">AR测试模式 - 请输入"sad"来启动小狐狸虚拟拥抱体验 🦊</div>
-    </div>
-    <div id="input-area">
-      <input type="text" id="user-input" placeholder="输入'sad'测试..." />
-      <button id="send-button">发送</button>
-    </div>
-  </div>
+  <script type="module">
+    import * as THREE from 'https://cdn.skypack.dev/three';
+    import { GLTFLoader } from 'https://cdn.skypack.dev/three/examples/jsm/loaders/GLTFLoader.js';
+    import { OrbitControls } from 'https://cdn.skypack.dev/three/examples/jsm/controls/OrbitControls.js';
 
-  <!-- AR场景 -->
-  <div id="ar-container">
-    <video id="video" autoplay playsinline muted></video>
-    <div id="status-text">状态: 等待启动</div>
-    <canvas id="three-canvas"></canvas>
-  </div>
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xf0f0f0);
 
-  <!-- 调试按钮 -->
-  <div id="debug-panel">
-    <button class="debug-btn" onclick="startAR()">测试AR</button>
-    <button class="debug-btn" onclick="alert('模拟通知：你收到了一个虚拟拥抱 🧸')">测试通知</button>
-  </div>
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(1, 1.5, 2);
 
-  <!-- 加载 Three.js 与 GLTF -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/loaders/GLTFLoader.js"></script>
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
 
-  <!-- 加载 MediaPipe Hands -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
 
-  <script>
-    const video = document.getElementById("video");
-    const canvas = document.getElementById("three-canvas");
-    const statusText = document.getElementById("status-text");
-    const arContainer = document.getElementById("ar-container");
+    const light = new THREE.HemisphereLight(0xffffff, 0x444444);
+    light.position.set(0, 1, 0);
+    scene.add(light);
 
-    let scene, camera, renderer, fox, clock;
-    let mixer;
-
-    async function startAR() {
-      statusText.textContent = "状态: 启动摄像头中...";
-      arContainer.style.display = "block";
-
-      // 启动摄像头
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      video.srcObject = stream;
-
-      // 初始化Three.js
-      renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-
-      scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 1000);
-      camera.position.z = 5;
-
-      const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
-      scene.add(light);
-
-      clock = new THREE.Clock();
-
-      // 加载GLB模型
-      const loader = new THREE.GLTFLoader();
-      loader.load('fox_rig_finished_walk_cycle_progressive_stop.glb', glb => {
-        fox = glb.scene;
-        fox.scale.set(0.02, 0.02, 0.02);
-        scene.add(fox);
-
-        // 动画支持
-        mixer = new THREE.AnimationMixer(fox);
-        glb.animations.forEach(clip => mixer.clipAction(clip).play());
-
-        animate();
-      });
-
-      // 初始化MediaPipe Hands
-      const hands = new Hands({ locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
-      hands.setOptions({ maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: 0.7 });
-
-      hands.onResults(results => {
-        if (results.multiHandLandmarks.length > 0 && fox) {
-          const palm = results.multiHandLandmarks[0][0]; // index 0 是手腕
-          const x = (palm.x - 0.5) * 10;
-          const y = -(palm.y - 0.5) * 6;
-          fox.position.set(x, y, 0);
-        }
-      });
-
-      const mpCamera = new Camera(video, {
-        onFrame: async () => await hands.send({ image: video }),
-        width: 640,
-        height: 480
-      });
-      mpCamera.start();
-    }
+    const loader = new GLTFLoader();
+    loader.load(
+      'fox_rig_finished_walk_cycle_progressive_stop.glb',
+      gltf => {
+        const model = gltf.scene;
+        scene.add(model);
+        console.log("✅ 模型加载成功");
+      },
+      xhr => {
+        console.log(`加载中: ${(xhr.loaded / xhr.total * 100).toFixed(2)}%`);
+      },
+      error => {
+        console.error("❌ 模型加载失败：", error);
+      }
+    );
 
     function animate() {
       requestAnimationFrame(animate);
-      const delta = clock.getDelta();
-      if (mixer) mixer.update(delta);
-      if (renderer && scene && camera) {
-        renderer.render(scene, camera);
-      }
+      controls.update();
+      renderer.render(scene, camera);
     }
+    animate();
 
-    // 聊天逻辑
-    const sendBtn = document.getElementById("send-button");
-    const userInput = document.getElementById("user-input");
-    const chatBox = document.getElementById("chat-box");
-
-    sendBtn.addEventListener("click", () => {
-      const text = userInput.value.trim();
-      if (!text) return;
-
-      const userMsg = document.createElement("div");
-      userMsg.className = "message user-message";
-      userMsg.textContent = `You: ${text}`;
-      chatBox.appendChild(userMsg);
-
-      if (text.toLowerCase().includes("sad")) {
-        const botMsg = document.createElement("div");
-        botMsg.className = "message bot-message";
-        botMsg.textContent = "HugBot: 检测到情绪低落，为你召唤小狐狸抱抱 🦊...";
-        chatBox.appendChild(botMsg);
-
-        startAR();
-      } else {
-        const botMsg = document.createElement("div");
-        botMsg.className = "message bot-message";
-        botMsg.textContent = "HugBot: 我收到了你的消息~";
-        chatBox.appendChild(botMsg);
-      }
-
-      userInput.value = "";
-      chatBox.scrollTop = chatBox.scrollHeight;
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
     });
   </script>
 </body>
