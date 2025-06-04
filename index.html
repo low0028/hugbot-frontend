@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Starlight Companion - Emotional Support Chatbot</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Playfair+Display:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- 添加Chart.js库用于数据可视化 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     /* 全局样式 */
     * {
@@ -35,6 +37,96 @@
       z-index: 10;
       position: relative;
       transition: all 0.5s ease;
+    }
+    
+    /* 数据分析面板 */
+    #data-panel {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      width: 300px;
+      height: 300px;
+      background: rgba(25, 35, 65, 0.9);
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 0 15px rgba(101, 178, 230, 0.3);
+      z-index: 100;
+      display: none;
+      flex-direction: column;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(101, 178, 230, 0.3);
+    }
+    
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(101, 178, 230, 0.2);
+    }
+    
+    .panel-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #a8d8ff;
+    }
+    
+    .close-panel {
+      background: none;
+      border: none;
+      color: #65b2e6;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    
+    .data-content {
+      flex: 1;
+      overflow-y: auto;
+    }
+    
+    .data-section {
+      margin-bottom: 15px;
+    }
+    
+    .data-section h4 {
+      margin-bottom: 8px;
+      color: #65b2e6;
+      font-size: 1rem;
+    }
+    
+    .data-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+      font-size: 0.9rem;
+    }
+    
+    .data-chart {
+      height: 150px;
+      margin-top: 10px;
+    }
+    
+    .data-controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .data-btn {
+      flex: 1;
+      padding: 8px;
+      background: rgba(101, 178, 230, 0.2);
+      color: #a8d8ff;
+      border: 1px solid rgba(101, 178, 230, 0.3);
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s;
+    }
+    
+    .data-btn:hover {
+      background: rgba(101, 178, 230, 0.3);
     }
     
     /* 聊天框 */
@@ -425,6 +517,29 @@
       font-size: 14px;
     }
     
+    .data-toggle-btn {
+      position: absolute;
+      top: 20px;
+      right: 200px;
+      background: rgba(25, 35, 65, 0.7);
+      color: #a8d8ff;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 20px;
+      font-weight: 500;
+      cursor: pointer;
+      z-index: 30;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(101, 178, 230, 0.3);
+    }
+    
+    .data-toggle-btn:hover {
+      background: rgba(35, 55, 95, 0.9);
+      transform: translateY(-2px);
+    }
+    
     .emotion-dot {
       width: 12px;
       height: 12px;
@@ -479,6 +594,20 @@
         font-size: 12px;
         padding: 8px 12px;
       }
+      
+      .data-toggle-btn {
+        top: 10px;
+        right: 150px;
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+      
+      #data-panel {
+        width: 250px;
+        height: 250px;
+        bottom: 10px;
+        right: 10px;
+      }
     }
   </style>
 </head>
@@ -489,6 +618,8 @@
       <div class="emotion-dot"></div>
       <span>Emotion: Neutral</span>
     </div>
+    
+    <button class="data-toggle-btn" id="data-toggle-btn">📊 Data Panel</button>
     
     <div id="chat-box">
       <div class="message bot-message">
@@ -547,6 +678,43 @@
     </div>
   </div>
   
+  <!-- 数据分析面板 -->
+  <div id="data-panel">
+    <div class="panel-header">
+      <div class="panel-title">Experiment Data</div>
+      <button class="close-panel" id="close-panel">&times;</button>
+    </div>
+    <div class="data-content">
+      <div class="data-section">
+        <h4>Session Summary</h4>
+        <div class="data-item">
+          <span>Session Duration:</span>
+          <span id="session-duration">00:00</span>
+        </div>
+        <div class="data-item">
+          <span>Messages Sent:</span>
+          <span id="message-count">0</span>
+        </div>
+        <div class="data-item">
+          <span>Stars Captured:</span>
+          <span id="stars-captured">0</span>
+        </div>
+      </div>
+      
+      <div class="data-section">
+        <h4>Emotion Distribution</h4>
+        <div class="data-chart">
+          <canvas id="emotion-chart"></canvas>
+        </div>
+      </div>
+      
+      <div class="data-controls">
+        <button class="data-btn" id="export-data">Export Data</button>
+        <button class="data-btn" id="reset-data">Reset</button>
+      </div>
+    </div>
+  </div>
+  
   <!-- 通知 -->
   <div class="notification" id="notification">
     <span class="notification-icon">🌌</span>
@@ -560,6 +728,18 @@
     let capturedStars = 0;
     let starInterval;
     let currentEmotion = "neutral";
+    
+    // 实验数据收集
+    let experimentData = {
+      sessionStart: new Date(),
+      messages: [],
+      emotions: [],
+      sanctuaryVisits: 0,
+      starsCaptured: 0,
+      encouragementDisplayed: [],
+      lastSanctuaryEntry: null,
+      lastSanctuaryExit: null
+    };
     
     // 情感特定的鼓励语
     const encouragements = {
@@ -633,12 +813,170 @@
     const emotionIndicator = document.querySelector('.emotion-indicator');
     const emotionDot = document.querySelector('.emotion-dot');
     const emotionText = emotionIndicator.querySelector('span');
+    const dataPanel = document.getElementById('data-panel');
+    const dataToggleBtn = document.getElementById('data-toggle-btn');
+    const closePanel = document.getElementById('close-panel');
+    const exportDataBtn = document.getElementById('export-data');
+    const resetDataBtn = document.getElementById('reset-data');
+    const sessionDuration = document.getElementById('session-duration');
+    const messageCount = document.getElementById('message-count');
+    const starsCaptured = document.getElementById('stars-captured');
+    const emotionChartCtx = document.getElementById('emotion-chart').getContext('2d');
+    let emotionChart = null;
     
     // 更新情绪指示器
     function updateEmotionIndicator(emotion) {
       currentEmotion = emotion;
       emotionIndicator.className = `emotion-indicator emotion-${emotion}`;
       emotionText.textContent = `Emotion: ${emotion.charAt(0).toUpperCase() + emotion.slice(1)}`;
+    }
+    
+    // 记录数据点
+    function recordDataPoint(type, data) {
+      const timestamp = new Date();
+      
+      switch(type) {
+        case 'message':
+          experimentData.messages.push({
+            text: data.text,
+            sender: data.sender,
+            timestamp: timestamp.toISOString()
+          });
+          break;
+        case 'emotion':
+          experimentData.emotions.push({
+            emotion: data.emotion,
+            score: data.score,
+            trigger_hug: data.trigger_hug,
+            timestamp: timestamp.toISOString()
+          });
+          break;
+        case 'sanctuary_entry':
+          experimentData.sanctuaryVisits++;
+          experimentData.lastSanctuaryEntry = timestamp.toISOString();
+          break;
+        case 'sanctuary_exit':
+          experimentData.lastSanctuaryExit = timestamp.toISOString();
+          break;
+        case 'star_captured':
+          experimentData.starsCaptured++;
+          experimentData.encouragementDisplayed.push({
+            emotion: data.emotion,
+            text: data.text,
+            timestamp: timestamp.toISOString()
+          });
+          break;
+      }
+      
+      // 保存到localStorage
+      localStorage.setItem('experimentData', JSON.stringify(experimentData));
+      
+      // 更新UI
+      updateDataPanel();
+    }
+    
+    // 更新数据分析面板
+    function updateDataPanel() {
+      // 计算会话时长
+      const now = new Date();
+      const diff = Math.floor((now - experimentData.sessionStart) / 1000);
+      const minutes = Math.floor(diff / 60);
+      const seconds = diff % 60;
+      sessionDuration.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      
+      // 更新消息计数
+      messageCount.textContent = experimentData.messages.filter(m => m.sender === 'user').length;
+      
+      // 更新星星计数
+      starsCaptured.textContent = experimentData.starsCaptured;
+      
+      // 更新情绪图表
+      updateEmotionChart();
+    }
+    
+    // 更新情绪图表
+    function updateEmotionChart() {
+      // 统计各种情绪出现的次数
+      const emotionCounts = {
+        neutral: 0,
+        sadness: 0,
+        anger: 0,
+        anxiety: 0,
+        happiness: 0,
+        unknown: 0
+      };
+      
+      experimentData.emotions.forEach(emotion => {
+        emotionCounts[emotion.emotion] = (emotionCounts[emotion.emotion] || 0) + 1;
+      });
+      
+      const labels = Object.keys(emotionCounts);
+      const data = Object.values(emotionCounts);
+      
+      if (emotionChart) {
+        emotionChart.destroy();
+      }
+      
+      emotionChart = new Chart(emotionChartCtx, {
+        type: 'doughnut',
+        data: {
+          labels: labels.map(label => label.charAt(0).toUpperCase() + label.slice(1)),
+          datasets: [{
+            data: data,
+            backgroundColor: [
+              '#8aa2d8', // neutral
+              '#65b2e6', // sadness
+              '#FF6B6B', // anger
+              '#FFD166', // anxiety
+              '#4ECDC4', // happiness
+              '#A0A0A0'  // unknown
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      });
+    }
+    
+    // 导出实验数据
+    function exportExperimentData() {
+      const dataStr = JSON.stringify(experimentData, null, 2);
+      const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+      
+      const exportFileName = `experiment_data_${new Date().toISOString().slice(0, 10)}.json`;
+      
+      const linkElement = document.createElement('a');
+      linkElement.setAttribute('href', dataUri);
+      linkElement.setAttribute('download', exportFileName);
+      document.body.appendChild(linkElement);
+      linkElement.click();
+      document.body.removeChild(linkElement);
+    }
+    
+    // 重置实验数据
+    function resetExperimentData() {
+      if (confirm('Are you sure you want to reset all collected data?')) {
+        experimentData = {
+          sessionStart: new Date(),
+          messages: [],
+          emotions: [],
+          sanctuaryVisits: 0,
+          starsCaptured: 0,
+          encouragementDisplayed: [],
+          lastSanctuaryEntry: null,
+          lastSanctuaryExit: null
+        };
+        
+        localStorage.removeItem('experimentData');
+        updateDataPanel();
+      }
     }
     
     // 创建星空背景
@@ -870,6 +1208,12 @@
       encouragement.textContent = text;
       encouragement.style.opacity = 1;
       
+      // 记录星星捕获事件
+      recordDataPoint('star_captured', {
+        emotion: currentEmotion,
+        text: text
+      });
+      
       setTimeout(() => {
         encouragement.style.opacity = 0;
       }, 4000);
@@ -926,6 +1270,9 @@
       showNotification("Entering Starlight Sanctuary...");
       createStars();
       createMoonCraters();
+      
+      // 记录进入星际空间事件
+      recordDataPoint('sanctuary_entry');
     }
     
     // 返回聊天界面
@@ -933,6 +1280,9 @@
       starlightContainer.style.display = 'none';
       chatContainer.style.display = 'flex';
       showNotification("Returning to chat...");
+      
+      // 记录退出星际空间事件
+      recordDataPoint('sanctuary_exit');
     }
     
     // 连接到后端API进行情绪分析
@@ -998,6 +1348,14 @@
     
     // 初始化
     window.addEventListener('DOMContentLoaded', () => {
+      // 尝试从localStorage加载实验数据
+      const savedData = localStorage.getItem('experimentData');
+      if (savedData) {
+        experimentData = JSON.parse(savedData);
+        // 更新会话开始时间为当前时间
+        experimentData.sessionStart = new Date();
+      }
+      
       // 添加事件监听器
       sendButton.addEventListener('click', sendMessage);
       userInput.addEventListener('keypress', (e) => {
@@ -1009,9 +1367,27 @@
       makeWish.addEventListener('click', makeAWish);
       resetStars.addEventListener('click', resetStarlight);
       
+      // 数据面板控制
+      dataToggleBtn.addEventListener('click', () => {
+        dataPanel.style.display = dataPanel.style.display === 'flex' ? 'none' : 'flex';
+      });
+      
+      closePanel.addEventListener('click', () => {
+        dataPanel.style.display = 'none';
+      });
+      
+      exportDataBtn.addEventListener('click', exportExperimentData);
+      resetDataBtn.addEventListener('click', resetExperimentData);
+      
       // 初始创建星星和月亮（不显示）
       createStars();
       createMoonCraters();
+      
+      // 初始更新数据面板
+      updateDataPanel();
+      
+      // 设置定时器每10秒更新一次会话时长
+      setInterval(updateDataPanel, 10000);
       
       // 模拟初始加载
       setTimeout(() => {
@@ -1025,6 +1401,13 @@
       if (!text) return;
       
       appendMessage("You", text);
+      
+      // 记录用户消息
+      recordDataPoint('message', {
+        text: text,
+        sender: 'user'
+      });
+      
       userInput.value = "";
       
       try {
@@ -1036,9 +1419,18 @@
           updateEmotionIndicator(emotionData.emotion);
         }
         
+        // 记录情绪检测结果
+        recordDataPoint('emotion', emotionData);
+        
         // 获取聊天响应
         const chatResponse = await getChatResponse(text);
         appendMessage("Starlight Companion", chatResponse);
+        
+        // 记录AI回复
+        recordDataPoint('message', {
+          text: chatResponse,
+          sender: 'ai'
+        });
         
         // 如果检测到强烈情绪，建议进入星际空间
         const negativeEmotions = ['sad', 'anger', 'anxiety', 'fear'];
@@ -1048,6 +1440,12 @@
         if (shouldTriggerHug) {
           setTimeout(() => {
             appendMessage("Starlight Companion", "I sense you might benefit from a calming experience. Would you like to visit the Starlight Sanctuary?");
+            
+            // 记录AI回复
+            recordDataPoint('message', {
+              text: "I sense you might benefit from a calming experience. Would you like to visit the Starlight Sanctuary?",
+              sender: 'ai'
+            });
             
             // 添加选项按钮
             const optionsDiv = document.createElement('div');
@@ -1076,6 +1474,12 @@
             noBtn.addEventListener('click', () => {
               appendMessage("Starlight Companion", "Okay, I'm here whenever you're ready.");
               optionsDiv.remove();
+              
+              // 记录AI回复
+              recordDataPoint('message', {
+                text: "Okay, I'm here whenever you're ready.",
+                sender: 'ai'
+              });
             });
             
             optionsDiv.appendChild(yesBtn);
@@ -1087,6 +1491,12 @@
         }
       } catch (error) {
         appendMessage("Starlight Companion", "Oops! Something went wrong. Please try again.");
+        
+        // 记录错误消息
+        recordDataPoint('message', {
+          text: "Oops! Something went wrong. Please try again.",
+          sender: 'ai'
+        });
       }
     }
     
