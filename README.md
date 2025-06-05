@@ -10,7 +10,7 @@
 
 ## 文件结构
 frontend/
--index.html # 主界面
+- **index.html # 主界面
 -style.css # 样式文件
 app.js # 前端交互逻辑（核心代码）
 assets/ # 图片、星空背景等资源
