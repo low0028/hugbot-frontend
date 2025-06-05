@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
       logInteractionEvent('USER_MESSAGE', { text });
 
       // Step 1: 情绪识别
-      const emotionRes = await fetch("/emotion", {
+      const emotionRes = await fetch("https://low0028-hugbot-backend.hf.space/emotion", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text, session_id: userId })
@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // Step 2: 聊天回复
-      const chatRes = await fetch("/chat", {
+      const chatRes = await fetch("https://low0028-hugbot-backend.hf.space/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text, session_id: userId })
